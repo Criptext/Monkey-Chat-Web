@@ -20764,7 +20764,7 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	    value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -20798,362 +20798,539 @@
 	// jquery.knob.js
 	__webpack_require__(175);
 	var $ = __webpack_require__(176);
+
 	window.jQuery = $;
 	window.$ = $;
 
 	var Input = function (_Component) {
-		_inherits(Input, _Component);
+	    _inherits(Input, _Component);
 
-		function Input(props) {
-			_classCallCheck(this, Input);
+	    function Input(props) {
+	        _classCallCheck(this, Input);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Input).call(this, props));
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Input).call(this, props));
 
-			_this.state = {
-				classSendButton: 'mky-disappear',
-				classAudioButton: '',
-				classAudioArea: 'mky-disappear',
-				classCancelAudioButton: 'mky-disappear',
-				classAttachButton: '',
-				classTextArea: '',
-				minutes: '00',
-				seconds: '00',
-				files: null
-			};
-			_this.handleOnKeyUpTextArea = _this.handleOnKeyUpTextArea.bind(_this);
-			_this.handleOnKeyDownTextArea = _this.handleOnKeyDownTextArea.bind(_this);
-			_this.textMessageInput = _this.textMessageInput.bind(_this);
+	        _this.state = {
+	            classSendButton: 'mky-disappear',
+	            classAudioButton: '',
+	            classAudioArea: 'mky-disappear',
+	            classCancelAudioButton: 'mky-disappear',
+	            classAttachButton: '',
+	            classTextArea: '',
+	            minutes: '00',
+	            seconds: '00',
+	            files: null
+	        };
+	        _this.handleOnKeyUpTextArea = _this.handleOnKeyUpTextArea.bind(_this);
+	        _this.handleOnKeyDownTextArea = _this.handleOnKeyDownTextArea.bind(_this);
+	        _this.textMessageInput = _this.textMessageInput.bind(_this);
 
-			_this.handleRecordAudio = _this.handleRecordAudio.bind(_this);
-			_this.startRecordAudio = _this.startRecordAudio.bind(_this);
-			_this.onMediaSuccess = _this.onMediaSuccess.bind(_this);
-			_this.onMediaError = _this.onMediaError.bind(_this);
-			_this.handleCancelAudio = _this.handleCancelAudio.bind(_this);
-			_this.setTime = _this.setTime.bind(_this);
-			_this.clearAudioRecordTimer = _this.clearAudioRecordTimer.bind(_this);
-			_this.handleAttach = _this.handleAttach.bind(_this);
-			_this.onDrop = _this.onDrop.bind(_this);
-			_this.catchUpFile = _this.catchUpFile.bind(_this);
-			_this.getExtention = _this.getExtention.bind(_this);
-			_this.generateDataFile = _this.generateDataFile.bind(_this);
-			_this.mediaRecorder;
-			_this.micActivated;
-			_this.mediaConstraints = {
-				audio: true
-			};
-			_this.secondsRecording = 0;
-			_this.refreshIntervalId;
-			return _this;
-		}
+	        _this.handleRecordAudio = _this.handleRecordAudio.bind(_this);
+	        _this.startRecordAudio = _this.startRecordAudio.bind(_this);
+	        _this.onMediaSuccess = _this.onMediaSuccess.bind(_this);
+	        _this.onMediaError = _this.onMediaError.bind(_this);
+	        _this.handleCancelAudio = _this.handleCancelAudio.bind(_this);
+	        _this.setTime = _this.setTime.bind(_this);
+	        _this.clearAudioRecordTimer = _this.clearAudioRecordTimer.bind(_this);
+	        _this.handleAttach = _this.handleAttach.bind(_this);
+	        _this.onDrop = _this.onDrop.bind(_this);
+	        _this.catchUpFile = _this.catchUpFile.bind(_this);
+	        _this.getExtention = _this.getExtention.bind(_this);
+	        _this.generateDataFile = _this.generateDataFile.bind(_this);
+	        _this.sendMessage = _this.sendMessage.bind(_this);
+	        _this.buildAudio = _this.buildAudio.bind(_this);
+	        _this.buildMP3 = _this.buildMP3.bind(_this);
+	        _this.getFFMPEGWorker = _this.getFFMPEGWorker.bind(_this);
+	        _this.readData = _this.readData.bind(_this);
+	        _this.pauseAllAudio = _this.pauseAllAudio.bind(_this);
+	        _this.mediaRecorder;
+	        _this.micActivated;
+	        _this.mediaConstraints = {
+	            audio: true
+	        };
+	        _this.secondsRecording = 0;
+	        _this.refreshIntervalId;
+	        _this.typeMessageToSend = 0;
+	        _this.audioCaptured = {};
+	        _this.audioMessageOldId;
+	        _this.ffmpegRunning = false;
+	        _this.ffmpegWorker;
+	        return _this;
+	    }
 
-		_createClass(Input, [{
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(
-					'div',
-					{ id: 'mky-chat-input' },
-					_react2.default.createElement('div', { id: 'mky-divider-chat-input' }),
-					_react2.default.createElement(
-						'div',
-						{ className: 'mky-button-input ' + this.state.classAttachButton },
-						_react2.default.createElement('button', { id: 'mky-button-attach', className: 'mky-button-icon', onClick: this.handleAttach })
-					),
-					_react2.default.createElement(
-						'div',
-						{ className: 'mky-button-input ' + this.state.classCancelAudioButton },
-						_react2.default.createElement('button', { id: 'mky-button-cancel-audio', className: 'mky-button-icon', onClick: this.handleCancelAudio })
-					),
-					_react2.default.createElement('textarea', { ref: 'textareaInput', id: 'mky-message-text-input', className: 'mky-textarea-input ' + this.state.classTextArea, placeholder: 'Write a secure message', onKeyDown: this.handleOnKeyDownTextArea, onKeyUp: this.handleOnKeyUpTextArea }),
-					_react2.default.createElement(
-						'div',
-						{ id: 'mky-record-area', className: this.state.classAudioArea },
-						_react2.default.createElement(
-							'div',
-							{ className: 'mky-record-preview-area' },
-							_react2.default.createElement(
-								'div',
-								{ id: 'mky-button-action-record' },
-								_react2.default.createElement('button', { id: 'mky-button-start-record', className: 'mky-blink' })
-							),
-							_react2.default.createElement(
-								'div',
-								{ id: 'mky-time-recorder' },
-								_react2.default.createElement(
-									'span',
-									{ id: 'mky-minutes' },
-									this.state.minutes
-								),
-								_react2.default.createElement(
-									'span',
-									null,
-									':'
-								),
-								_react2.default.createElement(
-									'span',
-									{ id: 'mky-seconds' },
-									this.state.seconds
-								)
-							)
-						)
-					),
-					_react2.default.createElement(
-						'div',
-						{ className: 'mky-button-input ' + this.state.classSendButton },
-						_react2.default.createElement('button', { id: 'mky-button-send-message', className: 'mky-button-icon' })
-					),
-					_react2.default.createElement(
-						'div',
-						{ className: 'mky-button-input mky-disabledd ' + this.state.classAudioButton },
-						_react2.default.createElement('button', { id: 'mky-button-record-audio', className: 'mky-button-icon', onClick: this.handleRecordAudio })
-					),
-					_react2.default.createElement(
-						_reactDropzone2.default,
-						{ ref: 'dropzone', className: 'mky-disappear', onDrop: this.onDrop },
-						_react2.default.createElement(
-							'div',
-							null,
-							'Try dropping some files here, or click to select files to upload.'
-						)
-					)
-				);
-			}
-		}, {
-			key: 'textMessageInput',
-			value: function textMessageInput(text) {
-				var message = {
-					type: 1,
-					text: text
-				};
-				this.props.messageToSet(message);
-			}
-		}, {
-			key: 'handleOnKeyDownTextArea',
-			value: function handleOnKeyDownTextArea(e) {
-				if (e.key === 'Enter' && !e.shiftKey) {
-					console.log('enter');
-					this.textMessageInput(e.target.value);
-					this.refs.textareaInput.value = '';
-					return false;
-				}
-			}
-		}, {
-			key: 'handleOnKeyUpTextArea',
-			value: function handleOnKeyUpTextArea(e) {
-				if (e.key === 'Enter' && !e.shiftKey) {
-					this.refs.textareaInput.value = '';
-					return false;
-				}
-			}
-		}, {
-			key: 'handleRecordAudio',
-			value: function handleRecordAudio() {
-				this.setState({
-					classAudioArea: 'mky-appear',
-					classCancelAudioButton: '',
-					classAttachButton: 'mky-disappear',
-					classSendButton: '',
-					classTextArea: 'mky-disappear',
-					classAudioButton: 'mky-disappear'
-				});
-				this.startRecordAudio();
-			}
-		}, {
-			key: 'startRecordAudio',
-			value: function startRecordAudio() {
-				if (this.mediaRecorder == null) {
-					if (!this.micActivated) {
-						window.navigator.getUserMedia(this.mediaConstraints, this.onMediaSuccess, this.onMediaError);
-						this.micActivated = !this.micActivated;
-					} else {
-						this.onMediaSuccess(this.mediaConstraints);
-						pauseAllAudio('');
-					}
-				}
-			}
+	    _createClass(Input, [{
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                'div',
+	                { id: 'mky-chat-input' },
+	                _react2.default.createElement('div', { id: 'mky-divider-chat-input' }),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'mky-button-input ' + this.state.classAttachButton },
+	                    _react2.default.createElement('button', { id: 'mky-button-attach', className: 'mky-button-icon', onClick: this.handleAttach })
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'mky-button-input ' + this.state.classCancelAudioButton },
+	                    _react2.default.createElement('button', { id: 'mky-button-cancel-audio', className: 'mky-button-icon', onClick: this.handleCancelAudio })
+	                ),
+	                _react2.default.createElement('textarea', { ref: 'textareaInput', id: 'mky-message-text-input', className: 'mky-textarea-input ' + this.state.classTextArea, placeholder: 'Write a secure message', onKeyDown: this.handleOnKeyDownTextArea, onKeyUp: this.handleOnKeyUpTextArea }),
+	                _react2.default.createElement(
+	                    'div',
+	                    { id: 'mky-record-area', className: this.state.classAudioArea },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'mky-record-preview-area' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { id: 'mky-button-action-record' },
+	                            _react2.default.createElement('button', { id: 'mky-button-start-record', className: 'mky-blink' })
+	                        ),
+	                        _react2.default.createElement(
+	                            'div',
+	                            { id: 'mky-time-recorder' },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { id: 'mky-minutes' },
+	                                this.state.minutes
+	                            ),
+	                            _react2.default.createElement(
+	                                'span',
+	                                null,
+	                                ':'
+	                            ),
+	                            _react2.default.createElement(
+	                                'span',
+	                                { id: 'mky-seconds' },
+	                                this.state.seconds
+	                            )
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'mky-button-input ' + this.state.classSendButton },
+	                    _react2.default.createElement('button', { id: 'mky-button-send-message', className: 'mky-button-icon', onClick: this.sendMessage })
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'mky-button-input mky-disabledd ' + this.state.classAudioButton },
+	                    _react2.default.createElement('button', { id: 'mky-button-record-audio', className: 'mky-button-icon', onClick: this.handleRecordAudio })
+	                ),
+	                _react2.default.createElement(
+	                    _reactDropzone2.default,
+	                    { ref: 'dropzone', className: 'mky-disappear', onDrop: this.onDrop },
+	                    _react2.default.createElement(
+	                        'div',
+	                        null,
+	                        'Try dropping some files here, or click to select files to upload.'
+	                    )
+	                )
+	            );
+	        }
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            this.ffmpegWorker = this.getFFMPEGWorker();
+	        }
+	    }, {
+	        key: 'textMessageInput',
+	        value: function textMessageInput(text) {
+	            var message = {
+	                type: 1,
+	                text: text
+	            };
+	            this.props.messageToSet(message);
+	        }
+	    }, {
+	        key: 'handleOnKeyDownTextArea',
+	        value: function handleOnKeyDownTextArea(e) {
+	            if (e.key === 'Enter' && !e.shiftKey) {
+	                console.log('enter');
+	                this.textMessageInput(e.target.value);
+	                this.refs.textareaInput.value = '';
+	                return false;
+	            }
+	        }
+	    }, {
+	        key: 'handleOnKeyUpTextArea',
+	        value: function handleOnKeyUpTextArea(e) {
+	            this.typeMessageToSend = 0;
+	            if (e.key === 'Enter' && !e.shiftKey) {
+	                this.refs.textareaInput.value = '';
+	                return false;
+	            }
+	        }
+	    }, {
+	        key: 'handleRecordAudio',
+	        value: function handleRecordAudio() {
+	            this.setState({
+	                classAudioArea: 'mky-appear',
+	                classCancelAudioButton: '',
+	                classAttachButton: 'mky-disappear',
+	                classSendButton: '',
+	                classTextArea: 'mky-disappear',
+	                classAudioButton: 'mky-disappear'
+	            });
+	            this.startRecordAudio();
+	        }
+	    }, {
+	        key: 'startRecordAudio',
+	        value: function startRecordAudio() {
+	            this.typeMessageToSend = 1;
 
-			// if the browser can record, this is executed
+	            if (this.mediaRecorder == null) {
+	                if (!this.micActivated) {
+	                    window.navigator.getUserMedia(this.mediaConstraints, this.onMediaSuccess, this.onMediaError);
+	                    this.micActivated = !this.micActivated;
+	                } else {
+	                    this.onMediaSuccess(this.mediaConstraints);
+	                    this.pauseAllAudio('');
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'onMediaSuccess',
+	        value: function onMediaSuccess(stream) {
+	            //default settings to record
+	            this.mediaRecorder = new MediaStreamRecorder(stream);
+	            this.mediaRecorder.mimeType = 'audio/wav';
+	            this.mediaRecorder.audioChannels = 1;
+	            var that = this;
+	            this.mediaRecorder.ondataavailable = function (blob) {
+	                that.clearAudioRecordTimer();
+	                var timestamp = new Date().getTime();
+	                that.audioCaptured.blob = blob; //need to save the raw data
+	                that.audioCaptured.src = URL.createObjectURL(blob); // need to save de URLdata
+	            };
 
-		}, {
-			key: 'onMediaSuccess',
-			value: function onMediaSuccess(stream) {
-				//default settings to record
-				this.mediaRecorder = new MediaStreamRecorder(stream);
-				this.mediaRecorder.mimeType = 'audio/wav';
-				this.mediaRecorder.audioChannels = 1;
-				this.mediaRecorder.ondataavailable = function (blob) {
-					this.clearAudioRecordTimer();
-					var timestamp = new Date().getTime();
-					audioCaptured.blob = blob; //need to save the raw data
-					audioCaptured.src = URL.createObjectURL(blob); // need to save de URLdata
-				};
+	            this.refreshIntervalId = setInterval(this.setTime, 1000); //start recording timer
+	            this.mediaRecorder.start(99999999999); //starts recording
+	        }
+	    }, {
+	        key: 'onMediaError',
+	        value: function onMediaError(e) {
+	            console.error('media error', e);
+	        }
+	    }, {
+	        key: 'setTime',
+	        value: function setTime() {
+	            console.log(this.secondsRecording);
+	            ++this.secondsRecording;
+	            var seconds = ("0" + this.secondsRecording % 60).slice(-2);
+	            this.setState({ seconds: seconds });
+	            var minutes = ("0" + parseInt(this.secondsRecording / 60)).slice(-2);
+	            this.setState({ minutes: minutes });
+	        }
+	    }, {
+	        key: 'handleCancelAudio',
+	        value: function handleCancelAudio() {
+	            this.setState({
+	                classAudioArea: 'mky-disappear',
+	                classCancelAudioButton: 'mky-disappear',
+	                classAttachButton: '',
+	                classSendButton: 'mky-disappear',
+	                classTextArea: '',
+	                classAudioButton: ''
+	            });
+	            this.clearAudioRecordTimer();
+	            this.mediaRecorder = null;
+	        }
+	    }, {
+	        key: 'sendMessage',
+	        value: function sendMessage() {
+	            console.log('SEND MESSAGE this.typeMessageToSend = ', this.typeMessageToSend);
+	            switch (this.typeMessageToSend) {
+	                case 0:
+	                    console.log('MESSAGE = 0');
+	                    this.textMessageInput(e.target.value);
+	                    break;
+	                case 1:
+	                    console.log('AUDIO = 1');
+	                    if (this.mediaRecorder != null) {
+	                        this.mediaRecorder.stop(); //detiene la grabacion del audio
+	                    }
+	                    this.audioCaptured.duration = this.secondsRecording;
+	                    //      monkeyUI.showChatInput();
+	                    this.buildAudio();
+	                    //      mediaRecorder = null;
+	                    this.handleCancelAudio();
+	                    break;
+	                case 3:
+	                    console.log('IMAGE = 3');
+	                    break;
+	                case 4:
+	                    console.log('FILE = 4');
+	                    break;
+	                default:
+	                    console.log('this.typeMessageToSend = default');
+	                    break;
+	            }
+	        }
+	    }, {
+	        key: 'clearAudioRecordTimer',
+	        value: function clearAudioRecordTimer() {
+	            this.secondsRecording = 0;
+	            clearInterval(this.refreshIntervalId);
+	            this.setState({
+	                seconds: '00',
+	                minutes: '00'
+	            });
+	        }
+	    }, {
+	        key: 'buildAudio',
+	        value: function buildAudio() {
+	            // if (globalAudioPreview != null) pauseAudioPrev();
 
-				this.refreshIntervalId = setInterval(this.setTime, 1000); //start recording timer
-				this.mediaRecorder.start(99999999999); //starts recording
-			}
-		}, {
-			key: 'onMediaError',
-			value: function onMediaError(e) {
-				console.error('media error', e);
-			}
-		}, {
-			key: 'setTime',
-			value: function setTime() {
-				console.log(this.secondsRecording);
-				++this.secondsRecording;
-				var seconds = ("0" + this.secondsRecording % 60).slice(-2);
-				this.setState({ seconds: seconds });
-				var minutes = ("0" + parseInt(this.secondsRecording / 60)).slice(-2);
-				this.setState({ minutes: minutes });
-			}
-		}, {
-			key: 'handleCancelAudio',
-			value: function handleCancelAudio() {
-				this.setState({
-					classAudioArea: 'mky-disappear',
-					classCancelAudioButton: 'mky-disappear',
-					classAttachButton: '',
-					classSendButton: 'mky-disappear',
-					classTextArea: '',
-					classAudioButton: ''
-				});
-				this.clearAudioRecordTimer();
-				/*
-	   		let audio = document.getElementById('audio_'+timestampPrev);
-	           if (audio != null)
-	               audio.pause();
-	   */
-				this.mediaRecorder = null;
-			}
-		}, {
-			key: 'clearAudioRecordTimer',
-			value: function clearAudioRecordTimer() {
-				this.secondsRecording = 0; //encera el timer
-				clearInterval(this.refreshIntervalId);
-				this.setState({
-					seconds: '00',
-					minutes: '00'
-				});
-			}
-		}, {
-			key: 'handleAttach',
-			value: function handleAttach() {
-				this.refs.dropzone.open();
-			}
-		}, {
-			key: 'onDrop',
-			value: function onDrop(files) {
-				//this.setState({files: files});
-				var _file = void 0;
-				files.map(function (file) {
-					return _file = file;
-				});
-				this.catchUpFile(_file);
-			}
-		}, {
-			key: 'catchUpFile',
-			value: function catchUpFile(file) {
-				//console.log(file);
-				//fileCaptured.file = file;
-				//console.log(fileCaptured.file)
-				//fileCaptured.ext = this.getExtention(fileCaptured.file);
-				//let type = checkExtention(file);
-				this.generateDataFile(file);
-				/*
-	           if (type >= 1 && type <= 4) {
-	               //typeMessageToSend = 4;
-	               //fileCaptured.monkeyFileType = 4;
-	               
-	           } else if (type == 6) {
-	               //typeMessageToSend = 3;
-	               //fileCaptured.monkeyFileType = 3;
-	               this.generateDataFile(file);
-	               //return;
-	           } else {
-	               //return false;
-	           }
-	   */
-			}
-		}, {
-			key: 'generateDataFile',
-			value: function generateDataFile(file) {
-				var _this2 = this;
+	            this.audioMessageOldId = Math.round(new Date().getTime() / 1000 * -1);
+	            // drawAudioMessageBubbleTemporal(this.audioCaptured.src, { id: this.audioMessageOldId, timestamp: Math.round(new Date().getTime() / 1000) }, this.audioCaptured.duration);
+	            // disabledAudioButton(true);
+	            var that = this;
+	            FileAPI.readAsArrayBuffer(this.audioCaptured.blob, function (evt) {
+	                if (evt.type == 'load') {
+	                    that.buildMP3('audio_.wav', evt.result);
+	                } else if (evt.type == 'progress') {
+	                    var pr = evt.loaded / evt.total * 100;
+	                } else {/* Error*/}
+	            });
+	        }
+	    }, {
+	        key: 'buildMP3',
+	        value: function buildMP3(fileName, fileBuffer) {
+	            if (this.ffmpegRunning) {
+	                this.ffmpegWorker.terminate();
+	                this.ffmpegWorker = this.getFFMPEGWorker();
+	            }
 
-				FileAPI.readAsDataURL(file, function (evt) {
-					if (evt.type == 'load') {
-						console.log(file);
-						console.log(evt);
-						var message = { data: evt.result };
+	            this.ffmpegRunning = true;
+	            var fileNameExt = fileName.substr(fileName.lastIndexOf('.') + 1);
+	            var outFileName = fileName.substr(0, fileName.lastIndexOf('.')) + "." + "mp3";
+	            var _arguments = [];
+	            _arguments.push("-i");
+	            _arguments.push(fileName);
+	            _arguments.push("-b:a");
+	            _arguments.push('128k');
+	            _arguments.push("-acodec");
+	            _arguments.push("libmp3lame");
+	            _arguments.push("out.mp3");
 
-						var type = _this2.checkExtention(file);
-						switch (type) {
-							case 1:
-								{
-									message.type = 2;
-									break;
-								}
-							case 2:
-								{
-									message.type = 3;
-									break;
-								}
-						}
+	            this.ffmpegWorker.postMessage({
+	                type: "command",
+	                arguments: _arguments,
+	                files: [{
+	                    "name": fileName,
+	                    "buffer": fileBuffer
+	                }]
+	            });
+	        }
+	    }, {
+	        key: 'getFFMPEGWorker',
+	        value: function getFFMPEGWorker() {
 
-						_this2.props.messageToSet(message);
-						//fileCaptured.src = evt.result;
-						//$('#mky-button-send-message').click();
-					}
-				});
-			}
-		}, {
-			key: 'getExtention',
-			value: function getExtention(file) {
-				var arr = file.name.split('.');
-				var extension = arr[arr.length - 1];
-				return extension;
-			}
-		}, {
-			key: 'checkExtention',
-			value: function checkExtention(files) {
-				var ft = 0; //fileType by extention
+	            var response = "importScripts('https://cdn.criptext.com/MonkeyUI/scripts/ffmpeg.js');function print(text) {postMessage({'type' : 'stdout', 'data' : text});}function printErr(text) {postMessage({'type' :'stderr', 'data' : text});}var now = Date.now; onmessage = function(event) { var message = event.data; if (message.type === \"command\") { var Module = { print: print, printErr: print, files: message.files || [], arguments: message.arguments || [], TOTAL_MEMORY: message.TOTAL_MEMORY || false }; postMessage({ 'type' : 'start', 'data' : Module.arguments.join(\" \")}); postMessage({ 'type' : 'stdout', 'data' : 'Received command: ' + Module.arguments.join(\" \") + ((Module.TOTAL_MEMORY) ? \".  Processing with \" + Module.TOTAL_MEMORY + \" bits.\" : \"\")}); var time = now(); var result = ffmpeg_run(Module); var totalTime = now() - time; postMessage({'type' : 'stdout', 'data' : 'Finished processing (took ' + totalTime + 'ms)'}); postMessage({ 'type' : 'done', 'data' : result, 'time' : totalTime});}};postMessage({'type' : 'ready'});";
 
-				/*
-	           var doc=["doc","docx"]; //1
-	           var pdf=["pdf"]; //2
-	           var xls=["xls", "xlsx"]; //3
-	           var ppt=["ppt","pptx"]; //4
-	   */
+	            window.URL = window.URL || window.webkitURL;
+	            var blobWorker;
+	            try {
+	                blobWorker = new Blob([response], { type: 'application/javascript' });
+	            } catch (e) {
+	                // Backwards-compatibility
+	                window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+	                blob = new BlobBuilder();
+	                blob.append(response);
+	                blob = blob.getBlob();
+	            }
 
-				var file = ["doc", "docx", "pdf", "xls", "xlsx", "ppt", "pptx"];
-				var img = ["jpe", "jpeg", "jpg", "png", "gif"]; //6
+	            var ffmpegWorker = new Worker(URL.createObjectURL(blobWorker));
+	            var that = this;
+	            ffmpegWorker.onmessage = function (event) {
+	                var message = event.data;
 
-				var extension = this.getExtention(files);
+	                if (message.type === "ready" && window.File && window.FileList && window.FileReader) {} else if (message.type == "stdout") {
+	                    // console.log(message.data);
+	                } else if (message.type == "stderr") {} else if (message.type == "done") {
+	                        var code = message.data.code;
+	                        var outFileNames = Object.keys(message.data.outputFiles);
 
-				/*
-	           if((doc.indexOf(extension)>-1)){
-	               ft=1;
-	           }
-	           if(xls.indexOf(extension)>-1){
-	               ft=3;
-	           }
-	           if(pdf.indexOf(extension)>-1){
-	               ft=2;
-	           }
-	           if(ppt.indexOf(extension)>-1){
-	               ft=4;
-	           }
-	   */
+	                        if (code == 0 && outFileNames.length) {
 
-				if (img.indexOf(extension) > -1) {
-					ft = 1;
-				} else if (file.indexOf(extension) > -1) {
-					ft = 2;
-				}
+	                            var outFileName = outFileNames[0];
+	                            var outFileBuffer = message.data.outputFiles[outFileName];
+	                            var mp3Blob = new Blob([outFileBuffer]);
+	                            // var src = window.URL.createObjectURL(mp3Blob);
+	                            that.readData(mp3Blob);
+	                        } else {
+	                            console.log('hubo un error');
+	                        }
+	                    }
+	            };
+	            return ffmpegWorker;
+	        }
+	    }, {
+	        key: 'readData',
+	        value: function readData(mp3Blob) {
+	            // read mp3 audio
+	            console.log(mp3Blob);
 
-				return ft;
-			}
-		}]);
+	            var that = this;
 
-		return Input;
+	            FileAPI.readAsDataURL(mp3Blob, function (evt) {
+	                if (evt.type == 'load') {
+	                    // disabledAudioButton(false);
+	                    //var dataURL = evt.result;
+	                    var _src = evt.result;
+	                    var _dataSplit = _src.split(',');
+	                    var _data = _dataSplit[1];
+	                    that.audioCaptured.src = 'data:audio/mpeg;base64,' + _data;
+	                    that.audioCaptured.monkeyFileType = 1;
+	                    that.audioCaptured.oldId = that.audioMessageOldId;
+	                    that.audioCaptured.type = 'audio/mpeg';
+
+	                    // $(monkeyUI).trigger('audioMessage', this.audioCaptured);
+	                    var message = { data: that.audioCaptured.src, type: 4 };
+	                    that.props.messageToSet(message);
+	                } else if (evt.type == 'progress') {
+	                    var pr = evt.loaded / evt.total * 100;
+	                } else {/*Error*/}
+	            });
+	        }
+	    }, {
+	        key: 'pauseAllAudio',
+	        value: function pauseAllAudio() {
+	            clearInterval(window.playIntervalBubble);
+	            var that = this;
+	            document.addEventListener('play', function (e) {
+	                var audios = document.getElementsByTagName('audio');
+	                for (var i = 0, len = audios.length; i < len; i++) {
+	                    if (audios[i] != e.target) {
+	                        audios[i].pause();
+	                        $('.mky-bubble-audio-button').hide();
+	                        $('.mky-bubble-audio-play-button').show();
+	                    }
+	                }
+	            }, true);
+	        }
+	    }, {
+	        key: 'handleAttach',
+	        value: function handleAttach() {
+	            this.refs.dropzone.open();
+	        }
+	    }, {
+	        key: 'onDrop',
+	        value: function onDrop(files) {
+	            //this.setState({files: files});
+	            var _file = void 0;
+	            files.map(function (file) {
+	                return _file = file;
+	            });
+	            this.catchUpFile(_file);
+	        }
+	    }, {
+	        key: 'catchUpFile',
+	        value: function catchUpFile(file) {
+	            //console.log(file);
+	            //fileCaptured.file = file;
+	            //console.log(fileCaptured.file)
+	            //fileCaptured.ext = this.getExtention(fileCaptured.file);
+	            //let type = checkExtention(file);
+	            this.generateDataFile(file);
+	            /*
+	                   if (type >= 1 && type <= 4) {
+	                       //typeMessageToSend = 4;
+	                       //fileCaptured.monkeyFileType = 4;
+	                       
+	                   } else if (type == 6) {
+	                       //typeMessageToSend = 3;
+	                       //fileCaptured.monkeyFileType = 3;
+	                       this.generateDataFile(file);
+	                       //return;
+	                   } else {
+	                       //return false;
+	                   }
+	            */
+	        }
+	    }, {
+	        key: 'generateDataFile',
+	        value: function generateDataFile(file) {
+	            var _this2 = this;
+
+	            FileAPI.readAsDataURL(file, function (evt) {
+	                if (evt.type == 'load') {
+	                    console.log(file);
+	                    console.log(evt);
+	                    var message = { data: evt.result };
+
+	                    var type = _this2.checkExtention(file);
+	                    switch (type) {
+	                        case 1:
+	                            {
+	                                message.type = 2;
+	                                break;
+	                            }
+	                        case 2:
+	                            {
+	                                message.type = 3;
+	                                break;
+	                            }
+	                    }
+
+	                    _this2.props.messageToSet(message);
+	                    //fileCaptured.src = evt.result;
+	                    //$('#mky-button-send-message').click();
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'getExtention',
+	        value: function getExtention(file) {
+	            var arr = file.name.split('.');
+	            var extension = arr[arr.length - 1];
+	            return extension;
+	        }
+	    }, {
+	        key: 'checkExtention',
+	        value: function checkExtention(files) {
+	            var ft = 0; //fileType by extention
+
+	            /*
+	                    var doc=["doc","docx"]; //1
+	                    var pdf=["pdf"]; //2
+	                    var xls=["xls", "xlsx"]; //3
+	                    var ppt=["ppt","pptx"]; //4
+	            */
+
+	            var file = ["doc", "docx", "pdf", "xls", "xlsx", "ppt", "pptx"];
+	            var img = ["jpe", "jpeg", "jpg", "png", "gif"]; //1
+
+	            var extension = this.getExtention(files);
+
+	            /*
+	                    if((doc.indexOf(extension)>-1)){
+	                        ft=1;
+	                    }
+	                    if(xls.indexOf(extension)>-1){
+	                        ft=3;
+	                    }
+	                    if(pdf.indexOf(extension)>-1){
+	                        ft=2;
+	                    }
+	                    if(ppt.indexOf(extension)>-1){
+	                        ft=4;
+	                    }
+	            */
+
+	            if (img.indexOf(extension) > -1) {
+	                ft = 1;
+	            } else if (file.indexOf(extension) > -1) {
+	                ft = 2;
+	            }
+
+	            return ft;
+	        }
+	    }]);
+
+	    return Input;
 	}(_react.Component);
 
 	exports.default = Input;

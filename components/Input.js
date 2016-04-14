@@ -14,6 +14,7 @@ require('fileapi/dist/FileAPI.min.js');
 // jquery.knob.js
 require('jquery-knob/dist/jquery.knob.min.js');
 var $ = require('jquery');
+
 window.jQuery = $;
 window.$ = $;
 
@@ -47,6 +48,12 @@ class Input extends Component {
 		this.catchUpFile = this.catchUpFile.bind(this);
 		this.getExtention = this.getExtention.bind(this);
 		this.generateDataFile = this.generateDataFile.bind(this);
+		this.sendMessage = this.sendMessage.bind(this);
+		this.buildAudio = this.buildAudio.bind(this);
+		this.buildMP3 = this.buildMP3.bind(this);
+		this.getFFMPEGWorker = this.getFFMPEGWorker.bind(this);
+		this.readData = this.readData.bind(this);
+		this.pauseAllAudio = this.pauseAllAudio.bind(this);
 		this.mediaRecorder;
 		this.micActivated;
 		this.mediaConstraints = {
@@ -54,6 +61,11 @@ class Input extends Component {
 		};
 		this.secondsRecording = 0;
 		this.refreshIntervalId;
+		this.typeMessageToSend = 0; 
+		this.audioCaptured= {};
+		this.audioMessageOldId;
+		this.ffmpegRunning = false;
+		this.ffmpegWorker;
 	}
 	
 	render() {
@@ -78,7 +90,7 @@ class Input extends Component {
 					</div>
 				</div>
 				<div className={'mky-button-input '+this.state.classSendButton}>
-					<button id="mky-button-send-message" className="mky-button-icon"></button>
+					<button id="mky-button-send-message" className="mky-button-icon" onClick={this.sendMessage}></button>
 				</div>
 				<div className={'mky-button-input mky-disabledd '+this.state.classAudioButton}>
 					<button id="mky-button-record-audio" className="mky-button-icon" onClick={this.handleRecordAudio}></button>
@@ -88,6 +100,10 @@ class Input extends Component {
 	            </Dropzone>
 			</div>
 		);
+	}
+
+	componentDidMount() {
+		this.ffmpegWorker = this.getFFMPEGWorker();
 	}
 	
 	textMessageInput(text) {
@@ -108,6 +124,7 @@ class Input extends Component {
 	}
 	
 	handleOnKeyUpTextArea(e) {
+		this.typeMessageToSend = 0;
 		if (e.key === 'Enter' && !e.shiftKey){
 			this.refs.textareaInput.value = '';
 			return false;
@@ -127,28 +144,31 @@ class Input extends Component {
 	}
 	
 	startRecordAudio() {
+		this.typeMessageToSend = 1;
+
         if (this.mediaRecorder == null) {
             if (!this.micActivated) {
                 window.navigator.getUserMedia(this.mediaConstraints, this.onMediaSuccess, this.onMediaError);
                 this.micActivated=!this.micActivated;
             }else{
                 this.onMediaSuccess(this.mediaConstraints);
-                pauseAllAudio ('');
+                this.pauseAllAudio ('');
             }
         }
-    }
+    }   
     
-    // if the browser can record, this is executed
+    
     onMediaSuccess(stream) {
         //default settings to record
         this.mediaRecorder = new MediaStreamRecorder(stream);
         this.mediaRecorder.mimeType = 'audio/wav';
         this.mediaRecorder.audioChannels = 1;
+        var that = this;
         this.mediaRecorder.ondataavailable = function (blob) {
-            this.clearAudioRecordTimer();
+            that.clearAudioRecordTimer();
             var timestamp = new Date().getTime();
-            audioCaptured.blob = blob; //need to save the raw data
-            audioCaptured.src = URL.createObjectURL(blob); // need to save de URLdata
+            that.audioCaptured.blob = blob; //need to save the raw data
+            that.audioCaptured.src = URL.createObjectURL(blob); // need to save de URLdata
         };
 
         this.refreshIntervalId = setInterval(this.setTime, 1000);//start recording timer
@@ -178,21 +198,175 @@ class Input extends Component {
 			classAudioButton: ''
 		});
 		this.clearAudioRecordTimer();
-/*
-		let audio = document.getElementById('audio_'+timestampPrev);
-        if (audio != null)
-            audio.pause();
-*/
         this.mediaRecorder = null;
+    }
+
+    sendMessage(){
+    	console.log('SEND MESSAGE this.typeMessageToSend = ', this.typeMessageToSend)
+    	switch (this.typeMessageToSend) {
+            case 0:
+     			console.log('MESSAGE = 0');
+     			this.textMessageInput(e.target.value);
+     			break;
+            case 1:
+            	console.log('AUDIO = 1');
+            	if (this.mediaRecorder != null) {
+                    this.mediaRecorder.stop(); //detiene la grabacion del audio
+                }
+                this.audioCaptured.duration = this.secondsRecording;
+	               //      monkeyUI.showChatInput();
+	            this.buildAudio();
+	               //      mediaRecorder = null;
+                this.handleCancelAudio()
+            	break;
+            case 3:
+				console.log('IMAGE = 3');
+				break;
+            case 4:
+            	console.log('FILE = 4');
+            	break;
+            default:
+            	console.log('this.typeMessageToSend = default');
+                break;
+        }
     }
     
     clearAudioRecordTimer() {
-        this.secondsRecording = 0; //encera el timer
+        this.secondsRecording = 0;
         clearInterval(this.refreshIntervalId);
         this.setState({
 			seconds: '00',
 	        minutes: '00'
 		});
+    }
+
+    buildAudio() {
+        // if (globalAudioPreview != null) pauseAudioPrev();
+
+        this.audioMessageOldId = Math.round(new Date().getTime() / 1000 * -1);
+        // drawAudioMessageBubbleTemporal(this.audioCaptured.src, { id: this.audioMessageOldId, timestamp: Math.round(new Date().getTime() / 1000) }, this.audioCaptured.duration);
+        // disabledAudioButton(true);
+        var that = this;
+        FileAPI.readAsArrayBuffer(this.audioCaptured.blob, function (evt) {
+            if (evt.type == 'load') {
+                that.buildMP3('audio_.wav', evt.result);
+            } else if (evt.type == 'progress') {
+                var pr = evt.loaded / evt.total * 100;
+            } else {/* Error*/}
+        });
+    }
+
+    buildMP3(fileName, fileBuffer) {
+        if (this.ffmpegRunning) {
+            this.ffmpegWorker.terminate();
+            this.ffmpegWorker = this.getFFMPEGWorker();
+        }
+
+        this.ffmpegRunning = true;
+        var fileNameExt = fileName.substr(fileName.lastIndexOf('.') + 1);
+        var outFileName = fileName.substr(0, fileName.lastIndexOf('.')) + "." + "mp3";
+        var _arguments = [];
+        _arguments.push("-i");
+        _arguments.push(fileName);
+        _arguments.push("-b:a");
+        _arguments.push('128k');
+        _arguments.push("-acodec");
+        _arguments.push("libmp3lame");
+        _arguments.push("out.mp3");
+
+        this.ffmpegWorker.postMessage({
+            type: "command",
+            arguments: _arguments,
+            files: [{
+                "name": fileName,
+                "buffer": fileBuffer
+            }]
+        });
+    }
+
+    getFFMPEGWorker() {
+
+        var response = "importScripts('https://cdn.criptext.com/MonkeyUI/scripts/ffmpeg.js');function print(text) {postMessage({'type' : 'stdout', 'data' : text});}function printErr(text) {postMessage({'type' :'stderr', 'data' : text});}var now = Date.now; onmessage = function(event) { var message = event.data; if (message.type === \"command\") { var Module = { print: print, printErr: print, files: message.files || [], arguments: message.arguments || [], TOTAL_MEMORY: message.TOTAL_MEMORY || false }; postMessage({ 'type' : 'start', 'data' : Module.arguments.join(\" \")}); postMessage({ 'type' : 'stdout', 'data' : 'Received command: ' + Module.arguments.join(\" \") + ((Module.TOTAL_MEMORY) ? \".  Processing with \" + Module.TOTAL_MEMORY + \" bits.\" : \"\")}); var time = now(); var result = ffmpeg_run(Module); var totalTime = now() - time; postMessage({'type' : 'stdout', 'data' : 'Finished processing (took ' + totalTime + 'ms)'}); postMessage({ 'type' : 'done', 'data' : result, 'time' : totalTime});}};postMessage({'type' : 'ready'});";
+
+        window.URL = window.URL || window.webkitURL;
+        var blobWorker;
+        try {
+            blobWorker = new Blob([response], { type: 'application/javascript' });
+        } catch (e) {
+            // Backwards-compatibility
+            window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+            blob = new BlobBuilder();
+            blob.append(response);
+            blob = blob.getBlob();
+        }
+
+        var ffmpegWorker = new Worker(URL.createObjectURL(blobWorker));
+        var that = this;
+        ffmpegWorker.onmessage = function (event) {
+            var message = event.data;
+            
+            if (message.type === "ready" && window.File && window.FileList && window.FileReader) {} else if (message.type == "stdout") {
+                // console.log(message.data);
+            } else if (message.type == "stderr") {} else if (message.type == "done") {
+                    var code = message.data.code;
+                    var outFileNames = Object.keys(message.data.outputFiles);
+
+                    if (code == 0 && outFileNames.length) {
+
+                        var outFileName = outFileNames[0];
+                        var outFileBuffer = message.data.outputFiles[outFileName];
+                        var mp3Blob = new Blob([outFileBuffer]);
+                        // var src = window.URL.createObjectURL(mp3Blob);
+                        that.readData(mp3Blob);
+                    } else {
+                        console.log('hubo un error');
+                    }
+                }
+        };
+        return ffmpegWorker;
+    }
+
+    readData(mp3Blob) {
+        // read mp3 audio
+        console.log(mp3Blob)
+
+        var that = this;
+
+        FileAPI.readAsDataURL(mp3Blob, function (evt) {
+            if (evt.type == 'load') {
+                // disabledAudioButton(false);
+                //var dataURL = evt.result;
+                var _src = evt.result;
+                var _dataSplit = _src.split(',');
+                var _data = _dataSplit[1];
+                that.audioCaptured.src = 'data:audio/mpeg;base64,' + _data;
+                that.audioCaptured.monkeyFileType = 1;
+                that.audioCaptured.oldId = that.audioMessageOldId;
+                that.audioCaptured.type = 'audio/mpeg';
+                
+                // $(monkeyUI).trigger('audioMessage', this.audioCaptured);
+                let message = {data: that.audioCaptured.src, type: 4};
+                that.props.messageToSet(message);
+
+            } else if (evt.type == 'progress') {
+                var pr = evt.loaded / evt.total * 100;
+            } else {/*Error*/}
+        });
+    }
+
+    pauseAllAudio() {
+	    clearInterval(window.playIntervalBubble);
+	    var that = this;
+        document.addEventListener('play', function(e){
+            var audios = document.getElementsByTagName('audio');
+            for(var i = 0, len = audios.length; i < len;i++){
+                if(audios[i] != e.target){
+                    audios[i].pause();
+                    $('.mky-bubble-audio-button').hide();
+                    $('.mky-bubble-audio-play-button').show();
+                }   
+            }
+        }, true);
     }
     
     handleAttach() {
@@ -213,20 +387,20 @@ class Input extends Component {
         //fileCaptured.ext = this.getExtention(fileCaptured.file);
         //let type = checkExtention(file);
         this.generateDataFile(file);
-/*
-        if (type >= 1 && type <= 4) {
-            //typeMessageToSend = 4;
-            //fileCaptured.monkeyFileType = 4;
-            
-        } else if (type == 6) {
-            //typeMessageToSend = 3;
-            //fileCaptured.monkeyFileType = 3;
-            this.generateDataFile(file);
-            //return;
-        } else {
-            //return false;
-        }
-*/
+		/*
+	        if (type >= 1 && type <= 4) {
+	            //typeMessageToSend = 4;
+	            //fileCaptured.monkeyFileType = 4;
+	            
+	        } else if (type == 6) {
+	            //typeMessageToSend = 3;
+	            //fileCaptured.monkeyFileType = 3;
+	            this.generateDataFile(file);
+	            //return;
+	        } else {
+	            //return false;
+	        }
+		*/
     }
     
     generateDataFile(file) {
@@ -273,7 +447,7 @@ class Input extends Component {
 */
         
         var file=["doc","docx","pdf","xls", "xlsx","ppt","pptx"];
-        var img=["jpe","jpeg","jpg","png","gif"]; //6
+        var img=["jpe","jpeg","jpg","png","gif"]; //1
 
         var extension = this.getExtention(files);
 
