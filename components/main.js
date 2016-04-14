@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import {render} from 'react-dom';
-import ContentAside from './ContentAside.js';
-import ContentWindow from './ContentWindow.js';
+import MonkeyUI from './MonkeyUI.js';
 
-class MonkeyUI extends React.Component {
+class App extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
@@ -78,45 +77,32 @@ class MonkeyUI extends React.Component {
 						}
 					}
 				}
-				
 			},
-			conversation: undefined,
 			userSession: { id:'if9ynf7looscygpvakhxs9k9', name:'Eri', urlAvatar:'https://secure.criptext.com/avatars/avatar_2275.png'}
 		}
-		this.handleConversationSelected = this.handleConversationSelected.bind(this);
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
+/*
+		this.view = {
+			type: 'fullscreen'
+		}
+*/
+		this.view = {
+			type: 'classic',
+			data: {
+            	width: '380px',
+				height: '500px'
+        	}
+		}
 	}
 	
 	render() {
-		setTimeout(() =>{
-			console.log('change world');
-		}, 1000)
-		var className = 'mky-wrapper-out '+this.props.prefix+this.props.screenMode;
-    	return (
-			<div className={className}>
-				<div className="mky-wrapper-in">
-					<div id="mky-content-connection" className="mky-disappear">
-						<div className="mky-spinner">
-							<div className="mky-bounce1"></div>
-							<div className="mky-bounce2"></div>
-							<div className="mky-bounce3"></div>
-						</div>
-					</div>
-					<div id="mky-content-app" className="">
-						<ContentAside conversations={this.state.conversations} conversationSelected={this.handleConversationSelected} userSession={this.state.userSession}/>
-						<ContentWindow conversationSelected={this.state.conversation} userSessionId={this.state.userSession.id} messageToSet={this.handleMessageToSet}/>
-					</div>
-				</div>
-			</div>
+		return (
+			<MonkeyUI view={this.view} userSession={this.state.userSession} conversations={this.state.conversations} conversation={this.state.conversations['ife4c0qdb0dopbg538lg14i']} messageToSet={this.handleMessageToSet} />
 		)
 	}
 	
 	handleConversationAdd(conversation) {
 	  	this.setState({conversations: this.state.conversations.concat(conversation)})
-	}
-	
-	handleConversationSelected(conversation) {	
-		this.setState({conversation: conversation})
 	}
 	
 	handleMessageToSet(message){
@@ -128,9 +114,7 @@ class MonkeyUI extends React.Component {
 		
 		let conversations = this.state.conversations;
 		conversations[this.state.conversation.id].messages[message.id] = message;
-		
 		this.setState({conversations: conversations});
-		
 		console.log(message);
 	}
 	
@@ -139,16 +123,4 @@ class MonkeyUI extends React.Component {
 	}
 }
 
-MonkeyUI.propTypes = {
-	showConversationList: React.PropTypes.bool,
-	screenType: React.PropTypes.string
-}
-
-MonkeyUI.defaultProps = {
-	prefix: 'mky-',
-	showConversationList: true,
-	screenType: 'fullscreen',
-	screenMode: 'fullsize'
-}
-
-render(<MonkeyUI/>, document.getElementsByTagName('body')[0]);
+render(<App/>, document.getElementsByTagName('body')[0]);
