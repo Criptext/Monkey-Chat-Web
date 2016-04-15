@@ -11,9 +11,12 @@ class MonkeyUI extends React.Component {
 			style: undefined,
 			idTabButton: 'mky-w-max'
 		}
-		this.handleConversationSelected = this.handleConversationSelected.bind(this);
-		this.screen;
 		this.openTab = this.openTab.bind(this);
+		this.handleConversationSelected = this.handleConversationSelected.bind(this);
+		this.handleMessageCreated = this.handleMessageCreated.bind(this);
+		this.screen;
+		this.showConversations = true;
+		this.expandWindow = false;
 	}
 	
 	componentWillMount() {
@@ -31,6 +34,10 @@ class MonkeyUI extends React.Component {
 		this.screen = this.props.prefix+screenMode+' '+this.props.prefix+this.props.view.type;
 		
 		this.setState({ conversation: this.props.conversation});
+		if(this.props.view.type === 'classic'){
+			this.showConversations = false;
+			this.expandWindow = true;
+		}
 	}
 	
 	render() {
@@ -54,20 +61,15 @@ class MonkeyUI extends React.Component {
 						</div>
 					</div>
 					<div id="mky-content-app" className="">
-						<ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} userSession={this.props.userSession}/>
-						<ContentWindow conversationSelected={this.state.conversation} userSessionId={this.props.userSession.id} messageToSet={this.props.messageToSet}/>
+						{ this.showConversations
+							? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} userSession={this.props.userSession} show={this.showListConversation}/>
+							: null
+						}
+						<ContentWindow conversationSelected={this.state.conversation} userSessionId={this.props.userSession.id} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
 					</div>
 				</div>
 			</div>
 		)
-	}
-	
-	handleConversationAdd(conversation) {
-	  	this.setState({conversations: this.state.conversations.concat(conversation)})
-	}
-	
-	handleConversationSelected(conversation) {	
-		this.setState({conversation: conversation})
 	}
 	
 	openTab(){
@@ -86,6 +88,23 @@ class MonkeyUI extends React.Component {
 				idTabButton: 'mky-w-max'
 			});
 		}
+	}
+	
+	handleConversationAdd(conversation) {
+	  	this.setState({conversations: this.state.conversations.concat(conversation)})
+	}
+	
+	handleConversationSelected(conversation) {	
+		this.setState({conversation: conversation})
+	}
+	
+	handleMessageCreated(message){	
+		message.senderId = this.props.userSession.id;
+		message.recipientId = this.state.conversation.id;
+		message.timestamp = 1;
+		message.status = 0;
+		
+		this.props.messageToSet(message);
 	}
 }
 
