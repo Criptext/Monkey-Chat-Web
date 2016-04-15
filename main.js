@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import {render} from 'react-dom';
-import MonkeyUI from './MonkeyUI.js';
+import MonkeyUI from './components/MonkeyUI.js';
+//import monkey from './src/monkey.js'
 
 class App extends React.Component {
 	constructor(props){
@@ -78,14 +79,14 @@ class App extends React.Component {
 					}
 				}
 			},
-			userSession: { id:'if9ynf7looscygpvakhxs9k9', name:'Eri', urlAvatar:'https://secure.criptext.com/avatars/avatar_2275.png'}
+			conversation: undefined,
+			userSession: undefined,
 		}
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
-/*
 		this.view = {
 			type: 'fullscreen'
 		}
-*/
+/*
 		this.view = {
 			type: 'classic',
 			data: {
@@ -93,11 +94,20 @@ class App extends React.Component {
 				height: '500px'
         	}
 		}
+*/
+		this.conversation;
+	}
+	
+	componentWillMount() {
+		this.setState({userSession: this.props.userSession})
+		let conversation = this.state.conversations['ife4c0qdb0dopbg538lg14i'];
+		this.setState({conversation: conversation});
+		var MONKEY_DEBUG_MODE = false;
 	}
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.state.userSession} conversations={this.state.conversations} conversation={this.state.conversations['ife4c0qdb0dopbg538lg14i']} messageToSet={this.handleMessageToSet} />
+			<MonkeyUI view={this.view} userSession={this.state.userSession} conversations={this.state.conversations} conversation={this.state.conversation} messageToSet={this.handleMessageToSet} />
 		)
 	}
 	
@@ -106,21 +116,49 @@ class App extends React.Component {
 	}
 	
 	handleMessageToSet(message){
-		message.id = Object.keys(this.state.conversations[this.state.conversation.id].messages).length + 1;
-		message.senderId = this.state.userSession.id;
-		message.recipientId = this.state.conversation.id;
-		message.timestamp = 1;
-		message.status = 52;
 		
+		message.id = Object.keys(this.state.conversations[message.recipientId].messages).length + 1;
 		let conversations = this.state.conversations;
 		conversations[this.state.conversation.id].messages[message.id] = message;
 		this.setState({conversations: conversations});
 		console.log(message);
+
 	}
 	
 	updateMessage(){
 		
 	}
 }
+var userSession = { id:'if9ynf7looscygpvakhxs9k9', name:'Eri', urlAvatar:'https://secure.criptext.com/avatars/avatar_2275.png'};
+render(<App userSession={userSession}/>, document.getElementsByTagName('body')[0]);
 
-render(<App/>, document.getElementsByTagName('body')[0]);
+/*
+let nodes = [];
+
+const ReactContentRenderer = {
+    unmountAll() {
+        if (nodes.length === 0) {
+            return;
+        }
+        nodes.forEach(node => React.unmountComponentAtNode(node));
+        nodes = [];
+    },
+    render(element, container, callback) {
+        if (container instanceof jQuery) {
+            container = container.get(0);
+        }
+        render(element, container, callback);
+        nodes.push(container);
+    }
+};
+
+function renderApp(userSession){
+	ReactContentRenderer.render(<App userSession={userSession}/>, document.getElementsByTagName('body')[0]);
+}
+
+$( document ).ready(function() {
+	var userSession = { id:'if9ynf7looscygpvakhxs9k9', name:'Eri', urlAvatar:'https://secure.criptext.com/avatars/avatar_2275.png'};
+	renderApp(userSession);
+	
+});
+*/

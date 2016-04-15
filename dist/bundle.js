@@ -66,6 +66,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	//import monkey from './src/monkey.js'
+
 	var App = function (_React$Component) {
 		_inherits(App, _React$Component);
 
@@ -147,28 +149,38 @@
 						}
 					}
 				},
-				userSession: { id: 'if9ynf7looscygpvakhxs9k9', name: 'Eri', urlAvatar: 'https://secure.criptext.com/avatars/avatar_2275.png' }
+				conversation: undefined,
+				userSession: undefined
 			};
 			_this.handleMessageToSet = _this.handleMessageToSet.bind(_this);
+			_this.view = {
+				type: 'fullscreen'
+			};
 			/*
 	  		this.view = {
-	  			type: 'fullscreen'
+	  			type: 'classic',
+	  			data: {
+	              	width: '380px',
+	  				height: '500px'
+	          	}
 	  		}
 	  */
-			_this.view = {
-				type: 'classic',
-				data: {
-					width: '380px',
-					height: '500px'
-				}
-			};
+			_this.conversation;
 			return _this;
 		}
 
 		_createClass(App, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {
+				this.setState({ userSession: this.props.userSession });
+				var conversation = this.state.conversations['ife4c0qdb0dopbg538lg14i'];
+				this.setState({ conversation: conversation });
+				var MONKEY_DEBUG_MODE = false;
+			}
+		}, {
 			key: 'render',
 			value: function render() {
-				return _react2.default.createElement(_MonkeyUI2.default, { view: this.view, userSession: this.state.userSession, conversations: this.state.conversations, conversation: this.state.conversations['ife4c0qdb0dopbg538lg14i'], messageToSet: this.handleMessageToSet });
+				return _react2.default.createElement(_MonkeyUI2.default, { view: this.view, userSession: this.state.userSession, conversations: this.state.conversations, conversation: this.state.conversation, messageToSet: this.handleMessageToSet });
 			}
 		}, {
 			key: 'handleConversationAdd',
@@ -178,12 +190,8 @@
 		}, {
 			key: 'handleMessageToSet',
 			value: function handleMessageToSet(message) {
-				message.id = Object.keys(this.state.conversations[this.state.conversation.id].messages).length + 1;
-				message.senderId = this.state.userSession.id;
-				message.recipientId = this.state.conversation.id;
-				message.timestamp = 1;
-				message.status = 52;
 
+				message.id = Object.keys(this.state.conversations[message.recipientId].messages).length + 1;
 				var conversations = this.state.conversations;
 				conversations[this.state.conversation.id].messages[message.id] = message;
 				this.setState({ conversations: conversations });
@@ -197,7 +205,39 @@
 		return App;
 	}(_react2.default.Component);
 
-	(0, _reactDom.render)(_react2.default.createElement(App, null), document.getElementsByTagName('body')[0]);
+	var userSession = { id: 'if9ynf7looscygpvakhxs9k9', name: 'Eri', urlAvatar: 'https://secure.criptext.com/avatars/avatar_2275.png' };
+	(0, _reactDom.render)(_react2.default.createElement(App, { userSession: userSession }), document.getElementsByTagName('body')[0]);
+
+	/*
+	let nodes = [];
+
+	const ReactContentRenderer = {
+	    unmountAll() {
+	        if (nodes.length === 0) {
+	            return;
+	        }
+	        nodes.forEach(node => React.unmountComponentAtNode(node));
+	        nodes = [];
+	    },
+	    render(element, container, callback) {
+	        if (container instanceof jQuery) {
+	            container = container.get(0);
+	        }
+	        render(element, container, callback);
+	        nodes.push(container);
+	    }
+	};
+
+	function renderApp(userSession){
+		ReactContentRenderer.render(<App userSession={userSession}/>, document.getElementsByTagName('body')[0]);
+	}
+
+	$( document ).ready(function() {
+		var userSession = { id:'if9ynf7looscygpvakhxs9k9', name:'Eri', urlAvatar:'https://secure.criptext.com/avatars/avatar_2275.png'};
+		renderApp(userSession);
+		
+	});
+	*/
 
 /***/ },
 /* 1 */
@@ -19851,9 +19891,12 @@
 				style: undefined,
 				idTabButton: 'mky-w-max'
 			};
-			_this.handleConversationSelected = _this.handleConversationSelected.bind(_this);
-			_this.screen;
 			_this.openTab = _this.openTab.bind(_this);
+			_this.handleConversationSelected = _this.handleConversationSelected.bind(_this);
+			_this.handleMessageCreated = _this.handleMessageCreated.bind(_this);
+			_this.screen;
+			_this.showConversations = true;
+			_this.expandWindow = false;
 			return _this;
 		}
 
@@ -19874,6 +19917,10 @@
 				this.screen = this.props.prefix + screenMode + ' ' + this.props.prefix + this.props.view.type;
 
 				this.setState({ conversation: this.props.conversation });
+				if (this.props.view.type === 'classic') {
+					this.showConversations = false;
+					this.expandWindow = true;
+				}
 			}
 		}, {
 			key: 'render',
@@ -19908,21 +19955,11 @@
 						_react2.default.createElement(
 							'div',
 							{ id: 'mky-content-app', className: '' },
-							_react2.default.createElement(_ContentAside2.default, { conversations: this.props.conversations, conversationSelected: this.handleConversationSelected, userSession: this.props.userSession }),
-							_react2.default.createElement(_ContentWindow2.default, { conversationSelected: this.state.conversation, userSessionId: this.props.userSession.id, messageToSet: this.props.messageToSet })
+							this.showConversations ? _react2.default.createElement(_ContentAside2.default, { conversations: this.props.conversations, conversationSelected: this.handleConversationSelected, userSession: this.props.userSession, show: this.showListConversation }) : null,
+							_react2.default.createElement(_ContentWindow2.default, { conversationSelected: this.state.conversation, userSessionId: this.props.userSession.id, messageCreated: this.handleMessageCreated, expandWindow: this.expandWindow })
 						)
 					)
 				);
-			}
-		}, {
-			key: 'handleConversationAdd',
-			value: function handleConversationAdd(conversation) {
-				this.setState({ conversations: this.state.conversations.concat(conversation) });
-			}
-		}, {
-			key: 'handleConversationSelected',
-			value: function handleConversationSelected(conversation) {
-				this.setState({ conversation: conversation });
 			}
 		}, {
 			key: 'openTab',
@@ -19942,6 +19979,26 @@
 						idTabButton: 'mky-w-max'
 					});
 				}
+			}
+		}, {
+			key: 'handleConversationAdd',
+			value: function handleConversationAdd(conversation) {
+				this.setState({ conversations: this.state.conversations.concat(conversation) });
+			}
+		}, {
+			key: 'handleConversationSelected',
+			value: function handleConversationSelected(conversation) {
+				this.setState({ conversation: conversation });
+			}
+		}, {
+			key: 'handleMessageCreated',
+			value: function handleMessageCreated(message) {
+				message.senderId = this.props.userSession.id;
+				message.recipientId = this.state.conversation.id;
+				message.timestamp = 1;
+				message.status = 0;
+
+				this.props.messageToSet(message);
 			}
 		}]);
 
@@ -20214,32 +20271,45 @@
 	var ContentWindow = function (_Component) {
 		_inherits(ContentWindow, _Component);
 
-		function ContentWindow() {
+		function ContentWindow(props) {
 			_classCallCheck(this, ContentWindow);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(ContentWindow).apply(this, arguments));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ContentWindow).call(this, props));
+
+			_this.state = {
+				classStateWindow: '',
+				classStateApp: ''
+			};
+			_this.conversationName;
+			_this.conversationAvatar;
+			_this.classExpand = 'mky-conversation-with';
+			return _this;
 		}
 
 		_createClass(ContentWindow, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {
+				if (this.props.conversationSelected != undefined) {
+					this.setState({ classStateApp: 'mky-disappear' });
+					this.conversationName = this.props.conversationSelected.name;
+					this.conversationAvatar = this.props.conversationSelected.urlAvatar;
+				} else {
+					this.setState({ classStateWindow: 'mky-disabled' });
+				}
+
+				if (this.props.expandWindow) {
+					this.classExpand = 'mky-conversation-only';
+				}
+			}
+		}, {
 			key: 'render',
 			value: function render() {
-				var classStateApp = '';
-				var classStateWindow = '';
-				var conversationName = '';
-				var conversationAvatar = '';
-				if (this.props.conversationSelected != undefined) {
-					classStateApp = 'mky-disappear';
-					conversationName = this.props.conversationSelected.name;
-					conversationAvatar = this.props.conversationSelected.urlAvatar;
-				} else {
-					classStateWindow = 'mky-disabled';
-				}
 				return _react2.default.createElement(
 					'section',
-					{ id: 'mky-conversation-window', className: 'mky-conversation-with ' + classStateWindow },
+					{ id: 'mky-conversation-window', className: this.classExpand + ' ' + this.state.classStateWindow },
 					_react2.default.createElement(
 						'div',
-						{ id: 'mky-app-intro', className: classStateApp },
+						{ id: 'mky-app-intro', className: this.state.classStateApp },
 						_react2.default.createElement('div', null)
 					),
 					_react2.default.createElement(
@@ -20248,7 +20318,7 @@
 						_react2.default.createElement(
 							'div',
 							{ id: 'mky-conversation-selected-image' },
-							_react2.default.createElement('img', { src: conversationAvatar })
+							_react2.default.createElement('img', { src: this.conversationAvatar })
 						),
 						_react2.default.createElement(
 							'div',
@@ -20256,13 +20326,13 @@
 							_react2.default.createElement(
 								'span',
 								{ id: 'mky-conversation-selected-name' },
-								conversationName
+								this.conversationName
 							),
 							_react2.default.createElement('span', { id: 'mky-conversation-selected-status' })
 						)
 					),
 					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected, userSessionId: this.props.userSessionId }),
-					_react2.default.createElement(_Input2.default, { messageToSet: this.props.messageToSet, userSessionId: this.props.userSessionId }),
+					_react2.default.createElement(_Input2.default, { messageCreated: this.props.messageCreated, userSessionId: this.props.userSessionId }),
 					_react2.default.createElement(
 						'div',
 						{ className: 'mky-signature' },
@@ -20954,7 +21024,7 @@
 	        _this.catchUpFile = _this.catchUpFile.bind(_this);
 	        _this.getExtention = _this.getExtention.bind(_this);
 	        _this.generateDataFile = _this.generateDataFile.bind(_this);
-	        _this.sendMessage = _this.sendMessage.bind(_this);
+	        _this.handleSendMessage = _this.handleSendMessage.bind(_this);
 	        _this.buildAudio = _this.buildAudio.bind(_this);
 	        _this.buildMP3 = _this.buildMP3.bind(_this);
 	        _this.getFFMPEGWorker = _this.getFFMPEGWorker.bind(_this);
@@ -21028,7 +21098,7 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'mky-button-input ' + this.state.classSendButton },
-	                    _react2.default.createElement('button', { id: 'mky-button-send-message', className: 'mky-button-icon', onClick: this.sendMessage })
+	                    _react2.default.createElement('button', { id: 'mky-button-send-message', className: 'mky-button-icon', onClick: this.handleSendMessage })
 	                ),
 	                _react2.default.createElement(
 	                    'div',
@@ -21058,7 +21128,7 @@
 	                type: 1,
 	                text: text
 	            };
-	            this.props.messageToSet(message);
+	            this.props.messageCreated(message);
 	        }
 	    }, {
 	        key: 'handleOnKeyDownTextArea',
@@ -21155,8 +21225,8 @@
 	            this.mediaRecorder = null;
 	        }
 	    }, {
-	        key: 'sendMessage',
-	        value: function sendMessage() {
+	        key: 'handleSendMessage',
+	        value: function handleSendMessage() {
 	            console.log('SEND MESSAGE this.typeMessageToSend = ', this.typeMessageToSend);
 	            switch (this.typeMessageToSend) {
 	                case 0:
@@ -21306,7 +21376,7 @@
 
 	                    // $(monkeyUI).trigger('audioMessage', this.audioCaptured);
 	                    var message = { data: that.audioCaptured.src, type: 4 };
-	                    that.props.messageToSet(message);
+	                    that.props.messageCreated(message);
 	                } else if (evt.type == 'progress') {
 	                    var pr = evt.loaded / evt.total * 100;
 	                } else {/*Error*/}
@@ -21336,7 +21406,6 @@
 	    }, {
 	        key: 'onDrop',
 	        value: function onDrop(files) {
-	            //this.setState({files: files});
 	            var _file = void 0;
 	            files.map(function (file) {
 	                return _file = file;
@@ -21346,26 +21415,7 @@
 	    }, {
 	        key: 'catchUpFile',
 	        value: function catchUpFile(file) {
-	            //console.log(file);
-	            //fileCaptured.file = file;
-	            //console.log(fileCaptured.file)
-	            //fileCaptured.ext = this.getExtention(fileCaptured.file);
-	            //let type = checkExtention(file);
 	            this.generateDataFile(file);
-	            /*
-	                   if (type >= 1 && type <= 4) {
-	                       //typeMessageToSend = 4;
-	                       //fileCaptured.monkeyFileType = 4;
-	                       
-	                   } else if (type == 6) {
-	                       //typeMessageToSend = 3;
-	                       //fileCaptured.monkeyFileType = 3;
-	                       this.generateDataFile(file);
-	                       //return;
-	                   } else {
-	                       //return false;
-	                   }
-	            */
 	        }
 	    }, {
 	        key: 'generateDataFile',
@@ -21391,10 +21441,7 @@
 	                                break;
 	                            }
 	                    }
-
-	                    _this2.props.messageToSet(message);
-	                    //fileCaptured.src = evt.result;
-	                    //$('#mky-button-send-message').click();
+	                    _this2.props.messageCreated(message);
 	                }
 	            });
 	        }
@@ -21410,32 +21457,10 @@
 	        value: function checkExtention(files) {
 	            var ft = 0; //fileType by extention
 
-	            /*
-	                    var doc=["doc","docx"]; //1
-	                    var pdf=["pdf"]; //2
-	                    var xls=["xls", "xlsx"]; //3
-	                    var ppt=["ppt","pptx"]; //4
-	            */
-
 	            var file = ["doc", "docx", "pdf", "xls", "xlsx", "ppt", "pptx"];
 	            var img = ["jpe", "jpeg", "jpg", "png", "gif"]; //1
 
 	            var extension = this.getExtention(files);
-
-	            /*
-	                    if((doc.indexOf(extension)>-1)){
-	                        ft=1;
-	                    }
-	                    if(xls.indexOf(extension)>-1){
-	                        ft=3;
-	                    }
-	                    if(pdf.indexOf(extension)>-1){
-	                        ft=2;
-	                    }
-	                    if(ppt.indexOf(extension)>-1){
-	                        ft=4;
-	                    }
-	            */
 
 	            if (img.indexOf(extension) > -1) {
 	                ft = 1;

@@ -2,9 +2,9 @@ var webpack = require('webpack');
 var path = require('path');
 
 var config = {
-	entry: path.resolve(__dirname, 'components/main.js'),
+	entry: path.resolve(__dirname, 'main.js'),
 	output: {
-		path: path.resolve(__dirname, 'scripts'),
+		path: path.resolve(__dirname, 'dist'),
 		filename: 'bundle.js'
   	},
   	module : {

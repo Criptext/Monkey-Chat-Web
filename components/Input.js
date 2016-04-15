@@ -48,7 +48,7 @@ class Input extends Component {
 		this.catchUpFile = this.catchUpFile.bind(this);
 		this.getExtention = this.getExtention.bind(this);
 		this.generateDataFile = this.generateDataFile.bind(this);
-		this.sendMessage = this.sendMessage.bind(this);
+		this.handleSendMessage = this.handleSendMessage.bind(this);
 		this.buildAudio = this.buildAudio.bind(this);
 		this.buildMP3 = this.buildMP3.bind(this);
 		this.getFFMPEGWorker = this.getFFMPEGWorker.bind(this);
@@ -90,7 +90,7 @@ class Input extends Component {
 					</div>
 				</div>
 				<div className={'mky-button-input '+this.state.classSendButton}>
-					<button id="mky-button-send-message" className="mky-button-icon" onClick={this.sendMessage}></button>
+					<button id="mky-button-send-message" className="mky-button-icon" onClick={this.handleSendMessage}></button>
 				</div>
 				<div className={'mky-button-input mky-disabledd '+this.state.classAudioButton}>
 					<button id="mky-button-record-audio" className="mky-button-icon" onClick={this.handleRecordAudio}></button>
@@ -111,7 +111,7 @@ class Input extends Component {
 			type: 1,
 			text: text
 		}
-		this.props.messageToSet(message);	
+		this.props.messageCreated(message);	
 	}
 	
 	handleOnKeyDownTextArea(e) {
@@ -201,7 +201,7 @@ class Input extends Component {
         this.mediaRecorder = null;
     }
 
-    sendMessage(){
+    handleSendMessage(){
     	console.log('SEND MESSAGE this.typeMessageToSend = ', this.typeMessageToSend)
     	switch (this.typeMessageToSend) {
             case 0:
@@ -346,7 +346,7 @@ class Input extends Component {
                 
                 // $(monkeyUI).trigger('audioMessage', this.audioCaptured);
                 let message = {data: that.audioCaptured.src, type: 4};
-                that.props.messageToSet(message);
+                that.props.messageCreated(message);
 
             } else if (evt.type == 'progress') {
                 var pr = evt.loaded / evt.total * 100;
@@ -374,33 +374,13 @@ class Input extends Component {
     }
     
     onDrop(files) {
-		//this.setState({files: files});
 		let _file;
 	    files.map((file) => (_file = file))
 		this.catchUpFile(_file);
     }
     
     catchUpFile(file) {
-	    //console.log(file);
-        //fileCaptured.file = file;
-        //console.log(fileCaptured.file)
-        //fileCaptured.ext = this.getExtention(fileCaptured.file);
-        //let type = checkExtention(file);
         this.generateDataFile(file);
-		/*
-	        if (type >= 1 && type <= 4) {
-	            //typeMessageToSend = 4;
-	            //fileCaptured.monkeyFileType = 4;
-	            
-	        } else if (type == 6) {
-	            //typeMessageToSend = 3;
-	            //fileCaptured.monkeyFileType = 3;
-	            this.generateDataFile(file);
-	            //return;
-	        } else {
-	            //return false;
-	        }
-		*/
     }
     
     generateDataFile(file) {
@@ -421,11 +401,7 @@ class Input extends Component {
 			            break;
 		            }
 	            }
-	            
-	            
-				this.props.messageToSet(message);
-                //fileCaptured.src = evt.result;
-                //$('#mky-button-send-message').click();
+				this.props.messageCreated(message);
             }
         });
     }
@@ -438,33 +414,11 @@ class Input extends Component {
     
     checkExtention(files) {
         var ft=0;  //fileType by extention
-
-/*
-        var doc=["doc","docx"]; //1
-        var pdf=["pdf"]; //2
-        var xls=["xls", "xlsx"]; //3
-        var ppt=["ppt","pptx"]; //4
-*/
         
         var file=["doc","docx","pdf","xls", "xlsx","ppt","pptx"];
         var img=["jpe","jpeg","jpg","png","gif"]; //1
 
         var extension = this.getExtention(files);
-
-/*
-        if((doc.indexOf(extension)>-1)){
-            ft=1;
-        }
-        if(xls.indexOf(extension)>-1){
-            ft=3;
-        }
-        if(pdf.indexOf(extension)>-1){
-            ft=2;
-        }
-        if(ppt.indexOf(extension)>-1){
-            ft=4;
-        }
-*/
         
         if(img.indexOf(extension)>-1){
             ft=1;
