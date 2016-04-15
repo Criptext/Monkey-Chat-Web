@@ -14,7 +14,7 @@ const Bubble = Component => class extends React.Component {
 				<div id={this.props.message.id} className={classBubble}>
 					<div className="mky-message-detail">
 						<Status value={this.props.message.status} classStatus={classStatus}/>
-						<span className="mky-message-hour"></span>
+						<span className="mky-message-hour">{this.props.message.timestamp}</span>
 					</div>
 					<Component {...this.props}/>
 				</div>
@@ -23,6 +23,7 @@ const Bubble = Component => class extends React.Component {
 	}
 	
 	defineStatusClass(status) {
+
 		let state;
 		switch(status){
             case 0:
@@ -39,7 +40,7 @@ const Bubble = Component => class extends React.Component {
                 break;
         }
         
-        return 'myk-status-'+state
+        return 'mky-status-'+state;
 	}
 	
 	defineClass() {
