@@ -30,9 +30,9 @@ class Input extends Component {
 			classTextArea: '',
 			minutes: '00',
 			seconds: '00',
-			files: null
+			files: null,
+			text: ''
 		}
-		this.handleOnKeyUpTextArea = this.handleOnKeyUpTextArea.bind(this);
 		this.handleOnKeyDownTextArea = this.handleOnKeyDownTextArea.bind(this);
 		this.textMessageInput = this.textMessageInput.bind(this);
 		
@@ -54,6 +54,7 @@ class Input extends Component {
 		this.getFFMPEGWorker = this.getFFMPEGWorker.bind(this);
 		this.readData = this.readData.bind(this);
 		this.pauseAllAudio = this.pauseAllAudio.bind(this);
+		this.handleOnChangeTextArea = this.handleOnChangeTextArea.bind(this);
 		this.mediaRecorder;
 		this.micActivated;
 		this.mediaConstraints = {
@@ -78,7 +79,7 @@ class Input extends Component {
 				<div className={'mky-button-input '+this.state.classCancelAudioButton}>
 					<button id="mky-button-cancel-audio" className='mky-button-icon' onClick={this.handleCancelAudio}></button>
 				</div>
-				<textarea ref='textareaInput' id="mky-message-text-input" className={'mky-textarea-input '+this.state.classTextArea} placeholder="Write a secure message" onKeyDown={this.handleOnKeyDownTextArea} onKeyUp={this.handleOnKeyUpTextArea}></textarea>
+				<textarea ref='textareaInput' id="mky-message-text-input" className={'mky-textarea-input '+this.state.classTextArea} value={this.state.text} placeholder="Write a secure message" onKeyDown={this.handleOnKeyDownTextArea} onChange={this.handleOnChangeTextArea}></textarea>
 				<div id="mky-record-area" className={this.state.classAudioArea}>
 					<div className="mky-record-preview-area">
 						<div id='mky-button-action-record'>
@@ -114,21 +115,20 @@ class Input extends Component {
 		this.props.messageCreated(message);	
 	}
 	
-	handleOnKeyDownTextArea(e) {
-		if (e.key === 'Enter' && !e.shiftKey){
-			console.log('enter');
-			this.textMessageInput(e.target.value);
-			this.refs.textareaInput.value = '';
-			return false;
+	handleOnKeyDownTextArea(event) {
+		this.typeMessageToSend = 0;
+		if(event.keyCode === 13 && !event.shiftKey) {
+			event.preventDefault()
+			let text = this.state.text.trim();
+			if(text){
+				this.textMessageInput(event.target.value.trim());
+			}
+			this.setState({text: ''});
 		}
 	}
 	
-	handleOnKeyUpTextArea(e) {
-		this.typeMessageToSend = 0;
-		if (e.key === 'Enter' && !e.shiftKey){
-			this.refs.textareaInput.value = '';
-			return false;
-		}
+	handleOnChangeTextArea(event, value){
+		this.setState({text: event.target.value});
 	}
 	
 	handleRecordAudio() {
@@ -156,7 +156,6 @@ class Input extends Component {
             }
         }
     }   
-    
     
     onMediaSuccess(stream) {
         //default settings to record

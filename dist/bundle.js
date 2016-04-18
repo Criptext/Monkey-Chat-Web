@@ -19889,6 +19889,7 @@
 			_this.state = {
 				conversation: undefined,
 				style: undefined,
+				classLoading: 'mky-disappear',
 				idTabButton: 'mky-w-max'
 			};
 			_this.openTab = _this.openTab.bind(_this);
@@ -19944,7 +19945,7 @@
 						{ className: 'mky-wrapper-in' },
 						_react2.default.createElement(
 							'div',
-							{ id: 'mky-content-connection', className: 'mky-disappear' },
+							{ id: 'mky-content-connection', className: this.state.classLoading },
 							_react2.default.createElement(
 								'div',
 								{ className: 'mky-spinner' },
@@ -19979,6 +19980,15 @@
 						style: style,
 						idTabButton: 'mky-w-max'
 					});
+				}
+			}
+		}, {
+			key: 'setLoading',
+			value: function setLoading(value) {
+				if (value) {
+					this.setStatus({ classLoading: 'mky-appear' });
+				} else {
+					this.setStatus({ classLoading: 'mky-disappear' });
 				}
 			}
 		}, {
@@ -21031,9 +21041,9 @@
 	            classTextArea: '',
 	            minutes: '00',
 	            seconds: '00',
-	            files: null
+	            files: null,
+	            text: ''
 	        };
-	        _this.handleOnKeyUpTextArea = _this.handleOnKeyUpTextArea.bind(_this);
 	        _this.handleOnKeyDownTextArea = _this.handleOnKeyDownTextArea.bind(_this);
 	        _this.textMessageInput = _this.textMessageInput.bind(_this);
 
@@ -21055,6 +21065,7 @@
 	        _this.getFFMPEGWorker = _this.getFFMPEGWorker.bind(_this);
 	        _this.readData = _this.readData.bind(_this);
 	        _this.pauseAllAudio = _this.pauseAllAudio.bind(_this);
+	        _this.handleOnChangeTextArea = _this.handleOnChangeTextArea.bind(_this);
 	        _this.mediaRecorder;
 	        _this.micActivated;
 	        _this.mediaConstraints = {
@@ -21087,7 +21098,7 @@
 	                    { className: 'mky-button-input ' + this.state.classCancelAudioButton },
 	                    _react2.default.createElement('button', { id: 'mky-button-cancel-audio', className: 'mky-button-icon', onClick: this.handleCancelAudio })
 	                ),
-	                _react2.default.createElement('textarea', { ref: 'textareaInput', id: 'mky-message-text-input', className: 'mky-textarea-input ' + this.state.classTextArea, placeholder: 'Write a secure message', onKeyDown: this.handleOnKeyDownTextArea, onKeyUp: this.handleOnKeyUpTextArea }),
+	                _react2.default.createElement('textarea', { ref: 'textareaInput', id: 'mky-message-text-input', className: 'mky-textarea-input ' + this.state.classTextArea, value: this.state.text, placeholder: 'Write a secure message', onKeyDown: this.handleOnKeyDownTextArea, onChange: this.handleOnChangeTextArea }),
 	                _react2.default.createElement(
 	                    'div',
 	                    { id: 'mky-record-area', className: this.state.classAudioArea },
@@ -21157,22 +21168,21 @@
 	        }
 	    }, {
 	        key: 'handleOnKeyDownTextArea',
-	        value: function handleOnKeyDownTextArea(e) {
-	            if (e.key === 'Enter' && !e.shiftKey) {
-	                console.log('enter');
-	                this.textMessageInput(e.target.value);
-	                this.refs.textareaInput.value = '';
-	                return false;
+	        value: function handleOnKeyDownTextArea(event) {
+	            this.typeMessageToSend = 0;
+	            if (event.keyCode === 13 && !event.shiftKey) {
+	                event.preventDefault();
+	                var text = this.state.text.trim();
+	                if (text) {
+	                    this.textMessageInput(event.target.value.trim());
+	                }
+	                this.setState({ text: '' });
 	            }
 	        }
 	    }, {
-	        key: 'handleOnKeyUpTextArea',
-	        value: function handleOnKeyUpTextArea(e) {
-	            this.typeMessageToSend = 0;
-	            if (e.key === 'Enter' && !e.shiftKey) {
-	                this.refs.textareaInput.value = '';
-	                return false;
-	            }
+	        key: 'handleOnChangeTextArea',
+	        value: function handleOnChangeTextArea(event, value) {
+	            this.setState({ text: event.target.value });
 	        }
 	    }, {
 	        key: 'handleRecordAudio',
