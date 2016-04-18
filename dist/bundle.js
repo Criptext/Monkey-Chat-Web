@@ -19894,6 +19894,7 @@
 			_this.openTab = _this.openTab.bind(_this);
 			_this.handleConversationSelected = _this.handleConversationSelected.bind(_this);
 			_this.handleMessageCreated = _this.handleMessageCreated.bind(_this);
+			_this.defineTime = _this.defineTime.bind(_this);
 			_this.screen;
 			_this.showConversations = true;
 			_this.expandWindow = false;
@@ -19993,12 +19994,31 @@
 		}, {
 			key: 'handleMessageCreated',
 			value: function handleMessageCreated(message) {
+				var timestamp = new Date().getTime();
 				message.senderId = this.props.userSession.id;
 				message.recipientId = this.state.conversation.id;
-				message.timestamp = 1;
+				message.timestamp = this.defineTime(timestamp);
 				message.status = 0;
 
 				this.props.messageToSet(message);
+			}
+		}, {
+			key: 'defineTime',
+			value: function defineTime(time) {
+				var _d = new Date(+time);
+				var nhour = _d.getHours(),
+				    nmin = _d.getMinutes(),
+				    ap;
+				if (nhour == 0) {
+					ap = " AM";nhour = 12;
+				} else if (nhour < 12) {
+					ap = " AM";
+				} else if (nhour == 12) {
+					ap = " PM";
+				} else if (nhour > 12) {
+					ap = " PM";nhour -= 12;
+				}
+				return ("0" + nhour).slice(-2) + ":" + ("0" + nmin).slice(-2) + ap + "";
 			}
 		}]);
 
@@ -20520,7 +20540,11 @@
 								'div',
 								{ className: 'mky-message-detail' },
 								_react2.default.createElement(Status, { value: this.props.message.status, classStatus: classStatus }),
-								_react2.default.createElement('span', { className: 'mky-message-hour' })
+								_react2.default.createElement(
+									'span',
+									{ className: 'mky-message-hour' },
+									this.props.message.timestamp
+								)
 							),
 							_react2.default.createElement(Component, this.props)
 						)
@@ -20529,6 +20553,7 @@
 			}, {
 				key: 'defineStatusClass',
 				value: function defineStatusClass(status) {
+
 					var state = void 0;
 					switch (status) {
 						case 0:
@@ -20545,7 +20570,7 @@
 							break;
 					}
 
-					return 'myk-status-' + state;
+					return 'mky-status-' + state;
 				}
 			}, {
 				key: 'defineClass',
