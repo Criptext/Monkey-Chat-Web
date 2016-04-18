@@ -116,6 +116,17 @@
 						urlAvatar: 'https://secure.criptext.com/avatars/avatar_62.png',
 						messages: {
 							'1': {
+								id: '3344',
+								senderId: 'if9ynf7looscygpvakhxs9k9',
+								timestamp: 2,
+								recipientId: 'ife4c0qdb0dopbg538lg14i',
+								status: 50,
+								type: 3,
+								data: undefined,
+								filename: 'An example paper',
+								filesize: 194007
+							},
+							'2': {
 								id: '1',
 								senderId: 'if9ynf7looscygpvakhxs9k9',
 								timestamp: 2,
@@ -126,24 +137,44 @@
 								filename: 'An example paper',
 								filesize: 194007
 							},
-							'2': {
+							'3': {
 								id: '1460400827385',
 								senderId: 'ife4c0qdb0dopbg538lg14i',
 								timestamp: 2,
 								recipientId: 'if9ynf7looscygpvakhxs9k9',
 								status: 52,
 								type: 4,
-								data: 'http://www.stephaniequinn.com/Music/Canon.mp3',
+								data: 'http://www.stephaniequinn.com/Music/Mozart%20-%20Presto.mp3',
 								duration: 10
 							},
-							'3': {
+							'4': {
 								id: '3',
 								senderId: 'if9ynf7looscygpvakhxs9k9',
 								timestamp: 2,
 								recipientId: 'ife4c0qdb0dopbg538lg14i',
 								status: 52,
 								type: 4,
-								data: 'http://www.stephaniequinn.com/Music/Mozart%20-%20Presto.mp3',
+								data: undefined,
+								duration: 10
+							},
+							'5': {
+								id: '4',
+								senderId: 'if9ynf7looscygpvakhxs9k9',
+								timestamp: 2,
+								recipientId: 'ife4c0qdb0dopbg538lg14i',
+								status: 52,
+								type: 2,
+								data: undefined,
+								duration: 10
+							},
+							'6': {
+								id: '5',
+								senderId: 'if9ynf7looscygpvakhxs9k9',
+								timestamp: 2,
+								recipientId: 'ife4c0qdb0dopbg538lg14i',
+								status: 52,
+								type: 2,
+								data: 'http://4k.com/wp-content/uploads/2014/06/4k-image-tiger-jumping.jpg',
 								duration: 10
 							}
 						}
@@ -20670,7 +20701,7 @@
 /* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
@@ -20700,12 +20731,21 @@
 		}
 
 		_createClass(BubbleImage, [{
-			key: "render",
+			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
-					"div",
-					{ className: "mky-content-image" },
-					_react2.default.createElement("img", { src: this.props.message.data })
+					'div',
+					null,
+					this.props.message.data ? _react2.default.createElement(
+						'div',
+						{ className: 'mky-content-image' },
+						_react2.default.createElement('img', { src: this.props.message.data })
+					) : _react2.default.createElement(
+						'div',
+						{ className: 'mky-content-audio-loading' },
+						_react2.default.createElement('div', { className: 'mky-double-bounce1' }),
+						_react2.default.createElement('div', { className: 'mky-double-bounce2' })
+					)
 				);
 			}
 		}]);
@@ -20753,33 +20793,42 @@
 			value: function render() {
 				return _react2.default.createElement(
 					'div',
-					{ className: 'mky-content-file' },
-					_react2.default.createElement(
-						'a',
-						{ className: 'mky-file-link', href: this.props.message.data, download: this.props.message.filename },
-						_react2.default.createElement('div', { className: 'mky-file-icon mky-icon-pdf' }),
+					null,
+					this.props.message.data ? _react2.default.createElement(
+						'div',
+						{ className: 'mky-content-file' },
 						_react2.default.createElement(
-							'div',
-							{ className: 'mky-file-detail' },
+							'a',
+							{ className: 'mky-file-link', href: this.props.message.data, download: this.props.message.filename },
+							_react2.default.createElement('div', { className: 'mky-file-icon mky-icon-pdf' }),
 							_react2.default.createElement(
 								'div',
-								{ className: 'mky-file-name' },
+								{ className: 'mky-file-detail' },
 								_react2.default.createElement(
-									'span',
-									{ className: 'mky-ellipsify' },
-									this.props.message.filename
-								)
-							),
-							_react2.default.createElement(
-								'div',
-								{ className: 'mky-file-size' },
+									'div',
+									{ className: 'mky-file-name' },
+									_react2.default.createElement(
+										'span',
+										{ className: 'mky-ellipsify' },
+										this.props.message.filename
+									)
+								),
 								_react2.default.createElement(
-									'span',
-									{ className: 'mky-ellipsify' },
-									this.props.message.filesize + ' bytes'
+									'div',
+									{ className: 'mky-file-size' },
+									_react2.default.createElement(
+										'span',
+										{ className: 'mky-ellipsify' },
+										this.props.message.filesize + ' bytes'
+									)
 								)
 							)
 						)
+					) : _react2.default.createElement(
+						'div',
+						{ className: 'mky-content-audio-loading' },
+						_react2.default.createElement('div', { className: 'mky-double-bounce1' }),
+						_react2.default.createElement('div', { className: 'mky-double-bounce2' })
 					)
 				);
 			}
@@ -20797,7 +20846,7 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -20818,163 +20867,176 @@
 	var $bubblePlayer;
 
 	var BubbleAudio = function (_React$Component) {
-	  _inherits(BubbleAudio, _React$Component);
+	    _inherits(BubbleAudio, _React$Component);
 
-	  function BubbleAudio(props) {
-	    _classCallCheck(this, BubbleAudio);
+	    function BubbleAudio(props) {
+	        _classCallCheck(this, BubbleAudio);
 
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BubbleAudio).call(this, props));
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BubbleAudio).call(this, props));
 
-	    _this.messageId = _this.props.message.id[0] == '-' ? _this.props.message.timestamp * 1000 : _this.props.message.id;
-	    _this.state = {
-	      disabledClass: 'mky-disabled',
-	      minutes: '00',
-	      seconds: '00'
-	    };
-	    _this.playAudioBubble = _this.playAudioBubble.bind(_this);
-	    _this.pauseAudioBubble = _this.pauseAudioBubble.bind(_this);
-	    _this.pauseAllAudio = _this.pauseAllAudio.bind(_this);
-	    _this.updateAnimationBuble = _this.updateAnimationBuble.bind(_this);
-	    return _this;
-	  }
+	        _this.messageId = _this.props.message.id[0] == '-' ? _this.props.message.timestamp * 1000 : _this.props.message.id;
+	        _this.state = {
+	            disabledClass: 'mky-disabled',
+	            minutes: '00',
+	            seconds: '00'
+	        };
+	        _this.playAudioBubble = _this.playAudioBubble.bind(_this);
+	        _this.pauseAudioBubble = _this.pauseAudioBubble.bind(_this);
+	        _this.pauseAllAudio = _this.pauseAllAudio.bind(_this);
+	        _this.updateAnimationBuble = _this.updateAnimationBuble.bind(_this);
+	        return _this;
+	    }
 
-	  _createClass(BubbleAudio, [{
-	    key: 'componentWillMount',
-	    value: function componentWillMount() {}
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'mky-content-audio ' + this.state.disabledClass },
-	        _react2.default.createElement('img', { id: 'mky-bubble-audio-play-button-' + this.messageId, className: 'mky-bubble-audio-button mky-bubble-audio-button-' + this.messageId + ' mky-bubble-audio-play-button', onClick: this.playAudioBubble, src: 'https://cdn.criptext.com/MonkeyUI/images/playAudioButton.png' }),
-	        _react2.default.createElement('img', { id: 'mky-bubble-audio-pause-button-' + this.messageId, className: 'mky-bubble-audio-button mky-bubble-audio-button-' + this.messageId + ' mky-bubble-audio-pause-button', onClick: this.pauseAudioBubble, src: 'https://cdn.criptext.com/MonkeyUI/images/pauseAudioButton.png' }),
-	        _react2.default.createElement('input', { id: 'bubble-audio-player-' + this.messageId, className: 'knob second' }),
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'mky-bubble-audio-timer' },
-	          _react2.default.createElement(
-	            'span',
-	            null,
-	            this.state.minutes
-	          ),
-	          _react2.default.createElement(
-	            'span',
-	            null,
-	            ':'
-	          ),
-	          _react2.default.createElement(
-	            'span',
-	            null,
-	            this.state.seconds
-	          )
-	        ),
-	        _react2.default.createElement('audio', { id: 'audio_' + this.messageId, preload: 'auto', controls: '', src: this.props.message.data })
-	      );
-	    }
-	  }, {
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      $('#mky-bubble-audio-play-button-' + this.messageId).show();
-	      $('#mky-bubble-audio-pause-button-' + this.messageId).hide();
-
-	      //this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.length));
-	      //this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.duration));
-	      var mkyAudioBubble = document.getElementById("audio_" + this.messageId);
-	      var that = this;
-	      mkyAudioBubble.oncanplay = function () {
-	        that.createAudioHandlerBubble(that.messageId, Math.round(mkyAudioBubble.duration));
-	        that.setDurationTime(that.messageId);
-	        that.setState({ disabledClass: '' });
-	      };
-	    }
-	  }, {
-	    key: 'createAudioHandlerBubble',
-	    value: function createAudioHandlerBubble(timestamp, duration) {
-	      $("#bubble-audio-player-" + timestamp).knob({
-	        'min': 0,
-	        'max': duration,
-	        'angleOffset': -133,
-	        'angleArc': 265,
-	        'width': 100,
-	        'height': 90,
-	        'displayInput': false,
-	        'skin': 'tron',
-	        'fgColor': '#0276a9',
-	        'thickness': 0.7,
-	        change: function change(value) {}
-	      });
-	    }
-	  }, {
-	    key: 'setDurationTime',
-	    value: function setDurationTime(timestamp) {
-	      var mkyAudioBubble = document.getElementById("audio_" + timestamp);
-	      var durationTime = Math.round(mkyAudioBubble.duration);
-	      var seconds = ("0" + durationTime % 60).slice(-2);
-	      this.setState({ seconds: seconds });
-	      var minutes = ("0" + parseInt(durationTime / 60)).slice(-2);
-	      this.setState({ minutes: minutes });
-	    }
-	  }, {
-	    key: 'playAudioBubble',
-	    value: function playAudioBubble() {
-	      this.pauseAllAudio();
-	      window.$bubblePlayer = $("#bubble-audio-player-" + this.messageId); //handles the circle
-	      $('#mky-bubble-audio-play-button-' + this.messageId).hide();
-	      $('#mky-bubble-audio-pause-button-' + this.messageId).show();
-	      var audiobuble = document.getElementById("audio_" + this.messageId);
-	      audiobuble.play();
-	      window.playIntervalBubble = setInterval(this.updateAnimationBuble, 1000);
-	      var that = this;
-	      audiobuble.addEventListener("ended", function () {
-	        that.setDurationTime(that.messageId);
-	        window.$bubblePlayer.val(0).trigger("change");
-	        $('#mky-bubble-audio-play-button-' + that.messageId).show();
-	        $('#mky-bubble-audio-pause-button-' + that.messageId).hide();
-	        clearInterval(window.playIntervalBubble);
-	      });
-	    }
-	  }, {
-	    key: 'pauseAudioBubble',
-	    value: function pauseAudioBubble() {
-	      $('#mky-bubble-audio-play-button-' + this.messageId).show();
-	      $('#mky-bubble-audio-pause-button-' + this.messageId).hide();
-	      var audiobuble = document.getElementById("audio_" + this.messageId);
-	      audiobuble.pause();
-	      clearInterval(window.playIntervalBubble);
-	    }
-	  }, {
-	    key: 'pauseAllAudio',
-	    value: function pauseAllAudio() {
-	      clearInterval(window.playIntervalBubble);
-	      var that = this;
-	      document.addEventListener('play', function (e) {
-	        var audios = document.getElementsByTagName('audio');
-	        for (var i = 0, len = audios.length; i < len; i++) {
-	          if (audios[i] != e.target) {
-	            audios[i].pause();
-	            $('.mky-bubble-audio-button').hide();
-	            $('.mky-bubble-audio-play-button').show();
-	          }
+	    _createClass(BubbleAudio, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {}
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                this.props.message.data ? _react2.default.createElement(
+	                    'div',
+	                    { className: 'mky-content-audio ' + this.state.disabledClass },
+	                    _react2.default.createElement('img', { id: 'mky-bubble-audio-play-button-' + this.messageId, className: 'mky-bubble-audio-button mky-bubble-audio-button-' + this.messageId + ' mky-bubble-audio-play-button', onClick: this.playAudioBubble, src: 'https://cdn.criptext.com/MonkeyUI/images/playAudioButton.png' }),
+	                    _react2.default.createElement('img', { id: 'mky-bubble-audio-pause-button-' + this.messageId, className: 'mky-bubble-audio-button mky-bubble-audio-button-' + this.messageId + ' mky-bubble-audio-pause-button', onClick: this.pauseAudioBubble, src: 'https://cdn.criptext.com/MonkeyUI/images/pauseAudioButton.png' }),
+	                    _react2.default.createElement('input', { id: 'bubble-audio-player-' + this.messageId, className: 'knob second' }),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'mky-bubble-audio-timer' },
+	                        _react2.default.createElement(
+	                            'span',
+	                            null,
+	                            this.state.minutes
+	                        ),
+	                        _react2.default.createElement(
+	                            'span',
+	                            null,
+	                            ':'
+	                        ),
+	                        _react2.default.createElement(
+	                            'span',
+	                            null,
+	                            this.state.seconds
+	                        )
+	                    ),
+	                    _react2.default.createElement('audio', { id: 'audio_' + this.messageId, preload: 'auto', controls: '', src: this.props.message.data })
+	                ) : _react2.default.createElement(
+	                    'div',
+	                    { className: 'mky-content-audio-loading' },
+	                    _react2.default.createElement('div', { className: 'mky-double-bounce1' }),
+	                    _react2.default.createElement('div', { className: 'mky-double-bounce2' })
+	                )
+	            );
 	        }
-	        $('#mky-bubble-audio-play-button-' + that.messageId).hide();
-	        $('#mky-bubble-audio-pause-button-' + that.messageId).show();
-	      }, true);
-	    }
-	  }, {
-	    key: 'updateAnimationBuble',
-	    value: function updateAnimationBuble() {
-	      var audiobuble = document.getElementById("audio_" + this.messageId);
-	      var currentTime = Math.round(audiobuble.currentTime);
-	      window.$bubblePlayer.val(currentTime).trigger("change");
-	      var seconds = ("0" + currentTime % 60).slice(-2);
-	      this.setState({ seconds: seconds });
-	      var minutes = ("0" + parseInt(currentTime / 60)).slice(-2);
-	      this.setState({ minutes: minutes });
-	    }
-	  }]);
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            $('#mky-bubble-audio-play-button-' + this.messageId).show();
+	            $('#mky-bubble-audio-pause-button-' + this.messageId).hide();
 
-	  return BubbleAudio;
+	            //this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.length));
+	            //this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.duration));
+
+	            var mkyAudioBubble = document.getElementById("audio_" + this.messageId);
+	            var that = this;
+
+	            {
+	                mkyAudioBubble ? mkyAudioBubble.oncanplay = function () {
+	                    that.createAudioHandlerBubble(that.messageId, Math.round(mkyAudioBubble.duration));
+	                    that.setDurationTime(that.messageId);
+	                    that.setState({ disabledClass: '' });
+	                } : console.log('ssss');
+	            }
+	        }
+	    }, {
+	        key: 'createAudioHandlerBubble',
+	        value: function createAudioHandlerBubble(timestamp, duration) {
+	            $("#bubble-audio-player-" + timestamp).knob({
+	                'min': 0,
+	                'max': duration,
+	                'angleOffset': -133,
+	                'angleArc': 265,
+	                'width': 100,
+	                'height': 90,
+	                'displayInput': false,
+	                'skin': 'tron',
+	                'fgColor': '#0276a9',
+	                'thickness': 0.7,
+	                change: function change(value) {}
+	            });
+	        }
+	    }, {
+	        key: 'setDurationTime',
+	        value: function setDurationTime(timestamp) {
+	            var mkyAudioBubble = document.getElementById("audio_" + timestamp);
+	            var durationTime = Math.round(mkyAudioBubble.duration);
+	            var seconds = ("0" + durationTime % 60).slice(-2);
+	            this.setState({ seconds: seconds });
+	            var minutes = ("0" + parseInt(durationTime / 60)).slice(-2);
+	            this.setState({ minutes: minutes });
+	        }
+	    }, {
+	        key: 'playAudioBubble',
+	        value: function playAudioBubble() {
+	            this.pauseAllAudio();
+	            window.$bubblePlayer = $("#bubble-audio-player-" + this.messageId); //handles the circle
+	            $('#mky-bubble-audio-play-button-' + this.messageId).hide();
+	            $('#mky-bubble-audio-pause-button-' + this.messageId).show();
+	            var audiobuble = document.getElementById("audio_" + this.messageId);
+	            audiobuble.play();
+	            window.playIntervalBubble = setInterval(this.updateAnimationBuble, 1000);
+	            var that = this;
+	            audiobuble.addEventListener("ended", function () {
+	                that.setDurationTime(that.messageId);
+	                window.$bubblePlayer.val(0).trigger("change");
+	                $('#mky-bubble-audio-play-button-' + that.messageId).show();
+	                $('#mky-bubble-audio-pause-button-' + that.messageId).hide();
+	                clearInterval(window.playIntervalBubble);
+	            });
+	        }
+	    }, {
+	        key: 'pauseAudioBubble',
+	        value: function pauseAudioBubble() {
+	            $('#mky-bubble-audio-play-button-' + this.messageId).show();
+	            $('#mky-bubble-audio-pause-button-' + this.messageId).hide();
+	            var audiobuble = document.getElementById("audio_" + this.messageId);
+	            audiobuble.pause();
+	            clearInterval(window.playIntervalBubble);
+	        }
+	    }, {
+	        key: 'pauseAllAudio',
+	        value: function pauseAllAudio() {
+	            clearInterval(window.playIntervalBubble);
+	            var that = this;
+	            document.addEventListener('play', function (e) {
+	                var audios = document.getElementsByTagName('audio');
+	                for (var i = 0, len = audios.length; i < len; i++) {
+	                    if (audios[i] != e.target) {
+	                        audios[i].pause();
+	                        $('.mky-bubble-audio-button').hide();
+	                        $('.mky-bubble-audio-play-button').show();
+	                    }
+	                }
+	                $('#mky-bubble-audio-play-button-' + that.messageId).hide();
+	                $('#mky-bubble-audio-pause-button-' + that.messageId).show();
+	            }, true);
+	        }
+	    }, {
+	        key: 'updateAnimationBuble',
+	        value: function updateAnimationBuble() {
+	            var audiobuble = document.getElementById("audio_" + this.messageId);
+	            var currentTime = Math.round(audiobuble.currentTime);
+	            window.$bubblePlayer.val(currentTime).trigger("change");
+	            var seconds = ("0" + currentTime % 60).slice(-2);
+	            this.setState({ seconds: seconds });
+	            var minutes = ("0" + parseInt(currentTime / 60)).slice(-2);
+	            this.setState({ minutes: minutes });
+	        }
+	    }]);
+
+	    return BubbleAudio;
 	}(_react2.default.Component);
 
 	exports.default = BubbleAudio;

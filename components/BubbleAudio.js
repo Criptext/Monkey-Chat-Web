@@ -24,15 +24,26 @@ class BubbleAudio extends React.Component {
 	
 	render() {
 		return (
-			<div className={'mky-content-audio '+this.state.disabledClass}>
-				<img id={'mky-bubble-audio-play-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-play-button'} onClick={this.playAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/playAudioButton.png'></img>
-				<img id={'mky-bubble-audio-pause-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-pause-button'} onClick={this.pauseAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/pauseAudioButton.png'></img>
-				<input id={'bubble-audio-player-'+this.messageId} className='knob second'></input>
-				<div className='mky-bubble-audio-timer'>
-					<span>{this.state.minutes}</span><span>:</span><span>{this.state.seconds}</span>
-				</div>
-				<audio id={'audio_'+this.messageId} preload='auto' controls='' src={this.props.message.data}></audio>
-			</div>
+            <div>
+                { this.props.message.data ? (
+                    <div className={'mky-content-audio '+this.state.disabledClass}>
+                        <img id={'mky-bubble-audio-play-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-play-button'} onClick={this.playAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/playAudioButton.png'></img>
+                        <img id={'mky-bubble-audio-pause-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-pause-button'} onClick={this.pauseAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/pauseAudioButton.png'></img>
+                        <input id={'bubble-audio-player-'+this.messageId} className='knob second'></input>
+                        <div className='mky-bubble-audio-timer'>
+                            <span>{this.state.minutes}</span><span>:</span><span>{this.state.seconds}</span>
+                        </div>
+                        <audio id={'audio_'+this.messageId} preload='auto' controls='' src={this.props.message.data}></audio>
+                    </div>
+                    ):(
+                        <div className='mky-content-audio-loading'>
+                            <div className='mky-double-bounce1'></div>
+                            <div className='mky-double-bounce2'></div>
+                        </div>
+                    )
+                }
+    			
+            </div>
 		)
 	}
 	
@@ -42,13 +53,23 @@ class BubbleAudio extends React.Component {
 		
 		//this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.length));
 		//this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.duration));
+
+
         let mkyAudioBubble = document.getElementById("audio_"+this.messageId);
         var that = this;
-        mkyAudioBubble.oncanplay = function() {
-            that.createAudioHandlerBubble(that.messageId,Math.round(mkyAudioBubble.duration));
-            that.setDurationTime(that.messageId);
-            that.setState({disabledClass: ''});
-        };
+        
+        {
+            mkyAudioBubble ? 
+             (
+                mkyAudioBubble.oncanplay = function() {
+                    that.createAudioHandlerBubble(that.messageId,Math.round(mkyAudioBubble.duration));
+                    that.setDurationTime(that.messageId);
+                    that.setState({disabledClass: ''});
+                }
+            )
+             : console.log ('ssss')
+        }
+        
 	}
 	
 	createAudioHandlerBubble(timestamp, duration) {

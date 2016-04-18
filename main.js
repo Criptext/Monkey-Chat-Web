@@ -46,6 +46,17 @@ class App extends React.Component {
 					urlAvatar: 'https://secure.criptext.com/avatars/avatar_62.png',
 					messages: {
 						'1': {
+							id: '3344',
+							senderId: 'if9ynf7looscygpvakhxs9k9',
+							timestamp: 2,
+							recipientId: 'ife4c0qdb0dopbg538lg14i',
+							status: 50,
+							type: 3,
+							data: undefined,
+							filename: 'An example paper',
+							filesize: 194007,
+						},
+						'2': {
 							id: '1',
 							senderId: 'if9ynf7looscygpvakhxs9k9',
 							timestamp: 2,
@@ -56,24 +67,44 @@ class App extends React.Component {
 							filename: 'An example paper',
 							filesize: 194007,
 						},
-						'2': {
+						'3': {
 							id: '1460400827385',
 							senderId: 'ife4c0qdb0dopbg538lg14i',
 							timestamp: 2,
 							recipientId: 'if9ynf7looscygpvakhxs9k9',
 							status: 52,
 							type: 4,
-							data: 'http://www.stephaniequinn.com/Music/Canon.mp3',
+							data: 'http://www.stephaniequinn.com/Music/Mozart%20-%20Presto.mp3',
 							duration: 10,
 						},
-						'3':{
+						'4':{
 							id: '3',
 							senderId: 'if9ynf7looscygpvakhxs9k9',
 							timestamp: 2,
 							recipientId: 'ife4c0qdb0dopbg538lg14i',
 							status: 52,
 							type: 4,
-							data: 'http://www.stephaniequinn.com/Music/Mozart%20-%20Presto.mp3',
+							data: undefined,
+							duration: 10,
+						},
+						'5':{
+							id: '4',
+							senderId: 'if9ynf7looscygpvakhxs9k9',
+							timestamp: 2,
+							recipientId: 'ife4c0qdb0dopbg538lg14i',
+							status: 52,
+							type: 2,
+							data: undefined,
+							duration: 10,
+						},
+						'6':{
+							id: '5',
+							senderId: 'if9ynf7looscygpvakhxs9k9',
+							timestamp: 2,
+							recipientId: 'ife4c0qdb0dopbg538lg14i',
+							status: 52,
+							type: 2,
+							data: 'http://4k.com/wp-content/uploads/2014/06/4k-image-tiger-jumping.jpg',
 							duration: 10,
 						}
 					}
