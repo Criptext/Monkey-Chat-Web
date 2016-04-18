@@ -9,6 +9,7 @@ class MonkeyUI extends React.Component {
 		this.state = {
 			conversation: undefined,
 			style: undefined,
+			classLoading: 'mky-disappear',
 			idTabButton: 'mky-w-max'
 		}
 		this.openTab = this.openTab.bind(this);
@@ -53,15 +54,15 @@ class MonkeyUI extends React.Component {
 					)
 					: null
 				}
-				<div className="mky-wrapper-in">
-					<div id="mky-content-connection" className="mky-disappear">
-						<div className="mky-spinner">
-							<div className="mky-bounce1"></div>
-							<div className="mky-bounce2"></div>
-							<div className="mky-bounce3"></div>
+				<div className='mky-wrapper-in'>
+					<div id='mky-content-connection' className={this.state.classLoading}>
+						<div className='mky-spinner'>
+							<div className='mky-bounce1'></div>
+							<div className='mky-bounce2'></div>
+							<div className='mky-bounce3'></div>
 						</div>
 					</div>
-					<div id="mky-content-app" className="">
+					<div id='mky-content-app' className=''>
 						{ this.showConversations
 							? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} userSession={this.props.userSession} show={this.showListConversation}/>
 							: null
@@ -88,6 +89,14 @@ class MonkeyUI extends React.Component {
 				style: style,
 				idTabButton: 'mky-w-max'
 			});
+		}
+	}
+	
+	setLoading(value){
+		if(value){
+			this.setStatus({classLoading: 'mky-appear'});
+		}else{
+			this.setStatus({classLoading: 'mky-disappear'});
 		}
 	}
 	
