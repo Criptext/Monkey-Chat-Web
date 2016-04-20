@@ -24,6 +24,7 @@
     "jquery-knob": "^1.2.11",
     "react": "^0.14.8",
     "react-dom": "^0.14.8",
-    "react-dropzone": "^3.4.0"
+    "react-dropzone": "^3.4.0",
+    "redux": "^3.4.0"
   }
 }
