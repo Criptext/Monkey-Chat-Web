@@ -3,6 +3,10 @@ import {render} from 'react-dom';
 import ContentAside from './ContentAside.js';
 import ContentWindow from './ContentWindow.js';
 
+import SessionForm from './SessionForm.js';
+import MyForm from './MyForm.js';
+const Form_ = SessionForm(MyForm);
+
 class MonkeyUI extends React.Component {
 	constructor(props){
 		super(props);
@@ -13,6 +17,8 @@ class MonkeyUI extends React.Component {
 			idTabButton: 'mky-w-max'
 		}
 		this.openTab = this.openTab.bind(this);
+		this.loginSession = this.loginSession.bind(this);
+		
 		this.handleConversationSelected = this.handleConversationSelected.bind(this);
 		this.handleMessageCreated = this.handleMessageCreated.bind(this);
 		this.defineTime = this.defineTime.bind(this);
@@ -55,26 +61,33 @@ class MonkeyUI extends React.Component {
 					: null
 				}
 				<div className='mky-wrapper-in'>
-					<div id='mky-content-connection' className={this.state.classLoading}>
-						<div className='mky-spinner'>
-							<div className='mky-bounce1'></div>
-							<div className='mky-bounce2'></div>
-							<div className='mky-bounce3'></div>
-						</div>
-					</div>
-					<div id='mky-content-app' className=''>
-						{ this.showConversations
-							? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} userSession={this.props.userSession} show={this.showListConversation}/>
-							: null
-						}
-						<ContentWindow conversationSelected={this.state.conversation} userSessionId={this.props.userSession.id} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
-					</div>
+					{ this.props.userSession
+						? (
+							<div id='mky-content-app' className=''>
+								<div id='mky-content-connection' className={this.state.classLoading}>
+									<div className='mky-spinner'>
+										<div className='mky-bounce1'></div>
+										<div className='mky-bounce2'></div>
+										<div className='mky-bounce3'></div>
+									</div>
+								</div>
+								{ this.props.userSession
+									? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} userSession={this.props.userSession} show={this.showListConversation}/>
+									: null
+								}
+								<ContentWindow conversationSelected={this.state.conversation} userSessionId={this.props.userSession.id} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
+							</div>
+						)
+						: (
+							<Form_ loginSession={this.loginSession} />
+						)
+					}
 				</div>
 			</div>
 		)
 	}
 	
-	openTab(){
+	openTab() {
 		if(this.state.idTabButton === 'mky-w-max'){
 			this.setState({
 				style: this.props.view.data,
@@ -92,7 +105,11 @@ class MonkeyUI extends React.Component {
 		}
 	}
 	
-	setLoading(value){
+	loginSession() {
+		
+	}
+	
+	setLoading(value) {
 		if(value){
 			this.setStatus({classLoading: 'mky-appear'});
 		}else{
@@ -104,7 +121,7 @@ class MonkeyUI extends React.Component {
 	  	this.setState({conversations: this.state.conversations.concat(conversation)})
 	}
 	
-	handleConversationSelected(conversation) {	
+	handleConversationSelected(conversation) {
 		this.setState({conversation: conversation})
 	}
 	
@@ -117,7 +134,7 @@ class MonkeyUI extends React.Component {
 		
 		this.props.messageToSet(message);
 	}
-
+	
 	defineTime(time) {
 	    var _d = new Date(+time);
 	    var nhour = _d.getHours(),
