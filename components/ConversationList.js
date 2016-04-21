@@ -17,21 +17,19 @@ class ConversationList extends Component {
 		const conversation_list = this.createArray();
 
 		const filteredEmails = conversation_list.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
-		console.log( JSON.stringify(conversation_list));
+		console.log( this.props.conversations);
 
     	return (
     		<div>
     		<SearchInput className="search-input" onChange={this.searchUpdated} />
 			{filteredEmails.map(conversation => {
     			return (
-					<ul id='mky-conversation-list'>
+					<div id='mky-conversation-list'>
 						{
-							Object.keys(this.props.conversations).map( key => {
-								const conversation = this.props.conversations[key];
-								return <ConversationItem key={conversation.id} conversation={conversation} conversationSelected={this.props.conversationSelected}/>
-							})
+							<ConversationItem key={conversation.id} conversation={conversation} conversationSelected={this.props.conversationSelected}/>
+							
 						}
-					</ul>
+					</div>
 				)
 			})}
 			</div>
@@ -43,10 +41,9 @@ class ConversationList extends Component {
   	}
   	createArray(){
   		var conversationarray = [];
-  		Object.keys(this.props.conversations).map( key => {
-			const conversation = this.props.conversations[key];
-			conversationarray.push({id:conversation.id, name:conversation.name});
-		})
+		for(var x in this.props.conversations){
+		  conversationarray.push(this.props.conversations[x]);
+		}
 		return conversationarray;
   	}
 }

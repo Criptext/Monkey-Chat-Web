@@ -3,3 +3,27 @@ body, html {
     overflow: hidden;
     margin: 0;
 }
+.search-input {
+  padding: 10px 18px;
+  height: 30px;
+  position: relative;
+  border-bottom: 1px solid #EFEFEF;
+}
+
+.search-input > input {
+    width: 100%;
+    padding: 8px 10px 8px 40px;
+    border-radius: 10px;
+    border: 1px solid #EFF0F2;
+    position: relative;
+    outline: 0;
+    text-align: left;
+    font-size: 12px;
+    background-image: url(https://cdn.criptext.com/MonkeyUI/images/icon_search.png);
+    background-repeat: no-repeat;
+    background-position: 5%;
+}
+
+.search-input > input:focus {
+  outline: none;
+}
