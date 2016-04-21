@@ -15,20 +15,14 @@ class ConversationList extends Component {
 	render() {
 
 		const conversation_list = this.createArray();
-
 		const filteredEmails = conversation_list.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
-
     	return (
     		<div>
 	    		<SearchInput className="search-input" onChange={this.searchUpdated} />
 	    		<div id='mky-conversation-list'>
 				{filteredEmails.map(conversation => {
 	    			return (
-						
-							
-								<ConversationItem key={conversation.id} conversation={conversation} conversationSelected={this.props.conversationSelected}/>
-							
-						
+						<ConversationItem key={conversation.id} conversation={conversation} conversationSelected={this.props.conversationSelected}/>
 					)
 				})}
 				</div>
