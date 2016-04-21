@@ -121,7 +121,7 @@ class MonkeyUI extends React.Component {
 	  	this.setState({conversations: this.state.conversations.concat(conversation)})
 	}
 	
-	handleConversationSelected(conversation) {	
+	handleConversationSelected(conversation) {
 		this.setState({conversation: conversation})
 	}
 	
@@ -134,7 +134,7 @@ class MonkeyUI extends React.Component {
 		
 		this.props.messageToSet(message);
 	}
-
+	
 	defineTime(time) {
 	    var _d = new Date(+time);
 	    var nhour = _d.getHours(),

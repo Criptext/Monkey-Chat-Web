@@ -17,21 +17,21 @@ class ConversationList extends Component {
 		const conversation_list = this.createArray();
 
 		const filteredEmails = conversation_list.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
-		console.log( this.props.conversations);
 
     	return (
     		<div>
-    		<SearchInput className="search-input" onChange={this.searchUpdated} />
-			{filteredEmails.map(conversation => {
-    			return (
-					<div id='mky-conversation-list'>
-						{
-							<ConversationItem key={conversation.id} conversation={conversation} conversationSelected={this.props.conversationSelected}/>
+	    		<SearchInput className="search-input" onChange={this.searchUpdated} />
+	    		<div id='mky-conversation-list'>
+				{filteredEmails.map(conversation => {
+	    			return (
+						
 							
-						}
-					</div>
-				)
-			})}
+								<ConversationItem key={conversation.id} conversation={conversation} conversationSelected={this.props.conversationSelected}/>
+							
+						
+					)
+				})}
+				</div>
 			</div>
 		);
 	}
@@ -39,6 +39,7 @@ class ConversationList extends Component {
 	searchUpdated (term) {
     	this.setState({searchTerm: term})
   	}
+  	
   	createArray(){
   		var conversationarray = [];
 		for(var x in this.props.conversations){

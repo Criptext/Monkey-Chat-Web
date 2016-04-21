@@ -54,7 +54,7 @@ class App extends React.Component {
 		
 		message.id = Object.keys(this.state.conversations[message.recipientId].messages).length + 1;
 		let conversations = this.state.conversations;
-		conversations[this.state.conversation.id].messages[message.id] = message;
+		conversations[message.recipientId].messages[message.id] = message;
 		//this.setState({conversations: conversations});
 		console.log(message);
 
@@ -62,7 +62,6 @@ class App extends React.Component {
 			type: 'SAVE_MESSAGE',
 			conversations: conversations
 		});
-
 	}
 	
 	updateMessage() {
@@ -73,7 +72,7 @@ var userSession = { id:'if9ynf7looscygpvakhxs9k9', name:'Eri', urlAvatar:'https:
 
 function render() {
 	ReactDOM.render(<App userSession={userSession} conversations={store.getState()}/>, document.getElementsByTagName('body')[0]);
-	//ReactDOM.render(<App conversations={store.getState()}/>, document.getElementsByTagName('body')[0]);
+// 	ReactDOM.render(<App conversations={store.getState()}/>, document.getElementsByTagName('body')[0]);
 }
 
 render();
