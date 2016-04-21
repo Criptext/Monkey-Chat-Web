@@ -13,10 +13,6 @@ class ContentAside extends Component {
 						<span id='mky-session-name'>{this.props.userSession.name}</span>
 					</div>
 				</header>
-				<div id='mky-search-panel'>
-					<input id='search-input' className='mky-search-contacts-input' type='text' placeholder='Search for people and group'/>
-					<button id='mky-button-search-reset' className='mky-button-icon' onclick='resetSearchPanel()'></button>
-				</div>
 				<ConversationList conversations={this.props.conversations} conversationSelected={this.props.conversationSelected}/>
 			</aside>
 		);
