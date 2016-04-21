@@ -73,6 +73,7 @@ var userSession = { id:'if9ynf7looscygpvakhxs9k9', name:'Eri', urlAvatar:'https:
 
 function render() {
 	ReactDOM.render(<App userSession={userSession} conversations={store.getState()}/>, document.getElementsByTagName('body')[0]);
+	//ReactDOM.render(<App conversations={store.getState()}/>, document.getElementsByTagName('body')[0]);
 }
 
 render();
