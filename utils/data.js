@@ -66,6 +66,16 @@ export default {
 				type: 4,
 				data: 'http://www.stephaniequinn.com/Music/Mozart%20-%20Presto.mp3',
 				duration: 10,
+			},
+			'4':{
+				id: '4',
+				senderId: 'if9ynf7looscygpvakhxs9k9',
+				timestamp: 2,
+				recipientId: 'ife4c0qdb0dopbg538lg14i',
+				status: 52,
+				type: 5,
+				lat: -7.1667,
+				lon: -79.9000,
 			}
 		}
 	}		

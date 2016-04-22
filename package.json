@@ -20,12 +20,14 @@
   },
   "dependencies": {
     "fileapi": "^2.0.20",
+    "google-map-react": "^0.11.2",
     "jquery": "^2.2.3",
     "jquery-knob": "^1.2.11",
     "react": "^0.14.8",
     "react-dom": "^0.14.8",
     "react-dropzone": "^3.4.0",
     "react-search-input": "^0.8.0",
+    "react-google-maps": "*",
     "redux": "^3.4.0"
   }
 }

@@ -5,11 +5,13 @@ import BubbleText from './BubbleText.js';
 import BubbleImage from './BubbleImage.js';
 import BubbleFile from './BubbleFile.js';
 import BubbleAudio from './BubbleAudio.js';
+import BubbleLocation from './BubbleLocation.js';
 
 const BubbleText_ = Bubble(BubbleText);
 const BubbleImage_ = Bubble(BubbleImage);
 const BubbleFile_ = Bubble(BubbleFile);
 const BubbleAudio_ = Bubble(BubbleAudio);
+const BubbleLocation_ = Bubble(BubbleLocation);
 
 const TimelineChat = ({ conversationSelected, userSessionId }) => (
 	<div id='mky-chat-timeline'>
@@ -27,6 +29,9 @@ const TimelineChat = ({ conversationSelected, userSessionId }) => (
 					break;
 				case 4:
 					return <BubbleAudio_ key={message.id} message={message} userSessionId={userSessionId} layerClass={'audio'} />
+					break;
+				case 5:
+					return <BubbleLocation_ key={message.id} message={message} userSessionId={userSessionId} layerClass={'location'} />
 					break;
 			}
 			

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import TimelineChat from './TimelineChat.js';
 import Input from './Input.js';
+import SimpleMapPage from './Gmap.js';
 
 class ContentWindow extends Component {
 	constructor(props){
