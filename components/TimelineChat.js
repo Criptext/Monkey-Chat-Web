@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import ConversationWindow from './ConversationWindow.js';
 import Bubble from './Bubble.js';
 import BubbleText from './BubbleText.js';
 import BubbleImage from './BubbleImage.js';
