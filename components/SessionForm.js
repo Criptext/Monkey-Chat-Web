@@ -7,7 +7,7 @@ const SessionForm = Component => class extends React.Component {
 		
 	render() {
     	return (
-			<div id='chat-login'>
+			<div id='mky-chat-login'>
 				<Component {...this.props}/>
 			</div>
 		)

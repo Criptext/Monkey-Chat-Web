@@ -17,7 +17,7 @@ class MonkeyUI extends React.Component {
 			idTabButton: 'mky-w-max'
 		}
 		this.openTab = this.openTab.bind(this);
-		this.loginSession = this.loginSession.bind(this);
+		this.handleLoginSession = this.handleLoginSession.bind(this);
 		
 		this.handleConversationSelected = this.handleConversationSelected.bind(this);
 		this.handleMessageCreated = this.handleMessageCreated.bind(this);
@@ -71,7 +71,7 @@ class MonkeyUI extends React.Component {
 										<div className='mky-bounce3'></div>
 									</div>
 								</div>
-								{ this.props.userSession
+								{ this.showConversations
 									? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} userSession={this.props.userSession} show={this.showListConversation}/>
 									: null
 								}
@@ -79,7 +79,7 @@ class MonkeyUI extends React.Component {
 							</div>
 						)
 						: (
-							<Form_ loginSession={this.loginSession} />
+							<Form_ handleLoginSession={this.handleLoginSession} />
 						)
 					}
 				</div>
@@ -105,8 +105,8 @@ class MonkeyUI extends React.Component {
 		}
 	}
 	
-	loginSession() {
-		
+	handleLoginSession(user) {
+		this.props.userSessionToSet(user);
 	}
 	
 	setLoading(value) {
@@ -122,6 +122,7 @@ class MonkeyUI extends React.Component {
 	}
 	
 	handleConversationSelected(conversation) {
+		console.log(conversation);
 		this.setState({conversation: conversation})
 	}
 	
