@@ -6,22 +6,17 @@ import SimpleMapPage from './Gmap.js';
 class ContentWindow extends Component {
 	constructor(props){
 		super(props);
-		this.state = {
-			classStateWindow: '',
-			classStateApp: ''
-		}
 		this.conversationName;
 		this.conversationAvatar;
 		this.classExpand = 'mky-conversation-with';
+		this.classStateApp = '';
+		this.classStateWindow = '';
 	}
 	
 	componentWillMount() {
 		if(this.props.conversationSelected != undefined){
-			this.setState({classStateApp: 'mky-disappear'});
 			this.conversationName = this.props.conversationSelected.name;
 			this.conversationAvatar = this.props.conversationSelected.urlAvatar;
-		}else{
-			this.setState({classStateWindow: 'mky-disabled'});
 		}
 		
 		if(this.props.expandWindow){
@@ -30,9 +25,16 @@ class ContentWindow extends Component {
 	}
 	
 	render() {
+		if(this.props.conversationSelected != undefined){
+			this.classStateApp = 'mky-disappear';
+			this.classStateWindow = '';
+		}else{
+			this.classStateWindow = 'mky-disabled';
+		}
+		
     	return (
-	    	<section id='mky-conversation-window' className={this.classExpand+' '+this.state.classStateWindow}>
-	    		<div id="mky-app-intro" className={this.state.classStateApp}><div></div></div>
+	    	<section id='mky-conversation-window' className={this.classExpand+' '+this.classStateWindow}>
+	    		<div id="mky-app-intro" className={this.classStateApp}><div></div></div>
 				<header id='mky-conversation-selected-header'>
 					<div id='mky-conversation-selected-image'><img src={this.conversationAvatar}/></div>
 					<div id='mky-conversation-selected-description'>
@@ -46,7 +48,6 @@ class ContentWindow extends Component {
 			</section>
 		);
 	}
-	
 }
 
 export default ContentWindow;

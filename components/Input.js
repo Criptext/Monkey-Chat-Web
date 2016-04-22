@@ -72,7 +72,7 @@ class Input extends Component {
 	render() {
     	return (
 			<div id='mky-chat-input'>
-				<div id="mky-divider-chat-input"></div>
+				<div id='mky-divider-chat-input'></div>
 				<div className={'mky-button-input '+this.state.classAttachButton}>
 					<button id="mky-button-attach" className='mky-button-icon' onClick={this.handleAttach}></button>
 				</div>
@@ -80,18 +80,18 @@ class Input extends Component {
 					<button id="mky-button-cancel-audio" className='mky-button-icon' onClick={this.handleCancelAudio}></button>
 				</div>
 				<textarea ref='textareaInput' id="mky-message-text-input" className={'mky-textarea-input '+this.state.classTextArea} value={this.state.text} placeholder="Write a secure message" onKeyDown={this.handleOnKeyDownTextArea} onChange={this.handleOnChangeTextArea}></textarea>
-				<div id="mky-record-area" className={this.state.classAudioArea}>
+				<div id='mky-record-area' className={this.state.classAudioArea}>
 					<div className="mky-record-preview-area">
 						<div id='mky-button-action-record'>
 							<button id="mky-button-start-record" className="mky-blink"></button>
 						</div>
-						<div id="mky-time-recorder">
+						<div id='mky-time-recorder'>
 							<span id="mky-minutes">{this.state.minutes}</span><span>:</span><span id="mky-seconds">{this.state.seconds}</span>
 						</div>
 					</div>
 				</div>
 				<div className={'mky-button-input '+this.state.classSendButton}>
-					<button id="mky-button-send-message" className="mky-button-icon" onClick={this.handleSendMessage}></button>
+					<button id='mky-button-send-message' className="mky-button-icon" onClick={this.handleSendMessage}></button>
 				</div>
 				<div className={'mky-button-input mky-disabledd '+this.state.classAudioButton}>
 					<button id="mky-button-record-audio" className="mky-button-icon" onClick={this.handleRecordAudio}></button>
