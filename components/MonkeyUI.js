@@ -122,7 +122,6 @@ class MonkeyUI extends React.Component {
 	}
 	
 	handleConversationSelected(conversation) {
-		console.log(conversation);
 		this.setState({conversation: conversation})
 	}
 	
