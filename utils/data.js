@@ -4,7 +4,7 @@ export default {
 		lastMessage: undefined,
 		members: [{monkey_id: 'if9ynf7looscygpvakhxs9k9', name: 'Eri'}, {monkey_id: 'idkh61jqs9ia151u7edhd7vi', name: 'Gianni'}, {monkey_id: 'ife4c0qdb0dopbg538lg14i' , name: 'Luis Loaiza'}],
 		name: 'SWEET & COFFEE BOYZ',
-		unreadMessageCount: 0,
+		unreadMessageCount: 7,
 		urlAvatar: 'https://secure.criptext.com/avatars/avatar_G:330.png',
 		messages: {
 			'1': {

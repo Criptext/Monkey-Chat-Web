@@ -6,7 +6,7 @@ class ContentWindow extends Component {
 	constructor(props){
 		super(props);
 		this.classExpand = 'mky-content-window-with';
-		this.classStateWindow = '';
+		this.classStateWindow = 'mky-disabled';
 	}
 	
 	componentWillMount() {
@@ -18,8 +18,6 @@ class ContentWindow extends Component {
 	render() {
 		if(this.props.conversationSelected != undefined){
 			this.classStateWindow = '';
-		}else{
-			this.classStateWindow = 'mky-disabled';
 		}
 		
     	return (

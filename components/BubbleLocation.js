@@ -7,7 +7,7 @@ class BubbleLocation extends React.Component {
 
 	render() {
 		return (
-			<div className='mky-location-file'>
+			<div className='mky-content-location'>
 				<a className='mky-location-link' href={"https://maps.google.com/maps?q=" + this.props.message.lat + "," + this.props.message.lon + "&amp;z=17"} >
 					<img src="images/gmap_default.png"></img>
 					<div className='mky-location-detail'>
