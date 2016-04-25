@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-const SessionForm = Component => class extends React.Component {
+const ContentLogin = Component => class extends React.Component {
 	constructor(props){
 		super(props);
 	}
@@ -14,4 +14,4 @@ const SessionForm = Component => class extends React.Component {
 	}
 }
 
-export default SessionForm;
+export default ContentLogin;

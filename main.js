@@ -59,7 +59,6 @@ class App extends React.Component {
 		message.id = Object.keys(this.state.conversations[message.recipientId].messages).length + 1;
 		let conversations = this.state.conversations;
 		conversations[message.recipientId].messages[message.id] = message;
-		//this.setState({conversations: conversations});
 		console.log(message);
 
 		store.dispatch({
