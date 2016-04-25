@@ -19842,6 +19842,11 @@
 		}
 
 		_createClass(MonkeyUI, [{
+			key: 'getChildContext',
+			value: function getChildContext() {
+				return { userSession: this.props.userSession };
+			}
+		}, {
 			key: 'componentWillMount',
 			value: function componentWillMount() {
 				this.setState({ conversation: this.props.conversation });
@@ -19897,8 +19902,8 @@
 									_react2.default.createElement('div', { className: 'mky-bounce3' })
 								)
 							),
-							this.showConversations ? _react2.default.createElement(_ContentAside2.default, { conversations: this.props.conversations, conversationSelected: this.handleConversationSelected, userSession: this.props.userSession, show: this.showListConversation }) : null,
-							_react2.default.createElement(_ContentWindow2.default, { conversationSelected: this.state.conversation, userSessionId: this.props.userSession.id, messageCreated: this.handleMessageCreated, expandWindow: this.expandWindow })
+							this.showConversations ? _react2.default.createElement(_ContentAside2.default, { conversations: this.props.conversations, conversationSelected: this.handleConversationSelected, show: this.showListConversation }) : null,
+							_react2.default.createElement(_ContentWindow2.default, { conversationSelected: this.state.conversation, messageCreated: this.handleMessageCreated, expandWindow: this.expandWindow })
 						) : _react2.default.createElement(Form_, { handleLoginSession: this.handleLoginSession })
 					)
 				);
@@ -19992,6 +19997,10 @@
 		tabHeight: '30px'
 	};
 
+	MonkeyUI.childContextTypes = {
+		userSession: _react2.default.PropTypes.object
+	};
+
 	exports.default = MonkeyUI;
 
 /***/ },
@@ -20025,10 +20034,13 @@
 	var ContentAside = function (_Component) {
 		_inherits(ContentAside, _Component);
 
-		function ContentAside() {
+		function ContentAside(props, context) {
 			_classCallCheck(this, ContentAside);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(ContentAside).apply(this, arguments));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ContentAside).call(this, props));
+
+			context.userSession;
+			return _this;
 		}
 
 		_createClass(ContentAside, [{
@@ -20043,7 +20055,7 @@
 						_react2.default.createElement(
 							'div',
 							{ id: 'mky-session-image' },
-							_react2.default.createElement('img', { src: this.props.userSession.urlAvatar })
+							_react2.default.createElement('img', { src: this.context.userSession.urlAvatar })
 						),
 						_react2.default.createElement(
 							'div',
@@ -20051,7 +20063,7 @@
 							_react2.default.createElement(
 								'span',
 								{ id: 'mky-session-name' },
-								this.props.userSession.name
+								this.context.userSession.name
 							)
 						)
 					),
@@ -20062,6 +20074,10 @@
 
 		return ContentAside;
 	}(_react.Component);
+
+	ContentAside.contextTypes = {
+		userSession: _react2.default.PropTypes.object.isRequired
+	};
 
 	exports.default = ContentAside;
 
@@ -21338,7 +21354,7 @@
 				return _react2.default.createElement(
 					'section',
 					{ className: this.classExpand + ' ' + this.classStateWindow },
-					this.props.conversationSelected ? _react2.default.createElement(_ContentConversation2.default, { conversationSelected: this.props.conversationSelected, userSessionId: this.props.userSessionId, messageCreated: this.props.messageCreated }) : _react2.default.createElement(_ContentIntro2.default, null)
+					this.props.conversationSelected ? _react2.default.createElement(_ContentConversation2.default, { conversationSelected: this.props.conversationSelected, messageCreated: this.props.messageCreated }) : _react2.default.createElement(_ContentIntro2.default, null)
 				);
 			}
 		}]);
@@ -21463,8 +21479,8 @@
 							_react2.default.createElement('span', { id: 'mky-conversation-selected-status' })
 						)
 					),
-					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected, userSessionId: this.props.userSessionId }),
-					_react2.default.createElement(_Input2.default, { messageCreated: this.props.messageCreated, userSessionId: this.props.userSessionId }),
+					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected }),
+					_react2.default.createElement(_Input2.default, { messageCreated: this.props.messageCreated }),
 					_react2.default.createElement(
 						'div',
 						{ className: 'mky-signature' },
@@ -21530,33 +21546,35 @@
 	var BubbleAudio_ = (0, _Bubble2.default)(_BubbleAudio2.default);
 	var BubbleLocation_ = (0, _Bubble2.default)(_BubbleLocation2.default);
 
-	var TimelineChat = function TimelineChat(_ref) {
-		var conversationSelected = _ref.conversationSelected;
-		var userSessionId = _ref.userSessionId;
+	var TimelineChat = function TimelineChat(props, context) {
 		return _react2.default.createElement(
 			'div',
 			{ id: 'mky-chat-timeline' },
-			typeof conversationSelected !== 'undefined' ? Object.keys(conversationSelected.messages).map(function (key) {
-				var message = conversationSelected.messages[key];
+			typeof props.conversationSelected !== 'undefined' ? Object.keys(props.conversationSelected.messages).map(function (key) {
+				var message = props.conversationSelected.messages[key];
 				switch (message.type) {
 					case 1:
-						return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'text' });
+						return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'text' });
 						break;
 					case 2:
-						return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'image' });
+						return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'image' });
 						break;
 					case 3:
-						return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'file' });
+						return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'file' });
 						break;
 					case 4:
-						return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'audio' });
+						return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'audio' });
 						break;
 					case 5:
-						return _react2.default.createElement(BubbleLocation_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'location' });
+						return _react2.default.createElement(BubbleLocation_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'location' });
 						break;
 				}
 			}) : null
 		);
+	};
+
+	TimelineChat.contextTypes = {
+		userSession: _react2.default.PropTypes.object.isRequired
 	};
 
 	exports.default = TimelineChat;
@@ -21601,6 +21619,7 @@
 			_createClass(_class, [{
 				key: 'render',
 				value: function render() {
+					this.context.userSession;
 					var classBubble = this.defineClass();
 					if (this.props.message.nameColor) {
 						this.styleName = { color: this.props.message.nameColor };
@@ -21656,9 +21675,7 @@
 				value: function defineClass() {
 					var prefix = 'mky-';
 					var baseClass = 'bubble';
-
 					var layerClass = this.props.layerClass;
-
 					var side = '';
 					if (this.props.userSessionId === this.props.message.senderId) {
 						side = 'out';

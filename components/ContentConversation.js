@@ -14,8 +14,8 @@ class ContentConversation extends Component {
 						<span id='mky-conversation-selected-status'></span>
 					</div>
 				</header>
-				<TimelineChat conversationSelected={this.props.conversationSelected} userSessionId={this.props.userSessionId}/>
-				<Input messageCreated={this.props.messageCreated} userSessionId={this.props.userSessionId}/>
+				<TimelineChat conversationSelected={this.props.conversationSelected}/>
+				<Input messageCreated={this.props.messageCreated}/>
 				<div className='mky-signature'>Powered by <a className='mky-signature-link' target='_blank' href='http://criptext.com/'>Criptext</a></div>
 			</div>
 		)

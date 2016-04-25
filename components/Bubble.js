@@ -5,8 +5,9 @@ const Bubble = Component => class extends React.Component {
 		super(props);
 		this.styleName;
 	}
-		
+  
 	render() {
+		this.context.userSession;
 		let classBubble = this.defineClass();
 		if(this.props.message.nameColor){
 			this.styleName = { color: this.props.message.nameColor };
@@ -20,9 +21,7 @@ const Bubble = Component => class extends React.Component {
 						? <Status value={this.props.message.status} classStatus={this.defineStatusClass(this.props.message.status)}/>
 						: (
 							this.props.message.name
-							? (
-								<span className="mky-message-user-name">{this.props.message.name}</span>
-							)
+							? <span className="mky-message-user-name">{this.props.message.name}</span>
 							: null
 						)
 					}
@@ -57,9 +56,7 @@ const Bubble = Component => class extends React.Component {
 	defineClass() {
 		const prefix = 'mky-';
 		const baseClass = 'bubble';
-		
 		let layerClass = this.props.layerClass;
-		
 		let side = '';
 		if(this.props.userSessionId === this.props.message.senderId){
 			side = 'out';
@@ -70,7 +67,7 @@ const Bubble = Component => class extends React.Component {
 		return prefix+baseClass+' '+prefix+baseClass+'-'+side+' '+prefix+baseClass+'-'+layerClass+' '+prefix+baseClass+'-'+layerClass+'-'+side
 	}
 }
-
+	
 const Status = ({value, classStatus}) => (
 	<div className={"mky-message-status "+classStatus}>
 		{value !== 0 ? <i className="fa fa-check"></i> : null}
