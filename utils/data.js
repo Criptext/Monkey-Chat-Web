@@ -1,7 +1,7 @@
 export default {
 	'G:330': {
 		id: 'G:330',
-		lastMessage: undefined,
+		lastMessage: '3',
 		members: [{monkey_id: 'if9ynf7looscygpvakhxs9k9', name: 'Eri'}, {monkey_id: 'idkh61jqs9ia151u7edhd7vi', name: 'Gianni'}, {monkey_id: 'ife4c0qdb0dopbg538lg14i' , name: 'Luis Loaiza'}],
 		name: 'SWEET & COFFEE BOYZ',
 		unreadMessageCount: 7,
@@ -14,7 +14,8 @@ export default {
 				recipientId: 'G:330',
 				status: 0,
 				type: 2,
-				data: 'http://36.media.tumblr.com/tumblr_m59wl0R4rX1qmvdhyo1_500.png'
+				data: 'http://36.media.tumblr.com/tumblr_m59wl0R4rX1qmvdhyo1_500.png',
+				text: 'Image'
 			},
 			'2': {
 				id: '2',
@@ -37,13 +38,14 @@ export default {
 				data: 'http://www.stephaniequinn.com/Music/Canon.mp3',
 				duration: 10,
 				name: 'Luis',
-				nameColor: '#23ff23'
-			},
+				nameColor: '#23ff23',
+				text: 'Audio'
+			}
 		}
 	},
 	'idlk0p519nvfmfgfzdbfn7b9': {
 		id: 'idlk0p519nvfmfgfzdbfn7b9',
-		lastMessage: undefined,
+		lastMessage: '2',
 		members: undefined,
 		name: 'Alberto',
 		unreadMessageCount: 0,
@@ -57,6 +59,7 @@ export default {
 				status: 0,
 				type: 2,
 				data: 'http://www.mejoresjugosparabajardepeso.com/wp-content/uploads/2015/08/manzana-verde-3-300x198.jpg',
+				text: 'Image'
 			},
 			'2': {
 				id: '2',
@@ -71,7 +74,7 @@ export default {
 	},
 	'ife4c0qdb0dopbg538lg14i': {
 		id: 'ife4c0qdb0dopbg538lg14i',
-		lastMessage: undefined,
+		lastMessage: '4',
 		members: undefined,
 		name: 'Luis Loaiza',
 		unreadMessageCount: 0,
@@ -87,6 +90,7 @@ export default {
 				data: 'http://www.publishers.org.uk/_resources/assets/attachment/full/0/2091.pdf',
 				filename: 'An example paper',
 				filesize: 194007,
+				text: 'File'
 			},
 			'2': {
 				id: '1460400827385',
@@ -97,6 +101,7 @@ export default {
 				type: 4,
 				data: 'http://www.stephaniequinn.com/Music/Canon.mp3',
 				duration: 10,
+				text: 'Audio'
 			},
 			'3':{
 				id: '3',
@@ -107,6 +112,7 @@ export default {
 				type: 4,
 				data: 'http://www.stephaniequinn.com/Music/Mozart%20-%20Presto.mp3',
 				duration: 10,
+				text: 'Audio'
 			},
 			'4':{
 				id: '4',
@@ -117,6 +123,7 @@ export default {
 				type: 5,
 				lat: -7.1667,
 				lon: -79.9000,
+				text: 'Location'
 			}
 		}
 	}		

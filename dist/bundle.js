@@ -136,21 +136,17 @@
 		}, {
 			key: 'handleMessageToSet',
 			value: function handleMessageToSet(message) {
-
+				// replace message.id with oldMessageId, when use monkey
 				message.id = Object.keys(this.state.conversations[message.recipientId].messages).length + 1;
-				var conversations = this.state.conversations;
-				conversations[message.recipientId].messages[message.id] = message;
-				console.log(message);
 
 				store.dispatch({
-					type: 'SAVE_MESSAGE',
-					conversations: conversations
+					type: 'ADD_MESSAGE',
+					message: message
 				});
 			}
 		}, {
 			key: 'handleUserSessionToSet',
 			value: function handleUserSessionToSet(user) {
-				console.log(user);
 				user.id = 'if9ynf7looscygpvakhxs9k9';
 				user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
 				this.setState({ userSession: user });
@@ -19842,6 +19838,11 @@
 		}
 
 		_createClass(MonkeyUI, [{
+			key: 'getChildContext',
+			value: function getChildContext() {
+				return { userSession: this.props.userSession };
+			}
+		}, {
 			key: 'componentWillMount',
 			value: function componentWillMount() {
 				this.setState({ conversation: this.props.conversation });
@@ -19897,8 +19898,8 @@
 									_react2.default.createElement('div', { className: 'mky-bounce3' })
 								)
 							),
-							this.showConversations ? _react2.default.createElement(_ContentAside2.default, { conversations: this.props.conversations, conversationSelected: this.handleConversationSelected, userSession: this.props.userSession, show: this.showListConversation }) : null,
-							_react2.default.createElement(_ContentWindow2.default, { conversationSelected: this.state.conversation, userSessionId: this.props.userSession.id, messageCreated: this.handleMessageCreated, expandWindow: this.expandWindow })
+							this.showConversations ? _react2.default.createElement(_ContentAside2.default, { conversations: this.props.conversations, conversationSelected: this.handleConversationSelected, show: this.showListConversation }) : null,
+							_react2.default.createElement(_ContentWindow2.default, { conversationSelected: this.state.conversation, messageCreated: this.handleMessageCreated, expandWindow: this.expandWindow })
 						) : _react2.default.createElement(Form_, { handleLoginSession: this.handleLoginSession })
 					)
 				);
@@ -19992,6 +19993,10 @@
 		tabHeight: '30px'
 	};
 
+	MonkeyUI.childContextTypes = {
+		userSession: _react2.default.PropTypes.object
+	};
+
 	exports.default = MonkeyUI;
 
 /***/ },
@@ -20025,10 +20030,13 @@
 	var ContentAside = function (_Component) {
 		_inherits(ContentAside, _Component);
 
-		function ContentAside() {
+		function ContentAside(props, context) {
 			_classCallCheck(this, ContentAside);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(ContentAside).apply(this, arguments));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ContentAside).call(this, props));
+
+			context.userSession;
+			return _this;
 		}
 
 		_createClass(ContentAside, [{
@@ -20043,7 +20051,7 @@
 						_react2.default.createElement(
 							'div',
 							{ id: 'mky-session-image' },
-							_react2.default.createElement('img', { src: this.props.userSession.urlAvatar })
+							_react2.default.createElement('img', { src: this.context.userSession.urlAvatar })
 						),
 						_react2.default.createElement(
 							'div',
@@ -20051,7 +20059,7 @@
 							_react2.default.createElement(
 								'span',
 								{ id: 'mky-session-name' },
-								this.props.userSession.name
+								this.context.userSession.name
 							)
 						)
 					),
@@ -20062,6 +20070,10 @@
 
 		return ContentAside;
 	}(_react.Component);
+
+	ContentAside.contextTypes = {
+		userSession: _react2.default.PropTypes.object.isRequired
+	};
 
 	exports.default = ContentAside;
 
@@ -20237,7 +20249,7 @@
 							_react2.default.createElement(
 								'span',
 								{ className: 'mky-ellipsify' },
-								'Last message'
+								this.props.conversation.messages[this.props.conversation.lastMessage].text
 							)
 						)
 					),
@@ -20255,15 +20267,14 @@
 		return ConversationItem;
 	}(_react.Component);
 
-	var Badge = function Badge(_ref) {
-		var value = _ref.value;
+	var Badge = function Badge(props) {
 		return _react2.default.createElement(
 			'div',
 			{ className: 'mky-conversation-notification' },
-			value !== 0 ? _react2.default.createElement(
+			props.value !== 0 ? _react2.default.createElement(
 				'div',
 				{ className: 'mky-notification-amount' },
-				value
+				props.value
 			) : null
 		);
 	};
@@ -21338,7 +21349,7 @@
 				return _react2.default.createElement(
 					'section',
 					{ className: this.classExpand + ' ' + this.classStateWindow },
-					this.props.conversationSelected ? _react2.default.createElement(_ContentConversation2.default, { conversationSelected: this.props.conversationSelected, userSessionId: this.props.userSessionId, messageCreated: this.props.messageCreated }) : _react2.default.createElement(_ContentIntro2.default, null)
+					this.props.conversationSelected ? _react2.default.createElement(_ContentConversation2.default, { conversationSelected: this.props.conversationSelected, messageCreated: this.props.messageCreated }) : _react2.default.createElement(_ContentIntro2.default, null)
 				);
 			}
 		}]);
@@ -21463,8 +21474,8 @@
 							_react2.default.createElement('span', { id: 'mky-conversation-selected-status' })
 						)
 					),
-					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected, userSessionId: this.props.userSessionId }),
-					_react2.default.createElement(_Input2.default, { messageCreated: this.props.messageCreated, userSessionId: this.props.userSessionId }),
+					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected }),
+					_react2.default.createElement(_Input2.default, { messageCreated: this.props.messageCreated }),
 					_react2.default.createElement(
 						'div',
 						{ className: 'mky-signature' },
@@ -21530,33 +21541,35 @@
 	var BubbleAudio_ = (0, _Bubble2.default)(_BubbleAudio2.default);
 	var BubbleLocation_ = (0, _Bubble2.default)(_BubbleLocation2.default);
 
-	var TimelineChat = function TimelineChat(_ref) {
-		var conversationSelected = _ref.conversationSelected;
-		var userSessionId = _ref.userSessionId;
+	var TimelineChat = function TimelineChat(props, context) {
 		return _react2.default.createElement(
 			'div',
 			{ id: 'mky-chat-timeline' },
-			typeof conversationSelected !== 'undefined' ? Object.keys(conversationSelected.messages).map(function (key) {
-				var message = conversationSelected.messages[key];
+			typeof props.conversationSelected !== 'undefined' ? Object.keys(props.conversationSelected.messages).map(function (key) {
+				var message = props.conversationSelected.messages[key];
 				switch (message.type) {
 					case 1:
-						return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'text' });
+						return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'text' });
 						break;
 					case 2:
-						return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'image' });
+						return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'image' });
 						break;
 					case 3:
-						return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'file' });
+						return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'file' });
 						break;
 					case 4:
-						return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'audio' });
+						return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'audio' });
 						break;
 					case 5:
-						return _react2.default.createElement(BubbleLocation_, { key: message.id, message: message, userSessionId: userSessionId, layerClass: 'location' });
+						return _react2.default.createElement(BubbleLocation_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'location' });
 						break;
 				}
 			}) : null
 		);
+	};
+
+	TimelineChat.contextTypes = {
+		userSession: _react2.default.PropTypes.object.isRequired
 	};
 
 	exports.default = TimelineChat;
@@ -21601,6 +21614,7 @@
 			_createClass(_class, [{
 				key: 'render',
 				value: function render() {
+					this.context.userSession;
 					var classBubble = this.defineClass();
 					if (this.props.message.nameColor) {
 						this.styleName = { color: this.props.message.nameColor };
@@ -21656,9 +21670,7 @@
 				value: function defineClass() {
 					var prefix = 'mky-';
 					var baseClass = 'bubble';
-
 					var layerClass = this.props.layerClass;
-
 					var side = '';
 					if (this.props.userSessionId === this.props.message.senderId) {
 						side = 'out';
@@ -22575,8 +22587,7 @@
 	                    that.audioCaptured.oldId = that.audioMessageOldId;
 	                    that.audioCaptured.type = 'audio/mpeg';
 
-	                    // $(monkeyUI).trigger('audioMessage', this.audioCaptured);
-	                    var message = { data: that.audioCaptured.src, type: 4 };
+	                    var message = { data: that.audioCaptured.src, type: 4, text: 'Audio' };
 	                    that.props.messageCreated(message);
 	                } else if (evt.type == 'progress') {
 	                    var pr = evt.loaded / evt.total * 100;
@@ -22634,11 +22645,13 @@
 	                        case 1:
 	                            {
 	                                message.type = 2;
+	                                message.text = 'Image';
 	                                break;
 	                            }
 	                        case 2:
 	                            {
 	                                message.type = 3;
+	                                message.text = 'File';
 	                                break;
 	                            }
 	                    }
@@ -40173,7 +40186,8 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	exports.default = messages;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var _data = __webpack_require__(250);
 
@@ -40181,18 +40195,39 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function messages(state, action) {
+	var conversations = function conversations(state, action) {
 		if (typeof state === 'undefined') {
 			return _data2.default;
 		}
 		switch (action.type) {
-			case 'SAVE_MESSAGE':
-				{
-					return action.conversations;
-				}
-				break;
+			case 'ADD_MESSAGE':
+				var conversationId = action.message.recipientId;
+				var conversation = state[conversationId];
+				// add message
+				conversation.messages[action.message.id] = action.message;
+				// update last message
+				conversation.lastMessage = action.message.id;
+
+				return _extends({}, state, {
+					conversationId: conversation
+				});
+			default:
+				return state;
+		}
+	};
+
+	/*
+	const app = (state, action) => {
+		if (typeof state === 'undefined') {
+	        return initData;
+	    }
+		return {
+			conversations: conversations(state.conversations, action)
 		}
 	}
+	*/
+
+	exports.default = conversations;
 
 /***/ },
 /* 250 */
@@ -40206,7 +40241,7 @@
 	exports.default = {
 		'G:330': {
 			id: 'G:330',
-			lastMessage: undefined,
+			lastMessage: '3',
 			members: [{ monkey_id: 'if9ynf7looscygpvakhxs9k9', name: 'Eri' }, { monkey_id: 'idkh61jqs9ia151u7edhd7vi', name: 'Gianni' }, { monkey_id: 'ife4c0qdb0dopbg538lg14i', name: 'Luis Loaiza' }],
 			name: 'SWEET & COFFEE BOYZ',
 			unreadMessageCount: 7,
@@ -40219,7 +40254,8 @@
 					recipientId: 'G:330',
 					status: 0,
 					type: 2,
-					data: 'http://36.media.tumblr.com/tumblr_m59wl0R4rX1qmvdhyo1_500.png'
+					data: 'http://36.media.tumblr.com/tumblr_m59wl0R4rX1qmvdhyo1_500.png',
+					text: 'Image'
 				},
 				'2': {
 					id: '2',
@@ -40242,13 +40278,14 @@
 					data: 'http://www.stephaniequinn.com/Music/Canon.mp3',
 					duration: 10,
 					name: 'Luis',
-					nameColor: '#23ff23'
+					nameColor: '#23ff23',
+					text: 'Audio'
 				}
 			}
 		},
 		'idlk0p519nvfmfgfzdbfn7b9': {
 			id: 'idlk0p519nvfmfgfzdbfn7b9',
-			lastMessage: undefined,
+			lastMessage: '2',
 			members: undefined,
 			name: 'Alberto',
 			unreadMessageCount: 0,
@@ -40261,7 +40298,8 @@
 					recipientId: 'idlk0p519nvfmfgfzdbfn7b9',
 					status: 0,
 					type: 2,
-					data: 'http://www.mejoresjugosparabajardepeso.com/wp-content/uploads/2015/08/manzana-verde-3-300x198.jpg'
+					data: 'http://www.mejoresjugosparabajardepeso.com/wp-content/uploads/2015/08/manzana-verde-3-300x198.jpg',
+					text: 'Image'
 				},
 				'2': {
 					id: '2',
@@ -40276,7 +40314,7 @@
 		},
 		'ife4c0qdb0dopbg538lg14i': {
 			id: 'ife4c0qdb0dopbg538lg14i',
-			lastMessage: undefined,
+			lastMessage: '4',
 			members: undefined,
 			name: 'Luis Loaiza',
 			unreadMessageCount: 0,
@@ -40291,7 +40329,8 @@
 					type: 3,
 					data: 'http://www.publishers.org.uk/_resources/assets/attachment/full/0/2091.pdf',
 					filename: 'An example paper',
-					filesize: 194007
+					filesize: 194007,
+					text: 'File'
 				},
 				'2': {
 					id: '1460400827385',
@@ -40301,7 +40340,8 @@
 					status: 52,
 					type: 4,
 					data: 'http://www.stephaniequinn.com/Music/Canon.mp3',
-					duration: 10
+					duration: 10,
+					text: 'Audio'
 				},
 				'3': {
 					id: '3',
@@ -40311,7 +40351,8 @@
 					status: 52,
 					type: 4,
 					data: 'http://www.stephaniequinn.com/Music/Mozart%20-%20Presto.mp3',
-					duration: 10
+					duration: 10,
+					text: 'Audio'
 				},
 				'4': {
 					id: '4',
@@ -40321,7 +40362,8 @@
 					status: 52,
 					type: 5,
 					lat: -7.1667,
-					lon: -79.9000
+					lon: -79.9000,
+					text: 'Location'
 				}
 			}
 		}

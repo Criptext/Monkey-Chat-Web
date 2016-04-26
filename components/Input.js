@@ -343,8 +343,7 @@ class Input extends Component {
                 that.audioCaptured.oldId = that.audioMessageOldId;
                 that.audioCaptured.type = 'audio/mpeg';
                 
-                // $(monkeyUI).trigger('audioMessage', this.audioCaptured);
-                let message = {data: that.audioCaptured.src, type: 4};
+                let message = {data: that.audioCaptured.src, type: 4, text: 'Audio'};
                 that.props.messageCreated(message);
 
             } else if (evt.type == 'progress') {
@@ -393,10 +392,12 @@ class Input extends Component {
 	            switch(type){
 		            case 1:{
 			            message.type = 2;
+			            message.text = 'Image';
 			            break;
 		            }
 		            case 2:{
 			            message.type = 3;
+			            message.text = 'File';
 			            break;
 		            }
 	            }

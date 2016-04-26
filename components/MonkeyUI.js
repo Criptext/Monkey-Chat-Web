@@ -26,6 +26,10 @@ class MonkeyUI extends React.Component {
 		this.expandWindow = false;
 	}
 	
+	getChildContext() {
+	    return { userSession: this.props.userSession }
+	}
+	
 	componentWillMount() {
 		this.setState({conversation: this.props.conversation});
 		
@@ -72,10 +76,10 @@ class MonkeyUI extends React.Component {
 									</div>
 								</div>
 								{ this.showConversations
-									? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} userSession={this.props.userSession} show={this.showListConversation}/>
+									? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
 									: null
 								}
-								<ContentWindow conversationSelected={this.state.conversation} userSessionId={this.props.userSession.id} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
+								<ContentWindow conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
 							</div>
 						)
 						: <Form_ handleLoginSession={this.handleLoginSession} />
@@ -161,6 +165,10 @@ MonkeyUI.defaultProps = {
 		type: 'fullscreen'
 	},
 	tabHeight: '30px'
+}
+
+MonkeyUI.childContextTypes = {
+	userSession: React.PropTypes.object
 }
 
 export default MonkeyUI;

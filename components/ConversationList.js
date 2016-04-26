@@ -36,6 +36,7 @@ class ConversationList extends Component {
 			</div>
 		)
 	}
+	
 	conversationSelected(conversation) {
 		this.setState({conversation: conversation});
 		this.props.conversationSelected(conversation);
