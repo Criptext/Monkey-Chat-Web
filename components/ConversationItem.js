@@ -16,7 +16,7 @@ class ConversationItem extends Component {
 				<div className='mky-conversation-image'><img src={this.props.conversation.urlAvatar} onerror='imgError(this);'/></div>
 				<div className='mky-conversation-description'>
 					<div className='mky-conversation-name'><span className='mky-ellipsify'>{this.props.conversation.name}</span></div>
-					<div className="mky-conversation-state"><span className="mky-ellipsify">Last message</span></div>
+					<div className="mky-conversation-state"><span className="mky-ellipsify">{this.props.conversation.messages[this.props.conversation.lastMessage].text}</span></div>
 				</div>
 				<Badge value={this.state.unreadMessageCount}/>
 			</li>
@@ -27,14 +27,13 @@ class ConversationItem extends Component {
 		this.props.conversationSelected(this.props.conversation);
 		this.setState({unreadMessageCount: 0});
 	}
-	
 }
 
-const Badge = ({value}) => (
+const Badge = (props) => (
 	<div className="mky-conversation-notification">
 	{
-		value !== 0
-		? <div className="mky-notification-amount">{value}</div>
+		props.value !== 0
+		? <div className="mky-notification-amount">{props.value}</div>
 		: null
 	}
 	</div>

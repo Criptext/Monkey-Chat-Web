@@ -55,20 +55,16 @@ class App extends React.Component {
 	}
 	
 	handleMessageToSet(message) {
-		
+		// replace message.id with oldMessageId, when use monkey
 		message.id = Object.keys(this.state.conversations[message.recipientId].messages).length + 1;
-		let conversations = this.state.conversations;
-		conversations[message.recipientId].messages[message.id] = message;
-		console.log(message);
 
 		store.dispatch({
-			type: 'SAVE_MESSAGE',
-			conversations: conversations
+			type: 'ADD_MESSAGE',
+			message: message
 		});
 	}
 	
 	handleUserSessionToSet(user) {
-		console.log(user);
 		user.id = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
 		this.setState({userSession: user});
