@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Dropzone from 'react-dropzone';
+import InputMenu from './InputMenu.js';
 
 // ======================
 // MediaStreamRecorder.js
@@ -31,7 +32,8 @@ class Input extends Component {
 			minutes: '00',
 			seconds: '00',
 			files: null,
-			text: ''
+			text: '',
+            menuVisibility: 0
 		}
 		this.handleOnKeyDownTextArea = this.handleOnKeyDownTextArea.bind(this);
 		this.textMessageInput = this.textMessageInput.bind(this);
@@ -52,6 +54,7 @@ class Input extends Component {
 		this.buildAudio = this.buildAudio.bind(this);
 		this.buildMP3 = this.buildMP3.bind(this);
 		this.getFFMPEGWorker = this.getFFMPEGWorker.bind(this);
+        this.handleMenuVisibility = this.handleMenuVisibility.bind(this);
 		this.readData = this.readData.bind(this);
 		this.pauseAllAudio = this.pauseAllAudio.bind(this);
 		this.handleOnChangeTextArea = this.handleOnChangeTextArea.bind(this);
@@ -68,17 +71,21 @@ class Input extends Component {
 		this.ffmpegRunning = false;
 		this.ffmpegWorker;
 	}
-	
+
+    componentWillReceiveProps(nextProps){
+        this.setState({
+            option: 0
+        });
+    }
+
 	render() {
     	return (
 			<div id='mky-chat-input'>
 				<div id='mky-divider-chat-input'></div>
 				<div className={'mky-button-input '+this.state.classAttachButton}>
-					<button id="mky-button-attach" className='mky-button-icon' onClick={this.handleAttach}></button>
+					<button id="mky-button-attach" className='mky-button-icon' onClick={this.handleMenuVisibility}></button>
 				</div>
-                <div className={'mky-button-input '+this.state.classAttachButton}>
-                    <button className='mky-button-icon' onClick={this.props.enableGeoInput}>Pon tu location varon</button>
-                </div>
+                <InputMenu visible={this.state.menuVisibility} enableGeoInput={this.props.enableGeoInput} handleAttach={this.handleAttach}/>
 				<div className={'mky-button-input '+this.state.classCancelAudioButton}>
 					<button id="mky-button-cancel-audio" className='mky-button-icon' onClick={this.handleCancelAudio}></button>
 				</div>
@@ -110,6 +117,13 @@ class Input extends Component {
 		this.ffmpegWorker = this.getFFMPEGWorker();
 	}
 	
+    handleMenuVisibility(){
+        console.log('handle');
+        this.setState({
+          menuVisibility : !this.state.menuVisibility
+        });
+    }
+
 	textMessageInput(text) {
 		let message = {
 			type: 1,

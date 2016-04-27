@@ -166,3 +166,66 @@ body, html {
   margin-left: -11px;
   opacity: 0.5;
 }
+
+.menu-bubble {
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  top: -250%;
+  left: -15px;
+  text-align: center;
+  background-color: #292929;
+  border: 8px solid #292929;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  border-radius: 10px;
+  -webkit-box-shadow: 2px 2px 4px #888;
+  -moz-box-shadow: 2px 2px 4px #888;
+  box-shadow: 2px 2px 4px #888;
+  z-index: 3000;
+  color: white;
+}
+
+.menu-bubble:before{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 30px;
+  top: 100px;
+  border: 10px solid;
+  border-color: #292929 transparent transparent #292929;
+}
+
+.menu-bubble:after {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 38px;
+  top: 100px;
+  border-color: #292929 transparent transparent #292929;
+}
+
+.menu-bubble-item{
+  height: 50%;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.menu-bubble-item:hover{
+  background-color: white;
+  color: black;
+}
+
+.menu-bubble-item p{
+  width: 70%;
+  float: left;
+}
+
+.menu-bubble-item img{
+  height: 60%;
+  float: left;
+  top: 20%;
+  position: relative;
+}
