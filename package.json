@@ -27,8 +27,10 @@
     "react": "^0.14.8",
     "react-dom": "^0.14.8",
     "react-dropzone": "^3.4.0",
-    "react-search-input": "^0.8.0",
     "react-google-maps": "*",
+    "react-infinite-scroll": "^0.1.5",
+    "react-search-input": "^0.8.0",
+    "react-visibility-sensor": "^3.1.1",
     "redux": "^3.4.0"
   }
 }
