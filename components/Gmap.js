@@ -4,8 +4,6 @@ import { GoogleMapLoader, GoogleMap, Marker } from "react-google-maps";
 
 export default class SimpleMapPage extends Component {
 
-
-
   constructor(props) {
     super(props);
     this.state = {
@@ -38,8 +36,9 @@ export default class SimpleMapPage extends Component {
     this.setMapCenter(coords.lat(), coords.lng());
     this.setState({
       animation: 0,
-      opacity: 0.5
+      opacity: 0
     })
+    this.props.fireChangeEvent(1);
   }
 
   handleIdle(){
@@ -48,6 +47,8 @@ export default class SimpleMapPage extends Component {
       animation: 1,
       opacity: 1
     })
+    this.props.fireChangeEvent(0);
+    this.props.updateGeoLocation(this.state.lat, this.state.lng);
     console.log(this.refs.map);
   }
 
@@ -71,6 +72,7 @@ export default class SimpleMapPage extends Component {
             onIdle={this.handleIdle.bind(this)}
             defaultZoom={17}
             center={{lat: this.state.mapLat, lng: this.state.mapLng}}
+            defaultOptions={{ streetViewControl: false, mapTypeControl: false, zoomControlOptions: {position: google.maps.ControlPosition.RIGHT_TOP} }}
           >
             <Marker
               position={{lat: this.state.lat, lng: this.state.lng}} ref="myMarker" animation={this.state.animation} opacity={this.state.opacity }

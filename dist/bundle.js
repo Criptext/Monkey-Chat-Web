@@ -21443,15 +21443,79 @@
 	var ContentConversation = function (_Component) {
 		_inherits(ContentConversation, _Component);
 
-		function ContentConversation() {
+		function ContentConversation(props) {
 			_classCallCheck(this, ContentConversation);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(ContentConversation).apply(this, arguments));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ContentConversation).call(this, props));
+
+			_this.state = {
+				option: 0
+			};
+			return _this;
 		}
 
 		_createClass(ContentConversation, [{
+			key: 'enableGeoInput',
+			value: function enableGeoInput() {
+				this.setState({
+					option: 1
+				});
+			}
+		}, {
+			key: 'disableGeoInput',
+			value: function disableGeoInput() {
+				this.setState({
+					option: 0
+				});
+			}
+		}, {
+			key: 'componentWillReceiveProps',
+			value: function componentWillReceiveProps(nextProps) {
+				if (this.props.conversationSelected != nextProps.conversationSelected) {
+					this.setState({
+						option: 0
+					});
+				}
+			}
+		}, {
 			key: 'render',
 			value: function render() {
+				if (this.state.option == 1) {
+					return _react2.default.createElement(
+						'div',
+						{ className: 'mky-content-conversation' },
+						_react2.default.createElement(
+							'header',
+							{ id: 'mky-conversation-selected-header' },
+							_react2.default.createElement(
+								'div',
+								{ id: 'mky-conversation-selected-image' },
+								_react2.default.createElement('img', { src: this.props.conversationSelected.urlAvatar })
+							),
+							_react2.default.createElement(
+								'div',
+								{ id: 'mky-conversation-selected-description' },
+								_react2.default.createElement(
+									'span',
+									{ id: 'mky-conversation-selected-name' },
+									this.props.conversationSelected.name
+								),
+								_react2.default.createElement('span', { id: 'mky-conversation-selected-status' })
+							)
+						),
+						_react2.default.createElement(_LocationInput2.default, { messageCreated: this.props.messageCreated, disableGeoInput: this.disableGeoInput.bind(this) }),
+						_react2.default.createElement(
+							'div',
+							{ className: 'mky-signature' },
+							'Powered by ',
+							_react2.default.createElement(
+								'a',
+								{ className: 'mky-signature-link', target: '_blank', href: 'http://criptext.com/' },
+								'Criptext'
+							)
+						)
+					);
+				}
 				return _react2.default.createElement(
 					'div',
 					{ className: 'mky-content-conversation' },
@@ -21475,7 +21539,7 @@
 						)
 					),
 					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected }),
-					_react2.default.createElement(_Input2.default, { messageCreated: this.props.messageCreated }),
+					_react2.default.createElement(_Input2.default, { enableGeoInput: this.enableGeoInput.bind(this), messageCreated: this.props.messageCreated }),
 					_react2.default.createElement(
 						'div',
 						{ className: 'mky-signature' },
@@ -22132,7 +22196,7 @@
 					{ className: 'mky-content-location' },
 					_react2.default.createElement(
 						'a',
-						{ target: '_blank', className: 'mky-location-link', href: "https://maps.google.com/maps?q=" + this.props.message.lat + "," + this.props.message.lon + "&amp;z=17" },
+						{ target: '_blank', className: 'mky-location-link', href: "https://maps.google.com/maps?q=" + this.props.message.lat + "," + this.props.message.lng + "&amp;z=17" },
 						_react2.default.createElement('img', { src: 'images/gmap_default.png' }),
 						_react2.default.createElement(
 							'div',
@@ -22270,6 +22334,15 @@
 	                    'div',
 	                    { className: 'mky-button-input ' + this.state.classAttachButton },
 	                    _react2.default.createElement('button', { id: 'mky-button-attach', className: 'mky-button-icon', onClick: this.handleAttach })
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'mky-button-input ' + this.state.classAttachButton },
+	                    _react2.default.createElement(
+	                        'button',
+	                        { className: 'mky-button-icon', onClick: this.props.enableGeoInput },
+	                        'Pon tu location varon'
+	                    )
 	                ),
 	                _react2.default.createElement(
 	                    'div',
@@ -34346,10 +34419,17 @@
 	var LocationInput = function (_Component) {
 	  _inherits(LocationInput, _Component);
 
-	  function LocationInput() {
+	  function LocationInput(props) {
 	    _classCallCheck(this, LocationInput);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(LocationInput).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(LocationInput).call(this, props));
+
+	    _this.state = {
+	      opacity: 0,
+	      lat: 0,
+	      lng: 0
+	    };
+	    return _this;
 	  }
 
 	  _createClass(LocationInput, [{
@@ -34380,18 +34460,49 @@
 	      }
 	    }
 	  }, {
+	    key: 'setOpacity',
+	    value: function setOpacity(value) {
+	      console.log(this.state.opacity);
+	      this.setState({
+	        opacity: value
+	      });
+	    }
+	  }, {
+	    key: 'locationMessageInput',
+	    value: function locationMessageInput(lat) {
+	      var message = {
+	        type: 5,
+	        text: "Location",
+	        lat: this.state.lat,
+	        lng: this.state.lng
+	      };
+	      this.props.messageCreated(message);
+	      this.props.disableGeoInput();
+	    }
+	  }, {
+	    key: 'updateGeoLocation',
+	    value: function updateGeoLocation(lat, lng) {
+	      this.setState({
+	        lat: lat,
+	        lng: lng
+	      });
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
 	        { style: {
-	            height: '100%',
+	            height: 'calc(100% - 86px)',
 	            width: '100%',
 	            zIndex: 1000
 	          }
 	        },
-	        _react2.default.createElement(_Gmap2.default, { ref: 'googleMap' }),
-	        _react2.default.createElement('div', { className: 'testing-location', onClick: this.getLocation.bind(this) })
+	        _react2.default.createElement(_Gmap2.default, { updateGeoLocation: this.updateGeoLocation.bind(this), fireChangeEvent: this.setOpacity.bind(this), ref: 'googleMap' }),
+	        _react2.default.createElement('div', { className: 'testing-location', onClick: this.getLocation.bind(this) }),
+	        _react2.default.createElement('div', { className: 'quit-location', onClick: this.props.disableGeoInput }),
+	        _react2.default.createElement('div', { className: 'send-location', onClick: this.locationMessageInput.bind(this) }),
+	        _react2.default.createElement('div', { className: 'pin-location', style: { display: this.state.opacity ? "block" : "none" } })
 	      );
 	    }
 	  }]);
@@ -34472,8 +34583,9 @@
 	      this.setMapCenter(coords.lat(), coords.lng());
 	      this.setState({
 	        animation: 0,
-	        opacity: 0.5
+	        opacity: 0
 	      });
+	      this.props.fireChangeEvent(1);
 	    }
 	  }, {
 	    key: "handleIdle",
@@ -34483,6 +34595,8 @@
 	        animation: 1,
 	        opacity: 1
 	      });
+	      this.props.fireChangeEvent(0);
+	      this.props.updateGeoLocation(this.state.lat, this.state.lng);
 	      console.log(this.refs.map);
 	    }
 	  }, {
@@ -34503,7 +34617,8 @@
 	            onCenterChanged: this.handleCenterChanged.bind(this),
 	            onIdle: this.handleIdle.bind(this),
 	            defaultZoom: 17,
-	            center: { lat: this.state.mapLat, lng: this.state.mapLng }
+	            center: { lat: this.state.mapLat, lng: this.state.mapLng },
+	            defaultOptions: { streetViewControl: false, mapTypeControl: false, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP } }
 	          },
 	          _react2.default.createElement(_reactGoogleMaps.Marker, {
 	            position: { lat: this.state.lat, lng: this.state.lng }, ref: "myMarker", animation: this.state.animation, opacity: this.state.opacity
@@ -40553,7 +40668,7 @@
 					status: 52,
 					type: 5,
 					lat: -7.1667,
-					lon: -79.9000,
+					lng: -79.9000,
 					text: 'Location'
 				}
 			}

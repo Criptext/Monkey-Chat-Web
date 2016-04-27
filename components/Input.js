@@ -76,6 +76,9 @@ class Input extends Component {
 				<div className={'mky-button-input '+this.state.classAttachButton}>
 					<button id="mky-button-attach" className='mky-button-icon' onClick={this.handleAttach}></button>
 				</div>
+                <div className={'mky-button-input '+this.state.classAttachButton}>
+                    <button className='mky-button-icon' onClick={this.props.enableGeoInput}>Pon tu location varon</button>
+                </div>
 				<div className={'mky-button-input '+this.state.classCancelAudioButton}>
 					<button id="mky-button-cancel-audio" className='mky-button-icon' onClick={this.handleCancelAudio}></button>
 				</div>

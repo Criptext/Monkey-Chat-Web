@@ -108,11 +108,61 @@ body, html {
 .testing-location{
   height: 50px;
   width: 50px;
-  background-color: red;
+  background-color: green;
   z-index: 3000;
-  position: relative;
-  margin-top: -70px;
+  position: absolute;
+  bottom: 50px;
   margin-left: 15px;
   cursor: pointer;
   border-radius: 25px;
+}
+
+.quit-location{
+  height: 50px;
+  width: 50px;
+  background-color: white;
+  z-index: 3000;
+  position: absolute;
+  top: 80px;
+  margin-left: 15px;
+  cursor: pointer;
+  border-radius: 25px;
+  background-image: url(../images/trash-icon.png);
+      background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.send-location{
+  height: 50px;
+  width: 50px;
+  background-color: white;
+  z-index: 3000;
+  position: absolute;
+  bottom: 50px;
+  right: 15px;
+  /* margin-left: 15px; */
+  cursor: pointer;
+  border-radius: 25px;
+  background-image: url(../images/send-icon.png);
+  background-size: 60%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.pin-location{
+  height: 50px;
+  width: 46px;
+  background-image: url(../images/mapPin.png);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  z-index: 3500;
+  position: relative;
+  margin-left: 15px;
+  cursor: pointer;
+  top: -50%;
+  margin-top: -25px;
+  left: 50%;
+  margin-left: -11px;
+  opacity: 0.5;
 }
