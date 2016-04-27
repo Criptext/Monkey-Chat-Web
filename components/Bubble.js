@@ -1,9 +1,15 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 
 const Bubble = Component => class extends React.Component {
 	constructor(props){
 		super(props);
 		this.styleName;
+		this.scrollElement = this.scrollElement.bind(this);
+	}
+
+	componentDidUpdate() {
+		this.scrollElement();
 	}
   
 	render() {
@@ -12,7 +18,6 @@ const Bubble = Component => class extends React.Component {
 		if(this.props.message.nameColor){
 			this.styleName = { color: this.props.message.nameColor };
 		}
-		
     	return (
 			<div className='mky-message-line'>
 				<div id={this.props.message.id} className={classBubble}>
@@ -31,6 +36,16 @@ const Bubble = Component => class extends React.Component {
 				</div>
 			</div>
 		);
+	}
+
+	scrollElement() {
+	  var _this = this;
+	  window.requestAnimationFrame(function() {
+		var node = document.getElementById(_this.props.message.id);	    
+	    if (node !== undefined) {
+	      node.scrollIntoView({block: "end"});
+	    }
+	  });
 	}
 	
 	defineStatusClass(status) {
