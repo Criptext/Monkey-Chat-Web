@@ -104,3 +104,15 @@ body, html {
 .mky-location-name span{
   font-family: Verdana, Arial, Helvetica, sans-serif;
 }
+
+.testing-location{
+  height: 50px;
+  width: 50px;
+  background-color: red;
+  z-index: 3000;
+  position: relative;
+  margin-top: -70px;
+  margin-left: 15px;
+  cursor: pointer;
+  border-radius: 25px;
+}

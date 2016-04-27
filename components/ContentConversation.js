@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import TimelineChat from './TimelineChat.js';
 import Input from './Input.js';
-import SimpleMapPage from './Gmap.js';
+import LocationInput from './LocationInput.js';
 
 class ContentConversation extends Component {
 	render() {
