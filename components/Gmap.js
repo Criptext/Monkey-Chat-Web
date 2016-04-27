@@ -62,7 +62,10 @@ export default class SimpleMapPage extends Component {
               height: `100%`,
               width: `100%`,
               zIndex: 1000,
+              overflow: `visible !important`,
             }}
+
+            id="map-id"
           />
         }
         googleMapElement={

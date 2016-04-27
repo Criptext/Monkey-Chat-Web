@@ -161,7 +161,7 @@ body, html {
   margin-left: 15px;
   cursor: pointer;
   top: -50%;
-  margin-top: -25px;
+  margin-top: -38px;
   left: 50%;
   margin-left: -11px;
   opacity: 0.5;
@@ -228,4 +228,17 @@ body, html {
   float: left;
   top: 20%;
   position: relative;
+}
+
+#layer-menu{
+  position: fixed;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  z-index: -1;
+}
+
+#map-id{
+  overflow: visible !important;
 }

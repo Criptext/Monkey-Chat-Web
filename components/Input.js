@@ -85,7 +85,7 @@ class Input extends Component {
 				<div className={'mky-button-input '+this.state.classAttachButton}>
 					<button id="mky-button-attach" className='mky-button-icon' onClick={this.handleMenuVisibility}></button>
 				</div>
-                <InputMenu visible={this.state.menuVisibility} enableGeoInput={this.props.enableGeoInput} handleAttach={this.handleAttach}/>
+                <InputMenu toggleVisibility={this.handleMenuVisibility} visible={this.state.menuVisibility} enableGeoInput={this.props.enableGeoInput} handleAttach={this.handleAttach}/>
 				<div className={'mky-button-input '+this.state.classCancelAudioButton}>
 					<button id="mky-button-cancel-audio" className='mky-button-icon' onClick={this.handleCancelAudio}></button>
 				</div>
@@ -385,6 +385,7 @@ class Input extends Component {
     }
     
     handleAttach() {
+        this.handleMenuVisibility();
 	    this.refs.dropzone.open();
     }
     

@@ -22348,7 +22348,7 @@
 	                    { className: 'mky-button-input ' + this.state.classAttachButton },
 	                    _react2.default.createElement('button', { id: 'mky-button-attach', className: 'mky-button-icon', onClick: this.handleMenuVisibility })
 	                ),
-	                _react2.default.createElement(_InputMenu2.default, { visible: this.state.menuVisibility, enableGeoInput: this.props.enableGeoInput, handleAttach: this.handleAttach }),
+	                _react2.default.createElement(_InputMenu2.default, { toggleVisibility: this.handleMenuVisibility, visible: this.state.menuVisibility, enableGeoInput: this.props.enableGeoInput, handleAttach: this.handleAttach }),
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'mky-button-input ' + this.state.classCancelAudioButton },
@@ -22699,6 +22699,7 @@
 	    }, {
 	        key: 'handleAttach',
 	        value: function handleAttach() {
+	            this.handleMenuVisibility();
 	            this.refs.dropzone.open();
 	        }
 	    }, {
@@ -23214,7 +23215,8 @@
 							null,
 							"Attach File"
 						)
-					)
+					),
+					_react2.default.createElement("div", { id: "layer-menu", onClick: this.props.toggleVisibility })
 				);
 			}
 		}]);
@@ -34688,8 +34690,11 @@
 	          style: {
 	            height: "100%",
 	            width: "100%",
-	            zIndex: 1000
-	          }
+	            zIndex: 1000,
+	            overflow: "visible !important"
+	          },
+
+	          id: "map-id"
 	        })),
 	        googleMapElement: _react2.default.createElement(
 	          _reactGoogleMaps.GoogleMap,
