@@ -104,3 +104,141 @@ body, html {
 .mky-location-name span{
   font-family: Verdana, Arial, Helvetica, sans-serif;
 }
+
+.testing-location{
+  height: 50px;
+  width: 50px;
+  background-color: green;
+  z-index: 3000;
+  position: absolute;
+  bottom: 50px;
+  margin-left: 15px;
+  cursor: pointer;
+  border-radius: 25px;
+}
+
+.quit-location{
+  height: 50px;
+  width: 50px;
+  background-color: white;
+  z-index: 3000;
+  position: absolute;
+  top: 80px;
+  margin-left: 15px;
+  cursor: pointer;
+  border-radius: 25px;
+  background-image: url(../images/trash-icon.png);
+      background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.send-location{
+  height: 50px;
+  width: 50px;
+  background-color: white;
+  z-index: 3000;
+  position: absolute;
+  bottom: 50px;
+  right: 15px;
+  /* margin-left: 15px; */
+  cursor: pointer;
+  border-radius: 25px;
+  background-image: url(../images/send-icon.png);
+  background-size: 60%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.pin-location{
+  height: 50px;
+  width: 46px;
+  background-image: url(../images/mapPin.png);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  z-index: 3500;
+  position: relative;
+  margin-left: 15px;
+  cursor: pointer;
+  top: -50%;
+  margin-top: -38px;
+  left: 50%;
+  margin-left: -11px;
+  opacity: 0.5;
+}
+
+.menu-bubble {
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  top: -250%;
+  left: -15px;
+  text-align: center;
+  background-color: #292929;
+  border: 8px solid #292929;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  border-radius: 10px;
+  -webkit-box-shadow: 2px 2px 4px #888;
+  -moz-box-shadow: 2px 2px 4px #888;
+  box-shadow: 2px 2px 4px #888;
+  z-index: 3000;
+  color: white;
+}
+
+.menu-bubble:before{
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 30px;
+  top: 100px;
+  border: 10px solid;
+  border-color: #292929 transparent transparent #292929;
+}
+
+.menu-bubble:after {
+  content: ' ';
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 38px;
+  top: 100px;
+  border-color: #292929 transparent transparent #292929;
+}
+
+.menu-bubble-item{
+  height: 50%;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.menu-bubble-item:hover{
+  background-color: white;
+  color: black;
+}
+
+.menu-bubble-item p{
+  width: 70%;
+  float: left;
+}
+
+.menu-bubble-item img{
+  height: 60%;
+  float: left;
+  top: 20%;
+  position: relative;
+}
+
+#layer-menu{
+  position: fixed;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  z-index: -1;
+}
+
+#map-id{
+  overflow: visible !important;
+}

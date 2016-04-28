@@ -4,15 +4,15 @@ import { GoogleMapLoader, GoogleMap, Marker } from "react-google-maps";
 
 export default class SimpleMapPage extends Component {
 
-
-
   constructor(props) {
     super(props);
     this.state = {
       lat: -2.1667,
       lng: -79.9000,
       animation: 1,
-      opacity: 1
+      opacity: 1,
+      mapLat: -2.1667,
+      mapLng: -79.9000
     }
   }
 
@@ -23,13 +23,22 @@ export default class SimpleMapPage extends Component {
     })
   }
 
+  setMapCenter(lat, lng){
+    this.setState({
+      mapLat : lat,
+      mapLng: lng
+    })
+  }
+
   handleCenterChanged(){
     var coords = this.refs.map.getCenter();
     this.setMarker(coords.lat(), coords.lng());
+    this.setMapCenter(coords.lat(), coords.lng());
     this.setState({
       animation: 0,
-      opacity: 0.5
+      opacity: 0
     })
+    this.props.fireChangeEvent(1);
   }
 
   handleIdle(){
@@ -38,6 +47,9 @@ export default class SimpleMapPage extends Component {
       animation: 1,
       opacity: 1
     })
+    this.props.fireChangeEvent(0);
+    this.props.updateGeoLocation(this.state.lat, this.state.lng);
+    console.log(this.refs.map);
   }
 
   render() {
@@ -50,7 +62,10 @@ export default class SimpleMapPage extends Component {
               height: `100%`,
               width: `100%`,
               zIndex: 1000,
+              overflow: `visible !important`,
             }}
+
+            id="map-id"
           />
         }
         googleMapElement={
@@ -59,7 +74,8 @@ export default class SimpleMapPage extends Component {
             onCenterChanged={this.handleCenterChanged.bind(this)}
             onIdle={this.handleIdle.bind(this)}
             defaultZoom={17}
-            defaultCenter={{lat: this.state.lat, lng: this.state.lng}}
+            center={{lat: this.state.mapLat, lng: this.state.mapLng}}
+            defaultOptions={{ streetViewControl: false, mapTypeControl: false, zoomControlOptions: {position: google.maps.ControlPosition.RIGHT_TOP} }}
           >
             <Marker
               position={{lat: this.state.lat, lng: this.state.lng}} ref="myMarker" animation={this.state.animation} opacity={this.state.opacity }
