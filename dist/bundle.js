@@ -70,15 +70,15 @@
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
-	var _data = __webpack_require__(253);
+	var _data = __webpack_require__(259);
 
 	var _data2 = _interopRequireDefault(_data);
 
-	var _actions = __webpack_require__(251);
+	var _actions = __webpack_require__(257);
 
 	var actions = _interopRequireWildcard(_actions);
 
-	var _dataNewConversation = __webpack_require__(254);
+	var _dataNewConversation = __webpack_require__(260);
 
 	var _dataNewConversation2 = _interopRequireDefault(_dataNewConversation);
 
@@ -21630,6 +21630,10 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _reactDom = __webpack_require__(158);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
 	var _Bubble = __webpack_require__(170);
 
 	var _Bubble2 = _interopRequireDefault(_Bubble);
@@ -21677,17 +21681,40 @@
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TimelineChat).call(this, props));
 
 			context.userSession;
+			_this.goBottom = false;
+			_this.mounted = false;
+			_this.handleScroll = _this.handleScroll.bind(_this);
+			_this.updateScrollTop = _this.updateScrollTop.bind(_this);
+			_this.state = {
+				scrollTop: 0,
+				update: 0
+			};
 			return _this;
 		}
 
 		_createClass(TimelineChat, [{
+			key: 'componentWillReceiveProps',
+			value: function componentWillReceiveProps(nextProps) {
+				var domNode = _reactDom2.default.findDOMNode(this.refs.timelineChat);
+				if (this.props.conversationSelected != nextProps.conversationSelected) {
+					this.mounted = false;
+				} else if (!this.goBottom) {
+					var keys = Object.keys(this.props.conversationSelected.messages);
+					var key = keys[keys.length - 1];
+					var message = this.props.conversationSelected.messages[key];
+					if (message.senderId == this.context.userSession.id) {
+						this.goBottom = true;
+					}
+				}
+			}
+		}, {
 			key: 'render',
 			value: function render() {
 				var _this2 = this;
 
 				return _react2.default.createElement(
 					'div',
-					{ id: 'mky-chat-timeline' },
+					{ ref: 'timelineChat', id: 'mky-chat-timeline' },
 					typeof this.props.conversationSelected !== 'undefined' ? Object.keys(this.props.conversationSelected.messages).map(function (key) {
 						var message = _this2.props.conversationSelected.messages[key];
 						switch (message.type) {
@@ -21695,7 +21722,6 @@
 								return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'text' });
 								break;
 							case 2:
-
 								return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'image', messageSelected: _this2.props.messageSelected });
 								break;
 							case 3:
@@ -21704,9 +21730,53 @@
 							case 4:
 								return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'audio' });
 								break;
+							case 5:
+								return _react2.default.createElement(BubbleLocation_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'location' });
+								break;
 						}
 					}) : null
 				);
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				var domNode = _reactDom2.default.findDOMNode(this.refs.timelineChat);
+				domNode.scrollTop = domNode.scrollHeight;
+				console.log('mount ' + domNode.scrollHeight);
+				domNode.addEventListener('scroll', this.handleScroll);
+			}
+		}, {
+			key: 'updateScrollTop',
+			value: function updateScrollTop() {
+				var domNode = _reactDom2.default.findDOMNode(this.refs.timelineChat);
+				if (!this.mounted) {
+					this.mounted = true;
+					this.goBottom = true;
+					this.setState({
+						scrollTop: 0
+					});
+				} else if (this.goBottom) {
+					this.goBottom = false;
+					console.log("did update : " + domNode.scrollHeight);
+					domNode.scrollTop = domNode.scrollHeight;
+				} else if (this.state.scrollTop != domNode.scrollTop) {
+					this.setState({
+						scrollTop: domNode.scrollTop
+					});
+					if (domNode.scrollTop == 0 && this.mounted) {
+						console.log('load here!');
+					}
+				}
+			}
+		}, {
+			key: 'componentDidUpdate',
+			value: function componentDidUpdate() {
+				this.updateScrollTop();
+			}
+		}, {
+			key: 'handleScroll',
+			value: function handleScroll(event) {
+				this.updateScrollTop();
 			}
 		}]);
 
@@ -21949,8 +22019,6 @@
 		}, {
 			key: 'openImage',
 			value: function openImage() {
-				console.log('openImage');
-				console.log(this.props.message.data);
 				this.props.messageSelected(this.props.message);
 			}
 		}]);
@@ -39188,9 +39256,6 @@
 			value: function render() {
 				var _this2 = this;
 
-				console.log('render');
-				console.log(JSON.stringify(this.props.messageSelected));
-
 				if (this.props.messageSelected != undefined) {
 
 					return _react2.default.createElement(
@@ -39204,7 +39269,6 @@
 						function () {
 							switch (_this2.props.messageSelected.type) {
 								case 2:
-									console.log();
 									return _react2.default.createElement(_ContentViewer2.default, { messageData: _this2.props.messageSelected.data });
 									break;
 								default:
@@ -40839,17 +40903,13 @@
 		value: true
 	});
 
-	var _redux = __webpack_require__(238);
+	var _redux = __webpack_require__(242);
 
-<<<<<<< f4e9f5bdbe26b341e7c136ac950ee65e0a85f1a3
-	var _data = __webpack_require__(256);
-=======
-	var _users = __webpack_require__(250);
->>>>>>> Update reducers
+	var _users = __webpack_require__(256);
 
 	var _users2 = _interopRequireDefault(_users);
 
-	var _conversations = __webpack_require__(252);
+	var _conversations = __webpack_require__(258);
 
 	var _conversations2 = _interopRequireDefault(_conversations);
 
@@ -40863,7 +40923,7 @@
 	exports.default = reducer;
 
 /***/ },
-/* 250 */
+/* 256 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40874,7 +40934,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _actions = __webpack_require__(251);
+	var _actions = __webpack_require__(257);
 
 	var users = function users() {
 		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -40892,7 +40952,7 @@
 	exports.default = users;
 
 /***/ },
-/* 251 */
+/* 257 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -40926,7 +40986,7 @@
 	};
 
 /***/ },
-/* 252 */
+/* 258 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40937,7 +40997,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _actions = __webpack_require__(251);
+	var _actions = __webpack_require__(257);
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -40991,11 +41051,7 @@
 	exports.default = conversations;
 
 /***/ },
-<<<<<<< f4e9f5bdbe26b341e7c136ac950ee65e0a85f1a3
-/* 256 */
-=======
-/* 253 */
->>>>>>> Update reducers
+/* 259 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -41135,7 +41191,7 @@
 	};
 
 /***/ },
-/* 254 */
+/* 260 */
 /***/ function(module, exports) {
 
 	'use strict';
