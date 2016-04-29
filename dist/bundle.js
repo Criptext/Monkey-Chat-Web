@@ -60,13 +60,13 @@
 
 	var _MonkeyUI2 = _interopRequireDefault(_MonkeyUI);
 
-	var _monkey = __webpack_require__(239);
+	var _monkey = __webpack_require__(241);
 
 	var _monkey2 = _interopRequireDefault(_monkey);
 
-	var _redux = __webpack_require__(240);
+	var _redux = __webpack_require__(242);
 
-	var _reducers = __webpack_require__(253);
+	var _reducers = __webpack_require__(255);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -19794,11 +19794,11 @@
 
 	var _ContentWindow2 = _interopRequireDefault(_ContentWindow);
 
-	var _ContentLogin = __webpack_require__(233);
+	var _ContentLogin = __webpack_require__(235);
 
 	var _ContentLogin2 = _interopRequireDefault(_ContentLogin);
 
-	var _MyForm = __webpack_require__(234);
+	var _MyForm = __webpack_require__(236);
 
 	var _MyForm2 = _interopRequireDefault(_MyForm);
 
@@ -21432,6 +21432,10 @@
 
 	var _LocationInput2 = _interopRequireDefault(_LocationInput);
 
+	var _ContentModal = __webpack_require__(233);
+
+	var _ContentModal2 = _interopRequireDefault(_ContentModal);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21449,8 +21453,12 @@
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ContentConversation).call(this, props));
 
 			_this.state = {
-				option: 0
+				option: 0,
+				messageSelected: undefined
 			};
+			_this.handleMessageSelected = _this.handleMessageSelected.bind(_this);
+			_this.handleShowModal = _this.handleShowModal.bind(_this);
+
 			return _this;
 		}
 
@@ -21473,13 +21481,15 @@
 			value: function componentWillReceiveProps(nextProps) {
 				if (this.props.conversationSelected != nextProps.conversationSelected) {
 					this.setState({
-						option: 0
+						option: 0,
+						messageSelected: undefined
 					});
 				}
 			}
 		}, {
 			key: 'render',
 			value: function render() {
+
 				if (this.state.option == 1) {
 					return _react2.default.createElement(
 						'div',
@@ -21516,6 +21526,7 @@
 						)
 					);
 				}
+
 				return _react2.default.createElement(
 					'div',
 					{ className: 'mky-content-conversation' },
@@ -21538,7 +21549,8 @@
 							_react2.default.createElement('span', { id: 'mky-conversation-selected-status' })
 						)
 					),
-					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected }),
+					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected, messageSelected: this.handleMessageSelected }),
+					this.state.messageSelected ? _react2.default.createElement(_ContentModal2.default, { messageSelected: this.state.messageSelected, showModal: this.handleShowModal }) : null,
 					_react2.default.createElement(_Input2.default, { enableGeoInput: this.enableGeoInput.bind(this), messageCreated: this.props.messageCreated }),
 					_react2.default.createElement(
 						'div',
@@ -21551,6 +21563,16 @@
 						)
 					)
 				);
+			}
+		}, {
+			key: 'handleMessageSelected',
+			value: function handleMessageSelected(message) {
+				this.setState({ messageSelected: message });
+			}
+		}, {
+			key: 'handleShowModal',
+			value: function handleShowModal() {
+				this.setState({ messageSelected: undefined });
 			}
 		}]);
 
@@ -21568,6 +21590,8 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
@@ -21599,38 +21623,59 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 	var BubbleText_ = (0, _Bubble2.default)(_BubbleText2.default);
 	var BubbleImage_ = (0, _Bubble2.default)(_BubbleImage2.default);
 	var BubbleFile_ = (0, _Bubble2.default)(_BubbleFile2.default);
 	var BubbleAudio_ = (0, _Bubble2.default)(_BubbleAudio2.default);
 	var BubbleLocation_ = (0, _Bubble2.default)(_BubbleLocation2.default);
 
-	var TimelineChat = function TimelineChat(props, context) {
-		return _react2.default.createElement(
-			'div',
-			{ id: 'mky-chat-timeline' },
-			typeof props.conversationSelected !== 'undefined' ? Object.keys(props.conversationSelected.messages).map(function (key) {
-				var message = props.conversationSelected.messages[key];
-				switch (message.type) {
-					case 1:
-						return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'text' });
-						break;
-					case 2:
-						return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'image' });
-						break;
-					case 3:
-						return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'file' });
-						break;
-					case 4:
-						return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'audio' });
-						break;
-					case 5:
-						return _react2.default.createElement(BubbleLocation_, { key: message.id, message: message, userSessionId: context.userSession.id, layerClass: 'location' });
-						break;
-				}
-			}) : null
-		);
-	};
+	var TimelineChat = function (_Component) {
+		_inherits(TimelineChat, _Component);
+
+		function TimelineChat(props) {
+			_classCallCheck(this, TimelineChat);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(TimelineChat).call(this, props));
+		}
+
+		_createClass(TimelineChat, [{
+			key: 'render',
+			value: function render() {
+				var _this2 = this;
+
+				return _react2.default.createElement(
+					'div',
+					{ id: 'mky-chat-timeline' },
+					typeof this.props.conversationSelected !== 'undefined' ? Object.keys(this.props.conversationSelected.messages).map(function (key) {
+						var message = _this2.props.conversationSelected.messages[key];
+						switch (message.type) {
+							case 1:
+								return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'text' });
+								break;
+							case 2:
+
+								return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'image', messageSelected: _this2.props.messageSelected });
+								break;
+							case 3:
+								return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'file' });
+								break;
+							case 4:
+								return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'audio' });
+								break;
+						}
+					}) : null
+				);
+			}
+		}]);
+
+		return TimelineChat;
+	}(_react.Component);
 
 	TimelineChat.contextTypes = {
 		userSession: _react2.default.PropTypes.object.isRequired
@@ -21841,7 +21886,10 @@
 		function BubbleImage(props) {
 			_classCallCheck(this, BubbleImage);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(BubbleImage).call(this, props));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BubbleImage).call(this, props));
+
+			_this.openImage = _this.openImage.bind(_this);
+			return _this;
 		}
 
 		_createClass(BubbleImage, [{
@@ -21853,7 +21901,7 @@
 					this.props.message.data ? _react2.default.createElement(
 						'div',
 						{ className: 'mky-content-image' },
-						_react2.default.createElement('img', { src: this.props.message.data })
+						_react2.default.createElement('img', { src: this.props.message.data, onClick: this.openImage })
 					) : _react2.default.createElement(
 						'div',
 						{ className: 'mky-content-audio-loading' },
@@ -21861,6 +21909,13 @@
 						_react2.default.createElement('div', { className: 'mky-double-bounce2' })
 					)
 				);
+			}
+		}, {
+			key: 'openImage',
+			value: function openImage() {
+				console.log('openImage');
+				console.log(this.props.message.data);
+				this.props.messageSelected(this.props.message);
 			}
 		}]);
 
@@ -39062,6 +39117,175 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _ContentViewer = __webpack_require__(234);
+
+	var _ContentViewer2 = _interopRequireDefault(_ContentViewer);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ContentModal = function (_Component) {
+		_inherits(ContentModal, _Component);
+
+		function ContentModal(props) {
+			_classCallCheck(this, ContentModal);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ContentModal).call(this, props));
+
+			_this.state = {
+				messageSelected: _this.props.messageSelected,
+				visible: ''
+			};
+
+			_this.hideViwer = _this.hideViwer.bind(_this);
+
+			return _this;
+		}
+
+		_createClass(ContentModal, [{
+			key: 'render',
+			value: function render() {
+				var _this2 = this;
+
+				console.log('render');
+				console.log(JSON.stringify(this.props.messageSelected));
+
+				if (this.props.messageSelected != undefined) {
+
+					return _react2.default.createElement(
+						'div',
+						{ className: 'mky-viewer-content ' + this.state.visible },
+						_react2.default.createElement(
+							'button',
+							{ id: 'mky-button-exit', onClick: this.hideViwer },
+							' X '
+						),
+						function () {
+							switch (_this2.props.messageSelected.type) {
+								case 2:
+									console.log();
+									return _react2.default.createElement(_ContentViewer2.default, { messageData: _this2.props.messageSelected.data });
+									break;
+								default:
+									return _react2.default.createElement(
+										'div',
+										null,
+										_this2.props.messageSelected.data
+									);
+									break;
+							}
+						}(),
+						_react2.default.createElement('div', { className: 'mky-brand-app' })
+					);
+				} else {
+
+					return _react2.default.createElement('div', null);
+				}
+			}
+		}, {
+			key: 'hideViwer',
+			value: function hideViwer() {
+				this.props.showModal();
+			}
+		}]);
+
+		return ContentModal;
+	}(_react.Component);
+
+	exports.default = ContentModal;
+
+/***/ },
+/* 234 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ContentViewer = function (_Component) {
+		_inherits(ContentViewer, _Component);
+
+		function ContentViewer(props) {
+			_classCallCheck(this, ContentViewer);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(ContentViewer).call(this, props));
+		}
+
+		_createClass(ContentViewer, [{
+			key: "render",
+			value: function render() {
+				return _react2.default.createElement(
+					"div",
+					{ className: "mky-viewer-image-container" },
+					_react2.default.createElement(
+						"div",
+						{ className: "mky-viewer-toolbar" },
+						_react2.default.createElement(
+							"a",
+							{ href: this.props.messageData, download: "file" },
+							_react2.default.createElement(
+								"button",
+								{ className: "mky-button-download", title: "Download" },
+								"Download"
+							)
+						),
+						_react2.default.createElement(
+							"button",
+							{ className: "mky-button-download", title: "Download" },
+							"Print"
+						)
+					),
+					_react2.default.createElement(
+						"div",
+						{ id: "file_viewer_image", className: "mky-viewer-image" },
+						_react2.default.createElement("img", { src: this.props.messageData })
+					)
+				);
+			}
+		}]);
+
+		return ContentViewer;
+	}(_react.Component);
+
+	exports.default = ContentViewer;
+
+/***/ },
+/* 235 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -39098,7 +39322,7 @@
 	exports.default = ContentLogin;
 
 /***/ },
-/* 234 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39113,7 +39337,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _myform = __webpack_require__(235);
+	var _myform = __webpack_require__(237);
 
 	var _myform2 = _interopRequireDefault(_myform);
 
@@ -39225,16 +39449,16 @@
 	exports.default = MyForm;
 
 /***/ },
-/* 235 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(236);
+	var content = __webpack_require__(238);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(238)(content, {});
+	var update = __webpack_require__(240)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -39251,10 +39475,10 @@
 	}
 
 /***/ },
-/* 236 */
+/* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(237)();
+	exports = module.exports = __webpack_require__(239)();
 	// imports
 
 
@@ -39265,7 +39489,7 @@
 
 
 /***/ },
-/* 237 */
+/* 239 */
 /***/ function(module, exports) {
 
 	/*
@@ -39321,7 +39545,7 @@
 
 
 /***/ },
-/* 238 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -39573,7 +39797,7 @@
 
 
 /***/ },
-/* 239 */
+/* 241 */
 /***/ function(module, exports) {
 
 	"use strict";var _typeof2=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol?"symbol":typeof obj;};var monkey= /******/function(modules){ // webpackBootstrap
@@ -39727,7 +39951,7 @@
 		  */(function(name,definition){if(typeof module!='undefined'&&module.exports)module.exports=definition();else if(true)!(__WEBPACK_AMD_DEFINE_FACTORY__=definition,__WEBPACK_AMD_DEFINE_RESULT__=typeof __WEBPACK_AMD_DEFINE_FACTORY__==='function'?__WEBPACK_AMD_DEFINE_FACTORY__.call(exports,__webpack_require__,exports,module):__WEBPACK_AMD_DEFINE_FACTORY__,__WEBPACK_AMD_DEFINE_RESULT__!==undefined&&(module.exports=__WEBPACK_AMD_DEFINE_RESULT__));else this[name]=definition();})('$script',function(){var doc=document,head=doc.getElementsByTagName('head')[0],s='string',f=false,push='push',readyState='readyState',onreadystatechange='onreadystatechange',list={},ids={},delay={},scripts={},scriptpath,urlArgs;function every(ar,fn){for(var i=0,j=ar.length;i<j;++i){if(!fn(ar[i]))return f;}return 1;}function each(ar,fn){every(ar,function(el){return !fn(el);});}function $script(paths,idOrDone,optDone){paths=paths[push]?paths:[paths];var idOrDoneIsDone=idOrDone&&idOrDone.call,done=idOrDoneIsDone?idOrDone:optDone,id=idOrDoneIsDone?paths.join(''):idOrDone,queue=paths.length;function loopFn(item){return item.call?item():list[item];}function callback(){if(! --queue){list[id]=1;done&&done();for(var dset in delay){every(dset.split('|'),loopFn)&&!each(delay[dset],loopFn)&&(delay[dset]=[]);}}}setTimeout(function(){each(paths,function loading(path,force){if(path===null)return callback();if(!force&&!/^https?:\/\//.test(path)&&scriptpath){path=path.indexOf('.js')===-1?scriptpath+path+'.js':scriptpath+path;}if(scripts[path]){if(id)ids[id]=1;return scripts[path]==2?callback():setTimeout(function(){loading(path,true);},0);}scripts[path]=1;if(id)ids[id]=1;create(path,callback);});},0);return $script;}function create(path,fn){var el=doc.createElement('script'),loaded;el.onload=el.onerror=el[onreadystatechange]=function(){if(el[readyState]&&!/^c|loade/.test(el[readyState])||loaded)return;el.onload=el[onreadystatechange]=null;loaded=1;scripts[path]=2;fn();};el.async=1;el.src=urlArgs?path+(path.indexOf('?')===-1?'?':'&')+urlArgs:path;head.insertBefore(el,head.lastChild);}$script.get=create;$script.order=function(scripts,id,done){(function callback(s){s=scripts.shift();!scripts.length?$script(s,id,done):$script(s,callback);})();};$script.path=function(p){scriptpath=p;};$script.urlArgs=function(str){urlArgs=str;};$script.ready=function(deps,ready,req){deps=deps[push]?deps:[deps];var missing=[];!each(deps,function(dep){list[dep]||missing[push](dep);})&&every(deps,function(dep){return list[dep];})?ready():!function(key){delay[key]=delay[key]||[];delay[key][push](ready);req&&req(missing);}(deps.join('|'));return $script;};$script.done=function(idOrDone){$script([null],idOrDone);};return $script;}); /***/} /******/]);
 
 /***/ },
-/* 240 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -39735,27 +39959,27 @@
 	exports.__esModule = true;
 	exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
 
-	var _createStore = __webpack_require__(241);
+	var _createStore = __webpack_require__(243);
 
 	var _createStore2 = _interopRequireDefault(_createStore);
 
-	var _combineReducers = __webpack_require__(248);
+	var _combineReducers = __webpack_require__(250);
 
 	var _combineReducers2 = _interopRequireDefault(_combineReducers);
 
-	var _bindActionCreators = __webpack_require__(250);
+	var _bindActionCreators = __webpack_require__(252);
 
 	var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
 
-	var _applyMiddleware = __webpack_require__(251);
+	var _applyMiddleware = __webpack_require__(253);
 
 	var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
 
-	var _compose = __webpack_require__(252);
+	var _compose = __webpack_require__(254);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
-	var _warning = __webpack_require__(249);
+	var _warning = __webpack_require__(251);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -39779,7 +40003,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 241 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39788,11 +40012,11 @@
 	exports.ActionTypes = undefined;
 	exports["default"] = createStore;
 
-	var _isPlainObject = __webpack_require__(242);
+	var _isPlainObject = __webpack_require__(244);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _symbolObservable = __webpack_require__(246);
+	var _symbolObservable = __webpack_require__(248);
 
 	var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
 
@@ -40046,12 +40270,12 @@
 	}
 
 /***/ },
-/* 242 */
+/* 244 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var getPrototype = __webpack_require__(243),
-	    isHostObject = __webpack_require__(244),
-	    isObjectLike = __webpack_require__(245);
+	var getPrototype = __webpack_require__(245),
+	    isHostObject = __webpack_require__(246),
+	    isObjectLike = __webpack_require__(247);
 
 	/** `Object#toString` result references. */
 	var objectTag = '[object Object]';
@@ -40122,7 +40346,7 @@
 
 
 /***/ },
-/* 243 */
+/* 245 */
 /***/ function(module, exports) {
 
 	/* Built-in method references for those with the same name as other `lodash` methods. */
@@ -40143,7 +40367,7 @@
 
 
 /***/ },
-/* 244 */
+/* 246 */
 /***/ function(module, exports) {
 
 	/**
@@ -40169,7 +40393,7 @@
 
 
 /***/ },
-/* 245 */
+/* 247 */
 /***/ function(module, exports) {
 
 	/**
@@ -40204,18 +40428,18 @@
 
 
 /***/ },
-/* 246 */
+/* 248 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/* global window */
 	'use strict';
 
-	module.exports = __webpack_require__(247)(global || window || this);
+	module.exports = __webpack_require__(249)(global || window || this);
 
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 247 */
+/* 249 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -40244,7 +40468,7 @@
 
 
 /***/ },
-/* 248 */
+/* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -40252,13 +40476,13 @@
 	exports.__esModule = true;
 	exports["default"] = combineReducers;
 
-	var _createStore = __webpack_require__(241);
+	var _createStore = __webpack_require__(243);
 
-	var _isPlainObject = __webpack_require__(242);
+	var _isPlainObject = __webpack_require__(244);
 
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-	var _warning = __webpack_require__(249);
+	var _warning = __webpack_require__(251);
 
 	var _warning2 = _interopRequireDefault(_warning);
 
@@ -40377,7 +40601,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 249 */
+/* 251 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -40406,7 +40630,7 @@
 	}
 
 /***/ },
-/* 250 */
+/* 252 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -40462,7 +40686,7 @@
 	}
 
 /***/ },
-/* 251 */
+/* 253 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40473,7 +40697,7 @@
 
 	exports["default"] = applyMiddleware;
 
-	var _compose = __webpack_require__(252);
+	var _compose = __webpack_require__(254);
 
 	var _compose2 = _interopRequireDefault(_compose);
 
@@ -40525,7 +40749,7 @@
 	}
 
 /***/ },
-/* 252 */
+/* 254 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -40570,7 +40794,7 @@
 	}
 
 /***/ },
-/* 253 */
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40581,7 +40805,7 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _data = __webpack_require__(254);
+	var _data = __webpack_require__(256);
 
 	var _data2 = _interopRequireDefault(_data);
 
@@ -40622,7 +40846,7 @@
 	exports.default = conversations;
 
 /***/ },
-/* 254 */
+/* 256 */
 /***/ function(module, exports) {
 
 	'use strict';
