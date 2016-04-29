@@ -108,13 +108,33 @@ body, html {
 .testing-location{
   height: 50px;
   width: 50px;
-  background-color: green;
+  background-color: white;
   z-index: 3000;
   position: absolute;
   bottom: 50px;
   margin-left: 15px;
   cursor: pointer;
   border-radius: 25px;
+  background-image: url(../images/target-icon-0.png);
+  background-size: 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.testing-location:hover{
+  height: 50px;
+  width: 50px;
+  background-color: white;
+  z-index: 3000;
+  position: absolute;
+  bottom: 50px;
+  margin-left: 15px;
+  cursor: pointer;
+  border-radius: 25px;
+  background-image: url(../images/target-icon.png);
+  background-size: 50%;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .quit-location{
@@ -128,9 +148,9 @@ body, html {
   cursor: pointer;
   border-radius: 25px;
   background-image: url(../images/trash-icon.png);
-      background-size: 50%;
-    background-repeat: no-repeat;
-    background-position: center;
+  background-size: 30%;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .send-location{
