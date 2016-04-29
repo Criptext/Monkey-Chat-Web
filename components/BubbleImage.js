@@ -27,8 +27,6 @@ class BubbleImage extends React.Component {
 	}
 
 	openImage(){
-		console.log('openImage');
-		console.log(this.props.message.data);
 		this.props.messageSelected(this.props.message);
 	}
 }

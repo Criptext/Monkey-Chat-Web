@@ -14,8 +14,6 @@ class ContentModal extends Component {
 	}
 	
 	render() {
-		console.log('render');
-		console.log(JSON.stringify(this.props.messageSelected));
 
 		if (this.props.messageSelected != undefined) {
 			
@@ -25,7 +23,6 @@ class ContentModal extends Component {
 					{(() => { 
 						switch(this.props.messageSelected.type){
 							case 2: 
-								console.log()
 								return <ContentViewer messageData={this.props.messageSelected.data}/>
 								break;
 							default:
