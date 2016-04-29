@@ -21638,10 +21638,13 @@
 	var TimelineChat = function (_Component) {
 		_inherits(TimelineChat, _Component);
 
-		function TimelineChat(props) {
+		function TimelineChat(props, context) {
 			_classCallCheck(this, TimelineChat);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(TimelineChat).call(this, props));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TimelineChat).call(this, props));
+
+			context.userSession;
+			return _this;
 		}
 
 		_createClass(TimelineChat, [{
@@ -21656,17 +21659,17 @@
 						var message = _this2.props.conversationSelected.messages[key];
 						switch (message.type) {
 							case 1:
-								return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'text' });
+								return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'text' });
 								break;
 							case 2:
 
-								return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'image', messageSelected: _this2.props.messageSelected });
+								return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'image', messageSelected: _this2.props.messageSelected });
 								break;
 							case 3:
-								return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'file' });
+								return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'file' });
 								break;
 							case 4:
-								return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'audio' });
+								return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'audio' });
 								break;
 						}
 					}) : null

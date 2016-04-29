@@ -13,9 +13,10 @@ const BubbleAudio_ = Bubble(BubbleAudio);
 const BubbleLocation_ = Bubble(BubbleLocation);
 
 class TimelineChat extends Component{
-	constructor(props){
-		super(props);
 	
+	constructor(props,context){
+		super(props);
+		context.userSession;
 	}
 
 	render(){
@@ -26,17 +27,17 @@ class TimelineChat extends Component{
 					const message = this.props.conversationSelected.messages[key];
 					switch(message.type){
 						case 1:
-							return <BubbleText_ key={message.id} message={message} userSessionId={this.props.userSessionId} layerClass={'text'} />
+							return <BubbleText_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'text'} />
 							break;
 						case 2:
 
-							return <BubbleImage_ key={message.id} message={message} userSessionId={this.props.userSessionId} layerClass={'image'} messageSelected={this.props.messageSelected}  />
+							return <BubbleImage_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'image'} messageSelected={this.props.messageSelected}  />
 							break;
 						case 3:
-							return <BubbleFile_ key={message.id} message={message} userSessionId={this.props.userSessionId} layerClass={'file'} />
+							return <BubbleFile_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'file'} />
 							break;
 						case 4:
-							return <BubbleAudio_ key={message.id} message={message} userSessionId={this.props.userSessionId} layerClass={'audio'} />
+							return <BubbleAudio_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'audio'} />
 							break;
 					}
 					
@@ -45,9 +46,7 @@ class TimelineChat extends Component{
 		);
 	}
 
-
 }
-
 
 TimelineChat.contextTypes = {
     userSession: React.PropTypes.object.isRequired
