@@ -9,10 +9,11 @@ class ContentConversation extends Component {
 		super(props);
 			this.state = {
 				option: 0,
-				messageSelected:undefined
+				messageSelected:undefined,
 			}
 		this.handleMessageSelected = this.handleMessageSelected.bind(this);
 		this.handleShowModal = this.handleShowModal.bind(this);
+
 	}
 
 	enableGeoInput(){
@@ -30,12 +31,14 @@ class ContentConversation extends Component {
 	componentWillReceiveProps(nextProps){
 		if(this.props.conversationSelected != nextProps.conversationSelected){
 			this.setState({
-				option: 0
+				option: 0,
+				messageSelected:undefined
 			});
 		}
 	}
 
 	render() {
+	
 		if(this.state.option == 1){
 	    	return (
 		    	<div className='mky-content-conversation'>
@@ -51,6 +54,7 @@ class ContentConversation extends Component {
 				</div>
 			)
 		}
+
 		return (
 	    	<div className='mky-content-conversation'>
 				<header id='mky-conversation-selected-header'>
