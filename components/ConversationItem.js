@@ -24,7 +24,7 @@ class ConversationItem extends Component {
 	}
 	
 	openConversation(){
-		this.props.conversationSelected(this.props.conversation);
+		this.props.conversationIdSelected(this.props.conversation.id);
 		this.setState({unreadMessageCount: 0});
 	}
 }

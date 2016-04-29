@@ -10,26 +10,30 @@ class ConversationList extends Component {
 		super(props);
 	    this.state = {
 		    searchTerm: '',
-			conversation: {id: -1}
+			conversation: {id: -1},
+			conversationArray: undefined
 		}
 	    this.searchUpdated = this.searchUpdated.bind(this);
-	    this.conversationSelected = this.conversationSelected.bind(this);
-	    this.conversationName;
+	    this.conversationIdSelected = this.conversationIdSelected.bind(this);
 	}
 	
 	componentWillMount() {
-		this.conversationName = this.createArray();
+		this.setState({conversationArray: this.createArray(this.props.conversations)});
 	}
-
+	
+	componentWillReceiveProps(nextProps) {
+		this.setState({conversationArray: this.createArray(nextProps.conversations)});
+	}
+	
 	render() {
-		const conversationNameFiltered = this.conversationName.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
+		const conversationNameFiltered = this.state.conversationArray.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
     	return (
     		<div>
 	    		<SearchInput className="search-input" onChange={this.searchUpdated} />
 	    		<div id='mky-conversation-list'>
 				{conversationNameFiltered.map(conversation => {
 	    			return (
-						<ConversationItem key={conversation.id} conversation={conversation} conversationSelected={this.conversationSelected} selected={this.state.conversation.id === conversation.id}/>
+						<ConversationItem key={conversation.id} conversation={conversation} conversationIdSelected={this.conversationIdSelected} selected={this.state.conversation.id === conversation.id}/>
 					)
 				})}
 				</div>
@@ -37,19 +41,19 @@ class ConversationList extends Component {
 		)
 	}
 	
-	conversationSelected(conversation) {
-		this.setState({conversation: conversation});
-		this.props.conversationSelected(conversation);
+	conversationIdSelected(conversationId) {
+		this.setState({conversation: this.props.conversations[conversationId]});
+		this.props.conversationSelected(this.props.conversations[conversationId]);
 	}
 
 	searchUpdated(term) {
     	this.setState({searchTerm: term});
   	}
   	
-  	createArray(){
+  	createArray(conversations){
   		let conversationarray = [];
-		for(var x in this.props.conversations){
-		  conversationarray.push(this.props.conversations[x]);
+		for(var x in conversations){
+		  conversationarray.push(conversations[x]);
 		}
 		return conversationarray;
   	}

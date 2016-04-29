@@ -1,23 +1,28 @@
 import React, { Component } from 'react'
-import ReactDOM from 'react-dom';
-import MonkeyUI from './components/MonkeyUI.js';
+import ReactDOM from 'react-dom'
+import MonkeyUI from './components/MonkeyUI.js'
 import monkey from './src/monkey.js'
 
-import {createStore} from 'redux';
-import messages from './reducers';
+import { createStore } from 'redux'
+import reducer from './reducers'
+import initData from './utils/data'
+const store = createStore(reducer, { conversations: initData, users: {} });
 
-const store = createStore(messages);
+import * as actions from './actions'
+
+import dataConversation from './utils/dataNewConversation'
 
 class App extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			conversations: undefined,
+			conversations: this.props.store.conversations,
 			conversation: undefined,
-			userSession: undefined,
+			userSession: this.props.store.userSession,
 		}
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
+		this.conversationToSet = this.conversationToSet.bind(this);
 		this.view = {
 			type: 'fullscreen'
 		}
@@ -34,13 +39,17 @@ class App extends React.Component {
 	}
 	
 	componentWillMount() {
-		this.setState({userSession: this.props.userSession});
-		this.setState({conversations: this.props.conversations});
+		//this.setState({userSession: this.props.userSession});
+		//this.setState({conversations: this.props.conversations});
 /*
 		let conversation = this.props.conversations['ife4c0qdb0dopbg538lg14i'];
 		this.setState({conversation: conversation});
 */
 		var MONKEY_DEBUG_MODE = false;
+	}
+	
+	componentWillReceiveProps(nextProps) {
+		this.setState({conversations: nextProps.store.conversations});
 	}
 	
 	render() {
@@ -50,18 +59,11 @@ class App extends React.Component {
 		)
 	}
 	
-	handleConversationAdd(conversation) {
-	  	
-	}
-	
 	handleMessageToSet(message) {
 		// replace message.id with oldMessageId, when use monkey
 		message.id = Object.keys(this.state.conversations[message.recipientId].messages).length + 1;
-
-		store.dispatch({
-			type: 'ADD_MESSAGE',
-			message: message
-		});
+		store.dispatch(actions.addMessage(message));
+		//this.conversationToSet();
 	}
 	
 	handleUserSessionToSet(user) {
@@ -69,10 +71,15 @@ class App extends React.Component {
 		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
 		this.setState({userSession: user});
 	}
+	
+	conversationToSet() {
+		let newConversation = dataConversation;
+		store.dispatch(actions.addConversation(newConversation));
+	}
 }
 
 function render() {
-	ReactDOM.render(<App conversations={store.getState()}/>, document.getElementsByTagName('body')[0]);
+	ReactDOM.render(<App store={store.getState()}/>, document.getElementsByTagName('body')[0]);
 }
 
 render();
