@@ -1,36 +1,10 @@
-import initData from '../utils/data'
+import { combineReducers } from 'redux'
+import users from './users'
+import conversations from './conversations'
 
-const conversations = (state, action) => {
-	if (typeof state === 'undefined') {
-        return initData;
-    }
-	switch(action.type) {
-		case 'ADD_MESSAGE':
-			let conversationId = action.message.recipientId;
-			let conversation = state[conversationId];
-			// add message
-			conversation.messages[action.message.id] = action.message;
-			// update last message
-			conversation.lastMessage = action.message.id;
-			
-			return {
-				...state,
-				conversationId: conversation,
-			}
-		default: 
-			return state;
-	}
-}
+const reducer = combineReducers({
+	conversations,
+	users
+})
 
-/*
-const app = (state, action) => {
-	if (typeof state === 'undefined') {
-        return initData;
-    }
-	return {
-		conversations: conversations(state.conversations, action)
-	}
-}
-*/
-
-export default conversations;
+export default reducer

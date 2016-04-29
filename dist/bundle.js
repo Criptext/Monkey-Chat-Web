@@ -70,6 +70,20 @@
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
+	var _data = __webpack_require__(253);
+
+	var _data2 = _interopRequireDefault(_data);
+
+	var _actions = __webpack_require__(251);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	var _dataNewConversation = __webpack_require__(254);
+
+	var _dataNewConversation2 = _interopRequireDefault(_dataNewConversation);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -78,7 +92,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var store = (0, _redux.createStore)(_reducers2.default);
+	var store = (0, _redux.createStore)(_reducers2.default, { conversations: _data2.default, users: {} });
 
 	var App = function (_React$Component) {
 		_inherits(App, _React$Component);
@@ -89,12 +103,13 @@
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this, props));
 
 			_this.state = {
-				conversations: undefined,
+				conversations: _this.props.store.conversations,
 				conversation: undefined,
-				userSession: undefined
+				userSession: _this.props.store.userSession
 			};
 			_this.handleMessageToSet = _this.handleMessageToSet.bind(_this);
 			_this.handleUserSessionToSet = _this.handleUserSessionToSet.bind(_this);
+			_this.conversationToSet = _this.conversationToSet.bind(_this);
 			_this.view = {
 				type: 'fullscreen'
 			};
@@ -114,13 +129,18 @@
 		_createClass(App, [{
 			key: 'componentWillMount',
 			value: function componentWillMount() {
-				this.setState({ userSession: this.props.userSession });
-				this.setState({ conversations: this.props.conversations });
+				//this.setState({userSession: this.props.userSession});
+				//this.setState({conversations: this.props.conversations});
 				/*
 	   		let conversation = this.props.conversations['ife4c0qdb0dopbg538lg14i'];
 	   		this.setState({conversation: conversation});
 	   */
 				var MONKEY_DEBUG_MODE = false;
+			}
+		}, {
+			key: 'componentWillReceiveProps',
+			value: function componentWillReceiveProps(nextProps) {
+				this.setState({ conversations: nextProps.store.conversations });
 			}
 		}, {
 			key: 'render',
@@ -131,18 +151,12 @@
 				);
 			}
 		}, {
-			key: 'handleConversationAdd',
-			value: function handleConversationAdd(conversation) {}
-		}, {
 			key: 'handleMessageToSet',
 			value: function handleMessageToSet(message) {
 				// replace message.id with oldMessageId, when use monkey
 				message.id = Object.keys(this.state.conversations[message.recipientId].messages).length + 1;
-
-				store.dispatch({
-					type: 'ADD_MESSAGE',
-					message: message
-				});
+				store.dispatch(actions.addMessage(message));
+				//this.conversationToSet();
 			}
 		}, {
 			key: 'handleUserSessionToSet',
@@ -151,13 +165,19 @@
 				user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
 				this.setState({ userSession: user });
 			}
+		}, {
+			key: 'conversationToSet',
+			value: function conversationToSet() {
+				var newConversation = _dataNewConversation2.default;
+				store.dispatch(actions.addConversation(newConversation));
+			}
 		}]);
 
 		return App;
 	}(_react2.default.Component);
 
 	function render() {
-		_reactDom2.default.render(_react2.default.createElement(App, { conversations: store.getState() }), document.getElementsByTagName('body')[0]);
+		_reactDom2.default.render(_react2.default.createElement(App, { store: store.getState() }), document.getElementsByTagName('body')[0]);
 	}
 
 	render();
@@ -19866,6 +19886,14 @@
 				}
 			}
 		}, {
+			key: 'componentWillReceiveProps',
+			value: function componentWillReceiveProps(nextProps) {
+				if (this.state.conversation) {
+					this.setState({ conversation: nextProps.conversations[this.state.conversation.id] });
+				}
+				this.setState({ conversations: nextProps.conversations });
+			}
+		}, {
 			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
@@ -20121,25 +20149,30 @@
 
 			_this.state = {
 				searchTerm: '',
-				conversation: { id: -1 }
+				conversation: { id: -1 },
+				conversationArray: undefined
 			};
 			_this.searchUpdated = _this.searchUpdated.bind(_this);
-			_this.conversationSelected = _this.conversationSelected.bind(_this);
-			_this.conversationName;
+			_this.conversationIdSelected = _this.conversationIdSelected.bind(_this);
 			return _this;
 		}
 
 		_createClass(ConversationList, [{
 			key: 'componentWillMount',
 			value: function componentWillMount() {
-				this.conversationName = this.createArray();
+				this.setState({ conversationArray: this.createArray(this.props.conversations) });
+			}
+		}, {
+			key: 'componentWillReceiveProps',
+			value: function componentWillReceiveProps(nextProps) {
+				this.setState({ conversationArray: this.createArray(nextProps.conversations) });
 			}
 		}, {
 			key: 'render',
 			value: function render() {
 				var _this2 = this;
 
-				var conversationNameFiltered = this.conversationName.filter((0, _reactSearchInput.createFilter)(this.state.searchTerm, KEYS_TO_FILTERS));
+				var conversationNameFiltered = this.state.conversationArray.filter((0, _reactSearchInput.createFilter)(this.state.searchTerm, KEYS_TO_FILTERS));
 				return _react2.default.createElement(
 					'div',
 					null,
@@ -20148,16 +20181,16 @@
 						'div',
 						{ id: 'mky-conversation-list' },
 						conversationNameFiltered.map(function (conversation) {
-							return _react2.default.createElement(_ConversationItem2.default, { key: conversation.id, conversation: conversation, conversationSelected: _this2.conversationSelected, selected: _this2.state.conversation.id === conversation.id });
+							return _react2.default.createElement(_ConversationItem2.default, { key: conversation.id, conversation: conversation, conversationIdSelected: _this2.conversationIdSelected, selected: _this2.state.conversation.id === conversation.id });
 						})
 					)
 				);
 			}
 		}, {
-			key: 'conversationSelected',
-			value: function conversationSelected(conversation) {
-				this.setState({ conversation: conversation });
-				this.props.conversationSelected(conversation);
+			key: 'conversationIdSelected',
+			value: function conversationIdSelected(conversationId) {
+				this.setState({ conversation: this.props.conversations[conversationId] });
+				this.props.conversationSelected(this.props.conversations[conversationId]);
 			}
 		}, {
 			key: 'searchUpdated',
@@ -20166,10 +20199,10 @@
 			}
 		}, {
 			key: 'createArray',
-			value: function createArray() {
+			value: function createArray(conversations) {
 				var conversationarray = [];
-				for (var x in this.props.conversations) {
-					conversationarray.push(this.props.conversations[x]);
+				for (var x in conversations) {
+					conversationarray.push(conversations[x]);
 				}
 				return conversationarray;
 			}
@@ -20259,7 +20292,7 @@
 		}, {
 			key: 'openConversation',
 			value: function openConversation() {
-				this.props.conversationSelected(this.props.conversation);
+				this.props.conversationIdSelected(this.props.conversation.id);
 				this.setState({ unreadMessageCount: 0 });
 			}
 		}]);
@@ -40806,50 +40839,163 @@
 		value: true
 	});
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _redux = __webpack_require__(238);
 
+<<<<<<< f4e9f5bdbe26b341e7c136ac950ee65e0a85f1a3
 	var _data = __webpack_require__(256);
+=======
+	var _users = __webpack_require__(250);
+>>>>>>> Update reducers
 
-	var _data2 = _interopRequireDefault(_data);
+	var _users2 = _interopRequireDefault(_users);
+
+	var _conversations = __webpack_require__(252);
+
+	var _conversations2 = _interopRequireDefault(_conversations);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var conversations = function conversations(state, action) {
-		if (typeof state === 'undefined') {
-			return _data2.default;
-		}
-		switch (action.type) {
-			case 'ADD_MESSAGE':
-				var conversationId = action.message.recipientId;
-				var conversation = state[conversationId];
-				// add message
-				conversation.messages[action.message.id] = action.message;
-				// update last message
-				conversation.lastMessage = action.message.id;
+	var reducer = (0, _redux.combineReducers)({
+		conversations: _conversations2.default,
+		users: _users2.default
+	});
 
+	exports.default = reducer;
+
+/***/ },
+/* 250 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _actions = __webpack_require__(251);
+
+	var users = function users() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+		var action = arguments[1];
+
+		switch (action.type) {
+			case _actions.ADD_USER:
 				return _extends({}, state, {
-					conversationId: conversation
+					userSession: action.user
 				});
 			default:
 				return state;
 		}
 	};
+	exports.default = users;
 
-	/*
-	const app = (state, action) => {
-		if (typeof state === 'undefined') {
-	        return initData;
-	    }
+/***/ },
+/* 251 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	var ADD_USER_SESSION = exports.ADD_USER_SESSION = 'ADD_USER_SESSION';
+	var ADD_MESSAGE = exports.ADD_MESSAGE = 'ADD_MESSAGE';
+	var ADD_CONVERSATION = exports.ADD_CONVERSATION = 'ADD_CONVERSATION';
+
+	var addMessage = exports.addMessage = function addMessage(message) {
 		return {
-			conversations: conversations(state.conversations, action)
+			type: ADD_MESSAGE,
+			message: message
+		};
+	};
+
+	var addConversation = exports.addConversation = function addConversation(conversation) {
+		return {
+			type: ADD_CONVERSATION,
+			conversation: conversation
+		};
+	};
+
+	var addUserSession = exports.addUserSession = function addUserSession(user) {
+		return {
+			type: ADD_USER,
+			user: user
+		};
+	};
+
+/***/ },
+/* 252 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _actions = __webpack_require__(251);
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	var conversations = function conversations() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+		var action = arguments[1];
+
+		switch (action.type) {
+			case _actions.ADD_CONVERSATION:
+				{
+					var conversationId = action.conversation.id;
+					return _extends({}, state, _defineProperty({}, conversationId, action.conversation));
+				}
+
+			case _actions.ADD_MESSAGE:
+				{
+					var _conversationId = action.message.recipientId;
+					return _extends({}, state, _defineProperty({}, _conversationId, conversation(state[_conversationId], action)));
+				}
+			default:
+				return state;
 		}
-	}
-	*/
+	};
+
+	var conversation = function conversation() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+		var action = arguments[1];
+
+		switch (action.type) {
+			case _actions.ADD_MESSAGE:
+				return _extends({}, state, {
+					messages: messages(state.messages, action),
+					lastMessage: action.message.id
+
+				});
+		}
+		return state;
+	};
+
+	var messages = function messages() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+		var action = arguments[1];
+
+		switch (action.type) {
+			case _actions.ADD_MESSAGE:
+				return _extends({}, state, _defineProperty({}, action.message.id, action.message));
+		}
+		return state;
+	};
 
 	exports.default = conversations;
 
 /***/ },
+<<<<<<< f4e9f5bdbe26b341e7c136ac950ee65e0a85f1a3
 /* 256 */
+=======
+/* 253 */
+>>>>>>> Update reducers
 /***/ function(module, exports) {
 
 	'use strict';
@@ -40986,6 +41132,37 @@
 				}
 			}
 		}
+	};
+
+/***/ },
+/* 254 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.default = {
+		id: 'ilpk9oih1qa0s652sr79zfr',
+		lastMessage: '0',
+		members: undefined,
+		name: 'New Conversation',
+		unreadMessageCount: 0,
+		urlAvatar: 'https://secure.criptext.com/avatars/avatar_707.png',
+		messages: {
+			'0': {
+				id: '1',
+				senderId: 'if9ynf7looscygpvakhxs9k9',
+				timestamp: 2,
+				recipientId: 'idlk0p519nvfmfgfzdbfn7b9',
+				status: 0,
+				type: 2,
+				data: 'http://www.mejoresjugosparabajardepeso.com/wp-content/uploads/2015/08/manzana-verde-3-300x198.jpg',
+				text: 'Image'
+			}
+		}
+
 	};
 
 /***/ }

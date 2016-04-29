@@ -52,6 +52,13 @@ class MonkeyUI extends React.Component {
 		}
 	}
 	
+	componentWillReceiveProps(nextProps) {
+		if(this.state.conversation){
+			this.setState({conversation: nextProps.conversations[this.state.conversation.id]});
+		}
+		this.setState({conversations: nextProps.conversations});
+	}
+	
 	render() {
     	return (
 			<div className={'mky-wrapper-out '+this.classContent} style={this.state.tabStyle}>
