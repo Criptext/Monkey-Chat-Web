@@ -3,6 +3,8 @@ import React, { Component } from 'react'
 class BubbleImage extends React.Component {
 	constructor(props) {
 		super(props);
+
+		this.openImage = this.openImage.bind(this);
 	}
 	
 	render() {
@@ -10,7 +12,7 @@ class BubbleImage extends React.Component {
 			<div>
 				{ this.props.message.data ? (
 						<div className="mky-content-image">
-							<img src={this.props.message.data}></img>
+							<img src={this.props.message.data} onClick={this.openImage}></img>
 						</div>
 					): (
 
@@ -22,6 +24,12 @@ class BubbleImage extends React.Component {
                 }
 			</div>
 		)
+	}
+
+	openImage(){
+		console.log('openImage');
+		console.log(this.props.message.data);
+		this.props.imageSelected(this.props.message.data);
 	}
 }
 
