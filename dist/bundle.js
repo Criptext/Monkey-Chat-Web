@@ -21741,14 +21741,14 @@
 			key: 'componentDidMount',
 			value: function componentDidMount() {
 				var domNode = _reactDom2.default.findDOMNode(this.refs.timelineChat);
-				domNode.scrollTop = domNode.scrollHeight;
-				console.log('mount ' + domNode.scrollHeight);
+				domNode.lastChild.scrollIntoView();
 				domNode.addEventListener('scroll', this.handleScroll);
 			}
 		}, {
 			key: 'updateScrollTop',
 			value: function updateScrollTop() {
 				var domNode = _reactDom2.default.findDOMNode(this.refs.timelineChat);
+				$(domNode).focus();
 				if (!this.mounted) {
 					this.mounted = true;
 					this.goBottom = true;
@@ -21758,7 +21758,7 @@
 				} else if (this.goBottom) {
 					this.goBottom = false;
 					console.log("did update : " + domNode.scrollHeight);
-					domNode.scrollTop = domNode.scrollHeight;
+					domNode.lastChild.scrollIntoView();
 				} else if (this.state.scrollTop != domNode.scrollTop) {
 					this.setState({
 						scrollTop: domNode.scrollTop
