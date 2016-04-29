@@ -21432,9 +21432,9 @@
 
 	var _LocationInput2 = _interopRequireDefault(_LocationInput);
 
-	var _ContentViewer = __webpack_require__(233);
+	var _ContentModal = __webpack_require__(233);
 
-	var _ContentViewer2 = _interopRequireDefault(_ContentViewer);
+	var _ContentModal2 = _interopRequireDefault(_ContentModal);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21454,9 +21454,10 @@
 
 			_this.state = {
 				option: 0,
-				image_data: undefined
+				messageSelected: undefined
 			};
-			_this.handleImageSelected = _this.handleImageSelected.bind(_this);
+			_this.handleMessageSelected = _this.handleMessageSelected.bind(_this);
+			_this.handleShowModal = _this.handleShowModal.bind(_this);
 			return _this;
 		}
 
@@ -21544,8 +21545,8 @@
 							_react2.default.createElement('span', { id: 'mky-conversation-selected-status' })
 						)
 					),
-					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected, imageSelected: this.handleImageSelected }),
-					this.state.image_data ? _react2.default.createElement(_ContentViewer2.default, { imageSelected: this.state.image_data }) : null,
+					_react2.default.createElement(_TimelineChat2.default, { conversationSelected: this.props.conversationSelected, messageSelected: this.handleMessageSelected }),
+					this.state.messageSelected ? _react2.default.createElement(_ContentModal2.default, { messageSelected: this.state.messageSelected, showModal: this.handleShowModal }) : null,
 					_react2.default.createElement(_Input2.default, { enableGeoInput: this.enableGeoInput.bind(this), messageCreated: this.props.messageCreated }),
 					_react2.default.createElement(
 						'div',
@@ -21560,11 +21561,14 @@
 				);
 			}
 		}, {
-			key: 'handleImageSelected',
-			value: function handleImageSelected(image) {
-				console.log('handleImageSelected');
-				console.log(image);
-				this.setState({ image_data: image });
+			key: 'handleMessageSelected',
+			value: function handleMessageSelected(message) {
+				this.setState({ messageSelected: message });
+			}
+		}, {
+			key: 'handleShowModal',
+			value: function handleShowModal() {
+				this.setState({ messageSelected: undefined });
 			}
 		}]);
 
@@ -21652,7 +21656,7 @@
 								break;
 							case 2:
 
-								return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'image', imageSelected: _this2.props.imageSelected });
+								return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'image', messageSelected: _this2.props.messageSelected });
 								break;
 							case 3:
 								return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: _this2.props.userSessionId, layerClass: 'file' });
@@ -21907,7 +21911,7 @@
 			value: function openImage() {
 				console.log('openImage');
 				console.log(this.props.message.data);
-				this.props.imageSelected(this.props.message.data);
+				this.props.messageSelected(this.props.message);
 			}
 		}]);
 
@@ -39109,6 +39113,10 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _ContentViewer = __webpack_require__(256);
+
+	var _ContentViewer2 = _interopRequireDefault(_ContentViewer);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -39117,16 +39125,16 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var ContentViewer = function (_Component) {
-		_inherits(ContentViewer, _Component);
+	var ContentModal = function (_Component) {
+		_inherits(ContentModal, _Component);
 
-		function ContentViewer(props) {
-			_classCallCheck(this, ContentViewer);
+		function ContentModal(props) {
+			_classCallCheck(this, ContentModal);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ContentViewer).call(this, props));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ContentModal).call(this, props));
 
 			_this.state = {
-				image_src: _this.props.imageSelected,
+				messageSelected: _this.props.messageSelected,
 				visible: ''
 			};
 
@@ -39135,63 +39143,57 @@
 			return _this;
 		}
 
-		_createClass(ContentViewer, [{
-			key: 'componentWillMount',
-			value: function componentWillMount() {}
-		}, {
+		_createClass(ContentModal, [{
 			key: 'render',
 			value: function render() {
+				var _this2 = this;
 
-				if (this.state.image_src != undefined) {
+				console.log('render');
+				console.log(JSON.stringify(this.props.messageSelected));
+
+				if (this.props.messageSelected != undefined) {
+
 					return _react2.default.createElement(
 						'div',
 						{ className: 'mky-viewer-content ' + this.state.visible },
 						_react2.default.createElement(
-							'div',
-							{ className: 'mky-viewer-toolbar' },
-							_react2.default.createElement(
-								'button',
-								{ id: 'mky-button-exit', onClick: this.hideViwer },
-								' X '
-							),
-							_react2.default.createElement(
-								'a',
-								{ href: this.state.image_src, download: 'file' },
-								_react2.default.createElement(
-									'button',
-									{ className: 'mky-button-download', title: 'Download' },
-									'Download'
-								)
-							),
-							_react2.default.createElement(
-								'button',
-								{ className: 'mky-button-download', title: 'Download' },
-								'Print'
-							)
+							'button',
+							{ id: 'mky-button-exit', onClick: this.hideViwer },
+							' X '
 						),
-						_react2.default.createElement(
-							'div',
-							{ id: 'file_viewer_image', className: 'mky-viewer-image' },
-							_react2.default.createElement('img', { src: this.state.image_src })
-						),
+						function () {
+							switch (_this2.props.messageSelected.type) {
+								case 2:
+									console.log();
+									return _react2.default.createElement(_ContentViewer2.default, { messageData: _this2.props.messageSelected.data });
+									break;
+								default:
+									return _react2.default.createElement(
+										'div',
+										null,
+										_this2.props.messageSelected.data
+									);
+									break;
+							}
+						}(),
 						_react2.default.createElement('div', { className: 'mky-brand-app' })
 					);
 				} else {
+
 					return _react2.default.createElement('div', null);
 				}
 			}
 		}, {
 			key: 'hideViwer',
 			value: function hideViwer() {
-				console.log(this.state.visible);
-				this.setState({ visible: 'hidden-div' });
+				this.props.showModal();
 			}
 		}]);
 
-		return ContentViewer;
+		return ContentModal;
 	}(_react.Component);
 
-	exports.default = ContentViewer;
+	exports.default = ContentModal;
 
 /***/ },
 /* 234 */
@@ -40907,6 +40909,77 @@
 			}
 		}
 	};
+
+/***/ },
+/* 256 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ContentViewer = function (_Component) {
+		_inherits(ContentViewer, _Component);
+
+		function ContentViewer(props) {
+			_classCallCheck(this, ContentViewer);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(ContentViewer).call(this, props));
+		}
+
+		_createClass(ContentViewer, [{
+			key: "render",
+			value: function render() {
+				return _react2.default.createElement(
+					"div",
+					{ className: "mky-viewer-image-container" },
+					_react2.default.createElement(
+						"div",
+						{ className: "mky-viewer-toolbar" },
+						_react2.default.createElement(
+							"a",
+							{ href: this.props.messageData, download: "file" },
+							_react2.default.createElement(
+								"button",
+								{ className: "mky-button-download", title: "Download" },
+								"Download"
+							)
+						),
+						_react2.default.createElement(
+							"button",
+							{ className: "mky-button-download", title: "Download" },
+							"Print"
+						)
+					),
+					_react2.default.createElement(
+						"div",
+						{ id: "file_viewer_image", className: "mky-viewer-image" },
+						_react2.default.createElement("img", { src: this.props.messageData })
+					)
+				);
+			}
+		}]);
+
+		return ContentViewer;
+	}(_react.Component);
+
+	exports.default = ContentViewer;
 
 /***/ }
 /******/ ]);

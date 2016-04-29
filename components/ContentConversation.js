@@ -2,16 +2,17 @@ import React, { Component } from 'react';
 import TimelineChat from './TimelineChat.js';
 import Input from './Input.js';
 import LocationInput from './LocationInput.js';
-import ContentViewer from './ContentViewer.js';
+import ContentModal from './ContentModal.js';
 
 class ContentConversation extends Component {
 	constructor(props) {
 		super(props);
 			this.state = {
 				option: 0,
-				image_data:undefined
+				messageSelected:undefined
 			}
-		this.handleImageSelected = this.handleImageSelected.bind(this);
+		this.handleMessageSelected = this.handleMessageSelected.bind(this);
+		this.handleShowModal = this.handleShowModal.bind(this);
 	}
 
 	enableGeoInput(){
@@ -59,10 +60,10 @@ class ContentConversation extends Component {
 						<span id='mky-conversation-selected-status'></span>
 					</div>
 				</header>
-				<TimelineChat conversationSelected={this.props.conversationSelected} imageSelected={this.handleImageSelected}/>
+				<TimelineChat conversationSelected={this.props.conversationSelected} messageSelected={this.handleMessageSelected}/>
 				{
-					this.state.image_data ? (
-						<ContentViewer imageSelected={this.state.image_data}/>
+					this.state.messageSelected ? (
+						<ContentModal messageSelected={this.state.messageSelected}  showModal={this.handleShowModal}/>
 					):null
 				}
 				<Input enableGeoInput={this.enableGeoInput.bind(this)} messageCreated={this.props.messageCreated}/>
@@ -71,10 +72,12 @@ class ContentConversation extends Component {
 		)
 	}
 
-	handleImageSelected(image){
-		console.log('handleImageSelected');
-		console.log(image);
-		this.setState({image_data:image});
+	handleMessageSelected(message){
+		this.setState({messageSelected:message});
+	}
+
+	handleShowModal(){
+		this.setState({messageSelected:undefined});
 	}
 }
 

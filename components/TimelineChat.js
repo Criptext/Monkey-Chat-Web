@@ -30,7 +30,7 @@ class TimelineChat extends Component{
 							break;
 						case 2:
 
-							return <BubbleImage_ key={message.id} message={message} userSessionId={this.props.userSessionId} layerClass={'image'} imageSelected={this.props.imageSelected}  />
+							return <BubbleImage_ key={message.id} message={message} userSessionId={this.props.userSessionId} layerClass={'image'} messageSelected={this.props.messageSelected}  />
 							break;
 						case 3:
 							return <BubbleFile_ key={message.id} message={message} userSessionId={this.props.userSessionId} layerClass={'file'} />
