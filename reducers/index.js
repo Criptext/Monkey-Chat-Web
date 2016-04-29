@@ -1,13 +1,10 @@
-import conversations from '../utils/data'
+import { combineReducers } from 'redux'
+import users from './users'
+import conversations from './conversations'
 
-export default function messages(state, action) {
-	if (typeof state === 'undefined') {
-        return conversations;
-    }
-	switch(action.type) {
-		case 'SAVE_MESSAGE': {
-			return action.conversations;
-		}
-		break;	
-	}
-}
+const reducer = combineReducers({
+	conversations,
+	users
+})
+
+export default reducer

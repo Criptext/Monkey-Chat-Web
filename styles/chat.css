@@ -471,11 +471,11 @@ TABLE OF CONTENTS
     background-color: #ffffff;
 }
 
-.mky-conversation-only{
+.mky-content-window-only{
     width: 100%;
 }
 
-.mky-conversation-with{
+.mky-content-window-with{
     width: 72%;
 }
 
@@ -504,6 +504,11 @@ TABLE OF CONTENTS
     background: #CCC;
     position: absolute;
     z-index: 2;
+}
+
+.mky-content-conversation{
+	width: 100%;
+	height: 100%;
 }
 
   /* 3.3.- SECTION: Header
@@ -596,7 +601,6 @@ TABLE OF CONTENTS
     padding: 0 20px 0 20px;
     clear: both;
     display: table;
-    position: relative;
 }
 
 .mky-partialsize .mky-message-line{
@@ -1085,6 +1089,7 @@ TABLE OF CONTENTS
   margin: 25px 22px 0 22px;
   z-index: 1;
   height: 60px;
+  display: none;
 }
 
 .mky-bubble-audio-timer{
@@ -1627,7 +1632,7 @@ input:focus{
 
 @media only screen and (max-width: 300px) {
   /* Disappear list oonversation*/
-  .mky-conversation-with{
+  .mky-content-window-with{
     width: 100%;
   }
   
@@ -1655,7 +1660,7 @@ input:focus{
 	}
   
 	/* Disappear list oonversation */
-	.mky-conversation-with{
+	.mky-content-window-with{
     	width: 100%;
 	}
   

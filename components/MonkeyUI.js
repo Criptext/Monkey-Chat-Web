@@ -3,31 +3,36 @@ import {render} from 'react-dom';
 import ContentAside from './ContentAside.js';
 import ContentWindow from './ContentWindow.js';
 
-import SessionForm from './SessionForm.js';
+import ContentLogin from './ContentLogin.js';
 import MyForm from './MyForm.js';
-const Form_ = SessionForm(MyForm);
+const Form_ = ContentLogin(MyForm);
 
 class MonkeyUI extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
 			conversation: undefined,
-			style: undefined,
+			tabStyle: undefined,
 			classLoading: 'mky-disappear',
 			idTabButton: 'mky-w-max'
 		}
 		this.openTab = this.openTab.bind(this);
-		this.loginSession = this.loginSession.bind(this);
-		
+		this.handleLoginSession = this.handleLoginSession.bind(this);
 		this.handleConversationSelected = this.handleConversationSelected.bind(this);
 		this.handleMessageCreated = this.handleMessageCreated.bind(this);
 		this.defineTime = this.defineTime.bind(this);
-		this.screen;
+		this.classContent;
 		this.showConversations = true;
 		this.expandWindow = false;
 	}
 	
+	getChildContext() {
+	    return { userSession: this.props.userSession }
+	}
+	
 	componentWillMount() {
+		this.setState({conversation: this.props.conversation});
+		
 		let screenMode;
 		if(this.props.view.type === 'fullscreen'){
 			screenMode = 'fullsize';
@@ -35,22 +40,28 @@ class MonkeyUI extends React.Component {
 			screenMode = 'partialsize';
 			let style = {
 				width: this.props.view.data.width,
-				height: '30px'
+				height: this.props.tabHeight
 			}
-			this.setState({style: style});
+			this.setState({tabStyle: style});
 		}
-		this.screen = this.props.prefix+screenMode+' '+this.props.prefix+this.props.view.type;
+		this.classContent = this.props.prefix+screenMode+' '+this.props.prefix+this.props.view.type;
 		
-		this.setState({ conversation: this.props.conversation});
 		if(this.props.view.type === 'classic'){
 			this.showConversations = false;
 			this.expandWindow = true;
 		}
 	}
 	
+	componentWillReceiveProps(nextProps) {
+		if(this.state.conversation){
+			this.setState({conversation: nextProps.conversations[this.state.conversation.id]});
+		}
+		this.setState({conversations: nextProps.conversations});
+	}
+	
 	render() {
     	return (
-			<div className={'mky-wrapper-out '+this.screen} style={this.state.style}>
+			<div className={'mky-wrapper-out '+this.classContent} style={this.state.tabStyle}>
 				{ this.props.view.type === 'classic'
 					? (
 						<div className='mky-tab'>
@@ -71,16 +82,14 @@ class MonkeyUI extends React.Component {
 										<div className='mky-bounce3'></div>
 									</div>
 								</div>
-								{ this.props.userSession
-									? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} userSession={this.props.userSession} show={this.showListConversation}/>
+								{ this.showConversations
+									? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
 									: null
 								}
-								<ContentWindow conversationSelected={this.state.conversation} userSessionId={this.props.userSession.id} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
+								<ContentWindow conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
 							</div>
 						)
-						: (
-							<Form_ loginSession={this.loginSession} />
-						)
+						: <Form_ handleLoginSession={this.handleLoginSession} />
 					}
 				</div>
 			</div>
@@ -90,23 +99,23 @@ class MonkeyUI extends React.Component {
 	openTab() {
 		if(this.state.idTabButton === 'mky-w-max'){
 			this.setState({
-				style: this.props.view.data,
+				tabStyle: this.props.view.data,
 				idTabButton: 'mky-w-min'
 			});
 		}else{
 			let style = {
 				width: this.props.view.data.width,
-				height: '30px'
+				height: this.props.tabHeight
 			}
 			this.setState({
-				style: style,
+				tabStyle: style,
 				idTabButton: 'mky-w-max'
 			});
 		}
 	}
 	
-	loginSession() {
-		
+	handleLoginSession(user) {
+		this.props.userSessionToSet(user);
 	}
 	
 	setLoading(value) {
@@ -147,23 +156,26 @@ class MonkeyUI extends React.Component {
 	    } else if (nhour == 12) {
 	        ap = " PM";
 	    } else if (nhour > 12) {
-	        ap = " PM";nhour -= 12;
+			ap = " PM";nhour -= 12;
 	    }
 	    return ("0" + nhour).slice(-2) + ":" + ("0" + nmin).slice(-2) + ap + "";
 	}
 }
 
 MonkeyUI.propTypes = {
-	showConversationList: React.PropTypes.bool,
-	screenType: React.PropTypes.string
+	view: React.PropTypes.object
 }
 
 MonkeyUI.defaultProps = {
 	prefix: 'mky-',
-	showConversationList: true,
 	view:{
 		type: 'fullscreen'
-	}
+	},
+	tabHeight: '30px'
+}
+
+MonkeyUI.childContextTypes = {
+	userSession: React.PropTypes.object
 }
 
 export default MonkeyUI;

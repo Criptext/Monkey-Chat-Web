@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Dropzone from 'react-dropzone';
+import InputMenu from './InputMenu.js';
 
 // ======================
 // MediaStreamRecorder.js
@@ -31,7 +32,8 @@ class Input extends Component {
 			minutes: '00',
 			seconds: '00',
 			files: null,
-			text: ''
+			text: '',
+            menuVisibility: 0
 		}
 		this.handleOnKeyDownTextArea = this.handleOnKeyDownTextArea.bind(this);
 		this.textMessageInput = this.textMessageInput.bind(this);
@@ -52,6 +54,7 @@ class Input extends Component {
 		this.buildAudio = this.buildAudio.bind(this);
 		this.buildMP3 = this.buildMP3.bind(this);
 		this.getFFMPEGWorker = this.getFFMPEGWorker.bind(this);
+        this.handleMenuVisibility = this.handleMenuVisibility.bind(this);
 		this.readData = this.readData.bind(this);
 		this.pauseAllAudio = this.pauseAllAudio.bind(this);
 		this.handleOnChangeTextArea = this.handleOnChangeTextArea.bind(this);
@@ -68,30 +71,37 @@ class Input extends Component {
 		this.ffmpegRunning = false;
 		this.ffmpegWorker;
 	}
-	
+
+    componentWillReceiveProps(nextProps){
+        this.setState({
+            option: 0
+        });
+    }
+
 	render() {
     	return (
 			<div id='mky-chat-input'>
-				<div id="mky-divider-chat-input"></div>
+				<div id='mky-divider-chat-input'></div>
 				<div className={'mky-button-input '+this.state.classAttachButton}>
-					<button id="mky-button-attach" className='mky-button-icon' onClick={this.handleAttach}></button>
+					<button id="mky-button-attach" className='mky-button-icon' onClick={this.handleMenuVisibility}></button>
 				</div>
+                <InputMenu toggleVisibility={this.handleMenuVisibility} visible={this.state.menuVisibility} enableGeoInput={this.props.enableGeoInput} handleAttach={this.handleAttach}/>
 				<div className={'mky-button-input '+this.state.classCancelAudioButton}>
 					<button id="mky-button-cancel-audio" className='mky-button-icon' onClick={this.handleCancelAudio}></button>
 				</div>
 				<textarea ref='textareaInput' id="mky-message-text-input" className={'mky-textarea-input '+this.state.classTextArea} value={this.state.text} placeholder="Write a secure message" onKeyDown={this.handleOnKeyDownTextArea} onChange={this.handleOnChangeTextArea}></textarea>
-				<div id="mky-record-area" className={this.state.classAudioArea}>
+				<div id='mky-record-area' className={this.state.classAudioArea}>
 					<div className="mky-record-preview-area">
 						<div id='mky-button-action-record'>
 							<button id="mky-button-start-record" className="mky-blink"></button>
 						</div>
-						<div id="mky-time-recorder">
+						<div id='mky-time-recorder'>
 							<span id="mky-minutes">{this.state.minutes}</span><span>:</span><span id="mky-seconds">{this.state.seconds}</span>
 						</div>
 					</div>
 				</div>
 				<div className={'mky-button-input '+this.state.classSendButton}>
-					<button id="mky-button-send-message" className="mky-button-icon" onClick={this.handleSendMessage}></button>
+					<button id='mky-button-send-message' className="mky-button-icon" onClick={this.handleSendMessage}></button>
 				</div>
 				<div className={'mky-button-input mky-disabledd '+this.state.classAudioButton}>
 					<button id="mky-button-record-audio" className="mky-button-icon" onClick={this.handleRecordAudio}></button>
@@ -107,6 +117,13 @@ class Input extends Component {
 		this.ffmpegWorker = this.getFFMPEGWorker();
 	}
 	
+    handleMenuVisibility(){
+        console.log('handle');
+        this.setState({
+          menuVisibility : !this.state.menuVisibility
+        });
+    }
+
 	textMessageInput(text) {
 		let message = {
 			type: 1,
@@ -343,8 +360,7 @@ class Input extends Component {
                 that.audioCaptured.oldId = that.audioMessageOldId;
                 that.audioCaptured.type = 'audio/mpeg';
                 
-                // $(monkeyUI).trigger('audioMessage', this.audioCaptured);
-                let message = {data: that.audioCaptured.src, type: 4};
+                let message = {data: that.audioCaptured.src, type: 4, text: 'Audio'};
                 that.props.messageCreated(message);
 
             } else if (evt.type == 'progress') {
@@ -369,6 +385,7 @@ class Input extends Component {
     }
     
     handleAttach() {
+        this.handleMenuVisibility();
 	    this.refs.dropzone.open();
     }
     
@@ -393,10 +410,12 @@ class Input extends Component {
 	            switch(type){
 		            case 1:{
 			            message.type = 2;
+			            message.text = 'Image';
 			            break;
 		            }
 		            case 2:{
 			            message.type = 3;
+			            message.text = 'File';
 			            break;
 		            }
 	            }
