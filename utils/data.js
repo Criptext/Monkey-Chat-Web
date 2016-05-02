@@ -1,14 +1,14 @@
 export default {
 	'G:330': {
 		id: 'G:330',
-		lastMessage: '3',
+		lastMessage: 3,
 		members: [{monkey_id: 'if9ynf7looscygpvakhxs9k9', name: 'Eri'}, {monkey_id: 'idkh61jqs9ia151u7edhd7vi', name: 'Gianni'}, {monkey_id: 'ife4c0qdb0dopbg538lg14i' , name: 'Luis Loaiza'}],
 		name: 'SWEET & COFFEE BOYZ',
-		unreadMessageCount: 7,
+		unreadMessageCount: 0,
 		urlAvatar: 'https://secure.criptext.com/avatars/avatar_G:330.png',
 		messages: {
 			'1': {
-				id: '1',
+				id: 1,
 				senderId: 'if9ynf7looscygpvakhxs9k9',
 				timestamp: 2,
 				recipientId: 'G:330',
@@ -18,7 +18,7 @@ export default {
 				text: 'Image'
 			},
 			'2': {
-				id: '2',
+				id: 2,
 				senderId: 'idkh61jqs9ia151u7edhd7vi',
 				timestamp: 2,
 				text: 'holaaaaa nop!',
@@ -29,7 +29,7 @@ export default {
 				nameColor: '#236523'
 			},
 			'3': {
-				id: '3',
+				id: 3,
 				senderId: 'ife4c0qdb0dopbg538lg14i',
 				timestamp: 2,
 				recipientId: 'G:330',
@@ -45,14 +45,14 @@ export default {
 	},
 	'idlk0p519nvfmfgfzdbfn7b9': {
 		id: 'idlk0p519nvfmfgfzdbfn7b9',
-		lastMessage: '2',
+		lastMessage: 2,
 		members: undefined,
 		name: 'Alberto',
 		unreadMessageCount: 0,
 		urlAvatar: 'https://secure.criptext.com/avatars/avatar_707.png',
 		messages: {
 			'1': {
-				id: '1',
+				id: 1,
 				senderId: 'if9ynf7looscygpvakhxs9k9',
 				timestamp: 2,
 				recipientId: 'idlk0p519nvfmfgfzdbfn7b9',
@@ -62,7 +62,7 @@ export default {
 				text: 'Image'
 			},
 			'2': {
-				id: '2',
+				id: 2,
 				senderId: 'idlk0p519nvfmfgfzdbfn7b9',
 				timestamp: 2,
 				text: 'mensaje 2',
@@ -74,14 +74,14 @@ export default {
 	},
 	'ife4c0qdb0dopbg538lg14i': {
 		id: 'ife4c0qdb0dopbg538lg14i',
-		lastMessage: '4',
+		lastMessage: 4,
 		members: undefined,
 		name: 'Luis Loaiza',
 		unreadMessageCount: 0,
 		urlAvatar: 'https://secure.criptext.com/avatars/avatar_62.png',
 		messages: {
 			'1': {
-				id: '1',
+				id: 1,
 				senderId: 'if9ynf7looscygpvakhxs9k9',
 				timestamp: 2,
 				recipientId: 'ife4c0qdb0dopbg538lg14i',
@@ -93,7 +93,7 @@ export default {
 				text: 'File'
 			},
 			'2': {
-				id: '1460400827385',
+				id: 1460400827385,
 				senderId: 'ife4c0qdb0dopbg538lg14i',
 				timestamp: 2,
 				recipientId: 'if9ynf7looscygpvakhxs9k9',
@@ -104,7 +104,7 @@ export default {
 				text: 'Audio'
 			},
 			'3':{
-				id: '3',
+				id: 3,
 				senderId: 'if9ynf7looscygpvakhxs9k9',
 				timestamp: 2,
 				recipientId: 'ife4c0qdb0dopbg538lg14i',
@@ -115,7 +115,7 @@ export default {
 				text: 'Audio'
 			},
 			'4':{
-				id: '4',
+				id: 4,
 				senderId: 'if9ynf7looscygpvakhxs9k9',
 				timestamp: 2,
 				recipientId: 'ife4c0qdb0dopbg538lg14i',

@@ -120,9 +120,9 @@ class MonkeyUI extends React.Component {
 	
 	setLoading(value) {
 		if(value){
-			this.setStatus({classLoading: 'mky-appear'});
+			this.setState({classLoading: 'mky-appear'});
 		}else{
-			this.setStatus({classLoading: 'mky-disappear'});
+			this.setState({classLoading: 'mky-disappear'});
 		}
 	}
 	

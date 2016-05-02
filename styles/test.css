@@ -267,6 +267,7 @@ body, html {
 .hidden-div{
   display: none !important;
 }
+
 #mky-button-exit {
     width: 30px;
     height: 30px;
@@ -281,4 +282,30 @@ body, html {
 }
 .mky-viewer-image-container{
   height: 100%;
+}
+
+.mky-chat-area{
+	width: 100%;
+	height: calc(100% - 65px);
+	position: relative;
+}
+
+#mky-chat-timeline {
+    width: 100%;
+    height: calc(100% - 54px);
+    background-color: #fff;
+    position: relative;
+    overflow: auto;
+}
+
+.mky-signature {
+    width: calc(100% - 40px);
+    text-align: right;
+    color: #BCBCBC;
+    font-size: 11px;
+    position: absolute;
+    margin: 0 20px;
+    line-height: 12px;
+    bottom: 5px;
+    right: 0;
 }
