@@ -60,6 +60,7 @@
 
 	var _MonkeyUI2 = _interopRequireDefault(_MonkeyUI);
 
+<<<<<<< HEAD
 	var _redux = __webpack_require__(175);
 
 	var _reducers = __webpack_require__(186);
@@ -75,6 +76,27 @@
 	var actions = _interopRequireWildcard(_actions);
 
 	var _dataNewConversation = __webpack_require__(191);
+=======
+	var _monkey = __webpack_require__(242);
+
+	var _monkey2 = _interopRequireDefault(_monkey);
+
+	var _redux = __webpack_require__(243);
+
+	var _reducers = __webpack_require__(256);
+
+	var _reducers2 = _interopRequireDefault(_reducers);
+
+	var _data = __webpack_require__(260);
+
+	var _data2 = _interopRequireDefault(_data);
+
+	var _actions = __webpack_require__(258);
+
+	var actions = _interopRequireWildcard(_actions);
+
+	var _dataNewConversation = __webpack_require__(261);
+>>>>>>> taking my position
 
 	var _dataNewConversation2 = _interopRequireDefault(_dataNewConversation);
 
@@ -19811,11 +19833,19 @@
 
 	var _ContentWindow2 = _interopRequireDefault(_ContentWindow);
 
+<<<<<<< HEAD
 	var _ContentLogin = __webpack_require__(169);
 
 	var _ContentLogin2 = _interopRequireDefault(_ContentLogin);
 
 	var _MyForm = __webpack_require__(170);
+=======
+	var _ContentLogin = __webpack_require__(236);
+
+	var _ContentLogin2 = _interopRequireDefault(_ContentLogin);
+
+	var _MyForm = __webpack_require__(237);
+>>>>>>> taking my position
 
 	var _MyForm2 = _interopRequireDefault(_MyForm);
 
@@ -40286,7 +40316,7 @@
 
 	var _ContentViewer2 = _interopRequireDefault(_ContentViewer);
 
-	var _ReceivedLocation = __webpack_require__(261);
+	var _ReceivedLocation = __webpack_require__(235);
 
 	var _ReceivedLocation2 = _interopRequireDefault(_ReceivedLocation);
 
@@ -40337,7 +40367,7 @@
 									return _react2.default.createElement(_ContentViewer2.default, { messageData: _this2.props.messageSelected.data });
 									break;
 								case 5:
-									return _react2.default.createElement(_ReceivedLocation2.default, { address: _this2.props.messageSelected.text, yourPosition: { lat: _this2.props.messageSelected.lat, lng: _this2.props.messageSelected.lng }, myPosition: { lat: 2, lng: -79 } });
+									return _react2.default.createElement(_ReceivedLocation2.default, { address: _this2.props.messageSelected.text, yourPosition: { lat: _this2.props.messageSelected.lat, lng: _this2.props.messageSelected.lng } });
 									break;
 								default:
 									return _react2.default.createElement(
@@ -40442,6 +40472,138 @@
 /* 235 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactGoogleMaps = __webpack_require__(186);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ReceivedLocation = function (_Component) {
+	  _inherits(ReceivedLocation, _Component);
+
+	  function ReceivedLocation(props) {
+	    _classCallCheck(this, ReceivedLocation);
+
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ReceivedLocation).call(this, props));
+
+	    _this.state = {
+	      lat: -2.1667,
+	      lng: -79.9000,
+	      markers: [{
+	        position: props.yourPosition,
+	        content: props.address,
+	        animation: 0
+	      }]
+	    };
+	    return _this;
+	  }
+
+	  _createClass(ReceivedLocation, [{
+	    key: "componentDidMount",
+	    value: function componentDidMount() {
+	      var _this2 = this;
+
+	      var bounds = new google.maps.LatLngBounds();
+	      this.state.markers.map(function (marker, index) {
+	        var marker = new google.maps.Marker({
+	          position: new google.maps.LatLng(marker.position.lat, marker.position.lng)
+	        });
+
+	        bounds.extend(marker.position);
+	      });
+	      if (navigator.geolocation) {
+	        navigator.geolocation.getCurrentPosition(function (position) {
+	          var marker = new google.maps.Marker({
+	            position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+	          });
+	          bounds.extend(marker.position);
+	          var newMarker = { position: { lat: position.coords.latitude, lng: position.coords.longitude }, content: "You are here!" };
+	          var newMarkers = _this2.state.markers;
+	          newMarkers.push(newMarker);
+	          _this2.setState({
+	            bounds: bounds,
+	            markers: newMarkers,
+	            animation: 1
+	          });
+	        });
+	      } else {
+	        console.log("Geolocation is not supported by this browser.");
+	      }
+	    }
+	  }, {
+	    key: "componentDidUpdate",
+	    value: function componentDidUpdate() {
+	      console.log('the map: ' + this.refs.map);
+	      this.refs.map.fitBounds(this.state.bounds);
+	    }
+	  }, {
+	    key: "render",
+	    value: function render() {
+	      console.log("gg");
+	      return _react2.default.createElement(_reactGoogleMaps.GoogleMapLoader, { ref: "maploader",
+	        containerElement: _react2.default.createElement("div", _extends({}, this.props, {
+	          style: {
+	            height: "100%",
+	            width: "100%",
+	            zIndex: 1000,
+	            overflow: "visible !important"
+	          },
+
+	          id: "map-id"
+	        })),
+	        googleMapElement: _react2.default.createElement(
+	          _reactGoogleMaps.GoogleMap,
+	          {
+	            ref: "map",
+	            center: { lat: this.state.lat, lng: this.state.lng },
+	            defaultZoom: 15,
+	            defaultOptions: { streetViewControl: false, mapTypeControl: false, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM } }
+	          },
+	          this.state.markers.map(function (marker, index) {
+	            return _react2.default.createElement(
+	              _reactGoogleMaps.InfoWindow,
+	              { key: index, position: marker.position },
+	              _react2.default.createElement(
+	                "div",
+	                null,
+	                " ",
+	                marker.content,
+	                " "
+	              )
+	            );
+	          })
+	        )
+	      });
+	    }
+	  }]);
+
+	  return ReceivedLocation;
+	}(_react.Component);
+
+	exports.default = ReceivedLocation;
+
+/***/ },
+/* 236 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -40490,7 +40652,7 @@
 	exports.default = ContentLogin;
 
 /***/ },
-/* 236 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40505,7 +40667,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _myform = __webpack_require__(237);
+	var _myform = __webpack_require__(238);
 
 	var _myform2 = _interopRequireDefault(_myform);
 
@@ -40540,15 +40702,50 @@
 
 	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+<<<<<<< HEAD
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+=======
+/***/ },
+/* 238 */
+/***/ function(module, exports, __webpack_require__) {
+>>>>>>> taking my position
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+<<<<<<< HEAD
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
+=======
+	// load the styles
+	var content = __webpack_require__(239);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(241)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./myform.css", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./myform.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 239 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(240)();
+	// imports
+>>>>>>> taking my position
 
 	var _canUseDom = __webpack_require__(222);
 
@@ -40558,16 +40755,28 @@
 
 	var _creatorsPolylineCreator2 = _interopRequireDefault(_creatorsPolylineCreator);
 
+<<<<<<< HEAD
 	var Polyline = (function (_Component) {
 	  _inherits(Polyline, _Component);
+=======
+/***/ },
+/* 240 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	  function Polyline() {
 	    _classCallCheck(this, Polyline);
 
 	    _get(Object.getPrototypeOf(Polyline.prototype), "constructor", this).apply(this, arguments);
 
+<<<<<<< HEAD
 	    this.state = {};
 	  }
+=======
+/***/ },
+/* 241 */
+/***/ function(module, exports, __webpack_require__) {
+>>>>>>> taking my position
 
 	  _createClass(Polyline, [{
 	    key: "getDraggable",
@@ -40596,9 +40805,15 @@
 	      return this.state.polyline.getVisible();
 	    }
 
+<<<<<<< HEAD
 	    // END - Public APIs
 	    //
 	    // https://developers.google.com/maps/documentation/javascript/3.exp/reference#Polyline
+=======
+/***/ },
+/* 242 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	  }, {
 	    key: "componentWillMount",
@@ -40629,39 +40844,69 @@
 	    enumerable: true
 	  }]);
 
+<<<<<<< HEAD
 	  return Polyline;
 	})(_react.Component);
+=======
+/***/ },
+/* 243 */
+/***/ function(module, exports, __webpack_require__) {
+>>>>>>> taking my position
 
 	exports["default"] = Polyline;
 	module.exports = exports["default"];
 
 	// Uncontrolled default[props] - used only in componentDidMount
 
+<<<<<<< HEAD
 	// Controlled [props] - used in componentDidMount/componentDidUpdate
+=======
+	var _createStore = __webpack_require__(244);
+>>>>>>> taking my position
 
 	// Event [onEventName]
 
+<<<<<<< HEAD
 /***/ },
 /* 248 */
 /***/ function(module, exports, __webpack_require__) {
+=======
+	var _combineReducers = __webpack_require__(251);
+>>>>>>> taking my position
 
 	"use strict";
 
+<<<<<<< HEAD
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+=======
+	var _bindActionCreators = __webpack_require__(253);
+>>>>>>> taking my position
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+<<<<<<< HEAD
 	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+=======
+	var _applyMiddleware = __webpack_require__(254);
+>>>>>>> taking my position
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+<<<<<<< HEAD
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+=======
+	var _compose = __webpack_require__(255);
+>>>>>>> taking my position
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+<<<<<<< HEAD
 	var _react = __webpack_require__(1);
+=======
+	var _warning = __webpack_require__(252);
+>>>>>>> taking my position
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -40673,17 +40918,31 @@
 
 	var _utilsEventHandlerCreator2 = _interopRequireDefault(_utilsEventHandlerCreator);
 
+<<<<<<< HEAD
 	var _utilsDefaultPropsCreator = __webpack_require__(215);
+=======
+/***/ },
+/* 244 */
+/***/ function(module, exports, __webpack_require__) {
+>>>>>>> taking my position
 
 	var _utilsDefaultPropsCreator2 = _interopRequireDefault(_utilsDefaultPropsCreator);
 
 	var _utilsComposeOptions = __webpack_require__(217);
 
+<<<<<<< HEAD
 	var _utilsComposeOptions2 = _interopRequireDefault(_utilsComposeOptions);
+=======
+	var _isPlainObject = __webpack_require__(245);
+>>>>>>> taking my position
 
 	var _utilsComponentLifecycleDecorator = __webpack_require__(219);
 
+<<<<<<< HEAD
 	var _utilsComponentLifecycleDecorator2 = _interopRequireDefault(_utilsComponentLifecycleDecorator);
+=======
+	var _symbolObservable = __webpack_require__(249);
+>>>>>>> taking my position
 
 	var _GoogleMapHolder = __webpack_require__(211);
 
@@ -40815,9 +41074,19 @@
 
 	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+<<<<<<< HEAD
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+=======
+/***/ },
+/* 245 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var getPrototype = __webpack_require__(246),
+	    isHostObject = __webpack_require__(247),
+	    isObjectLike = __webpack_require__(248);
+>>>>>>> taking my position
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
@@ -40841,8 +41110,14 @@
 	var Rectangle = (function (_Component) {
 	  _inherits(Rectangle, _Component);
 
+<<<<<<< HEAD
 	  function Rectangle() {
 	    _classCallCheck(this, Rectangle);
+=======
+/***/ },
+/* 246 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	    _get(Object.getPrototypeOf(Rectangle.prototype), "constructor", this).apply(this, arguments);
 
@@ -40876,9 +41151,15 @@
 	      return this.state.rectangle.getVisible();
 	    }
 
+<<<<<<< HEAD
 	    // END - Public APIs
 	    //
 	    // https://developers.google.com/maps/documentation/javascript/3.exp/reference#Rectangle
+=======
+/***/ },
+/* 247 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	  }, {
 	    key: "componentWillMount",
@@ -40912,8 +41193,14 @@
 	  return Rectangle;
 	})(_react.Component);
 
+<<<<<<< HEAD
 	exports["default"] = Rectangle;
 	module.exports = exports["default"];
+=======
+/***/ },
+/* 248 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	// Uncontrolled default[props] - used only in componentDidMount
 
@@ -40922,18 +41209,32 @@
 	// Event [onEventName]
 
 /***/ },
+<<<<<<< HEAD
 /* 251 */
+=======
+/* 249 */
+>>>>>>> taking my position
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
+<<<<<<< HEAD
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+=======
+	module.exports = __webpack_require__(250)(global || window || this);
+>>>>>>> taking my position
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+<<<<<<< HEAD
 	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+=======
+/***/ },
+/* 250 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -40945,19 +41246,35 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+<<<<<<< HEAD
 	var _eventListsRectangleEventList = __webpack_require__(252);
+=======
+/***/ },
+/* 251 */
+/***/ function(module, exports, __webpack_require__) {
+>>>>>>> taking my position
 
 	var _eventListsRectangleEventList2 = _interopRequireDefault(_eventListsRectangleEventList);
 
 	var _utilsEventHandlerCreator = __webpack_require__(214);
 
+<<<<<<< HEAD
 	var _utilsEventHandlerCreator2 = _interopRequireDefault(_utilsEventHandlerCreator);
 
 	var _utilsDefaultPropsCreator = __webpack_require__(215);
+=======
+	var _createStore = __webpack_require__(244);
+
+	var _isPlainObject = __webpack_require__(245);
+>>>>>>> taking my position
 
 	var _utilsDefaultPropsCreator2 = _interopRequireDefault(_utilsDefaultPropsCreator);
 
+<<<<<<< HEAD
 	var _utilsComposeOptions = __webpack_require__(217);
+=======
+	var _warning = __webpack_require__(252);
+>>>>>>> taking my position
 
 	var _utilsComposeOptions2 = _interopRequireDefault(_utilsComposeOptions);
 
@@ -41081,7 +41398,11 @@
 
 /***/ },
 /* 253 */
+<<<<<<< HEAD
 /***/ function(module, exports, __webpack_require__) {
+=======
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	"use strict";
 
@@ -41095,7 +41416,13 @@
 
 	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
+<<<<<<< HEAD
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+=======
+/***/ },
+/* 254 */
+/***/ function(module, exports, __webpack_require__) {
+>>>>>>> taking my position
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -41105,7 +41432,11 @@
 
 	var _react = __webpack_require__(1);
 
+<<<<<<< HEAD
 	var _react2 = _interopRequireDefault(_react);
+=======
+	var _compose = __webpack_require__(255);
+>>>>>>> taking my position
 
 	var _canUseDom = __webpack_require__(222);
 
@@ -41193,6 +41524,7 @@
 	      var mapHolderRef = _props2.mapHolderRef;
 	      var controlPosition = _props2.controlPosition;
 
+<<<<<<< HEAD
 	      return this.state.searchBox ? _react2["default"].createElement(
 	        _creatorsSearchBoxCreator2["default"],
 	        _extends({ controlPosition: controlPosition, inputElement: this.state.inputElement, mapHolderRef: mapHolderRef, searchBox: this.state.searchBox }, this.props),
@@ -41204,6 +41536,11 @@
 	    value: _extends({}, _creatorsSearchBoxCreator.searchBoxDefaultPropTypes, _creatorsSearchBoxCreator.searchBoxControlledPropTypes, _creatorsSearchBoxCreator.searchBoxEventPropTypes),
 	    enumerable: true
 	  }]);
+=======
+/***/ },
+/* 255 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	  return SearchBox;
 	})(_react.Component);
@@ -41218,7 +41555,11 @@
 	// Event [onEventName]
 
 /***/ },
+<<<<<<< HEAD
 /* 254 */
+=======
+/* 256 */
+>>>>>>> taking my position
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -41227,13 +41568,23 @@
 	  value: true
 	});
 
+<<<<<<< HEAD
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+=======
+	var _redux = __webpack_require__(243);
+
+	var _users = __webpack_require__(257);
+>>>>>>> taking my position
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+<<<<<<< HEAD
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+=======
+	var _conversations = __webpack_require__(259);
+>>>>>>> taking my position
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
@@ -41243,7 +41594,13 @@
 
 	var _eventListsSearchBoxEventList = __webpack_require__(255);
 
+<<<<<<< HEAD
 	var _eventListsSearchBoxEventList2 = _interopRequireDefault(_eventListsSearchBoxEventList);
+=======
+/***/ },
+/* 257 */
+/***/ function(module, exports, __webpack_require__) {
+>>>>>>> taking my position
 
 	var _utilsEventHandlerCreator = __webpack_require__(214);
 
@@ -41251,13 +41608,23 @@
 
 	var _utilsDefaultPropsCreator = __webpack_require__(215);
 
+<<<<<<< HEAD
 	var _utilsDefaultPropsCreator2 = _interopRequireDefault(_utilsDefaultPropsCreator);
+=======
+	var _actions = __webpack_require__(258);
+>>>>>>> taking my position
 
 	var _utilsComposeOptions = __webpack_require__(217);
 
 	var _utilsComposeOptions2 = _interopRequireDefault(_utilsComposeOptions);
 
+<<<<<<< HEAD
 	var _utilsComponentLifecycleDecorator = __webpack_require__(219);
+=======
+/***/ },
+/* 258 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	var _utilsComponentLifecycleDecorator2 = _interopRequireDefault(_utilsComponentLifecycleDecorator);
 
@@ -41389,7 +41756,11 @@
 	module.exports = exports["default"];
 
 /***/ },
+<<<<<<< HEAD
 /* 256 */
+=======
+/* 259 */
+>>>>>>> taking my position
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41400,7 +41771,11 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+<<<<<<< HEAD
 	var _react = __webpack_require__(1);
+=======
+	var _actions = __webpack_require__(258);
+>>>>>>> taking my position
 
 	var _react2 = _interopRequireDefault(_react);
 
@@ -41439,7 +41814,13 @@
 			value: function render() {
 				var _this2 = this;
 
+<<<<<<< HEAD
 				if (this.props.messageSelected != undefined) {
+=======
+/***/ },
+/* 260 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 					return _react2.default.createElement(
 						'div',
@@ -41483,8 +41864,13 @@
 	exports.default = ContentModal;
 
 /***/ },
+<<<<<<< HEAD
 /* 257 */
 /***/ function(module, exports, __webpack_require__) {
+=======
+/* 261 */
+/***/ function(module, exports) {
+>>>>>>> taking my position
 
 	"use strict";
 
@@ -41552,125 +41938,6 @@
 	}(_react.Component);
 
 	exports.default = ContentViewer;
-
-/***/ },
-/* 261 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactGoogleMaps = __webpack_require__(186);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var ReceivedLocation = function (_Component) {
-	  _inherits(ReceivedLocation, _Component);
-
-	  function ReceivedLocation(props) {
-	    _classCallCheck(this, ReceivedLocation);
-
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ReceivedLocation).call(this, props));
-
-	    _this.state = {
-	      lat: -2.1667,
-	      lng: -79.9000,
-	      markers: [{
-	        position: props.myPosition,
-	        showInfo: true,
-	        content: "You're Here"
-	      }, {
-	        position: props.yourPosition,
-	        showInfo: true,
-	        content: props.address
-	      }]
-	    };
-	    return _this;
-	  }
-
-	  _createClass(ReceivedLocation, [{
-	    key: "componentDidMount",
-	    value: function componentDidMount() {
-	      var bounds = new google.maps.LatLngBounds();
-	      this.state.markers.map(function (marker, index) {
-	        var marker = new google.maps.Marker({
-	          position: new google.maps.LatLng(marker.position.lat, marker.position.lng)
-	        });
-
-	        bounds.extend(marker.position);
-	      });
-	      this.setState({
-	        bounds: bounds
-	      });
-	    }
-	  }, {
-	    key: "componentDidUpdate",
-	    value: function componentDidUpdate() {
-	      console.log('the map: ' + this.refs.map);
-	      this.refs.map.fitBounds(this.state.bounds);
-	    }
-	  }, {
-	    key: "render",
-	    value: function render() {
-	      console.log("gg");
-	      return _react2.default.createElement(_reactGoogleMaps.GoogleMapLoader, { ref: "maploader",
-	        containerElement: _react2.default.createElement("div", _extends({}, this.props, {
-	          style: {
-	            height: "100%",
-	            width: "100%",
-	            zIndex: 1000,
-	            overflow: "visible !important"
-	          },
-
-	          id: "map-id"
-	        })),
-	        googleMapElement: _react2.default.createElement(
-	          _reactGoogleMaps.GoogleMap,
-	          {
-	            ref: "map",
-	            center: { lat: this.state.lat, lng: this.state.lng },
-	            defaultZoom: 15,
-	            defaultOptions: { streetViewControl: false, mapTypeControl: false, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM } }
-	          },
-	          this.state.markers.map(function (marker, index) {
-	            return _react2.default.createElement(
-	              _reactGoogleMaps.InfoWindow,
-	              { key: index, position: marker.position },
-	              _react2.default.createElement(
-	                "div",
-	                null,
-	                " ",
-	                marker.content,
-	                " "
-	              )
-	            );
-	          })
-	        )
-	      });
-	    }
-	  }]);
-
-	  return ReceivedLocation;
-	}(_react.Component);
-
-	exports.default = ReceivedLocation;
 
 /***/ }
 /******/ ]);

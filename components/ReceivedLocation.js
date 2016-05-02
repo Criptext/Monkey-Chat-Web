@@ -11,14 +11,9 @@ export default class ReceivedLocation extends Component {
       lng: -79.9000,
       markers: [
         {
-          position: props.myPosition,
-          showInfo: true,
-          content: "You're Here"
-        },
-        {
           position: props.yourPosition,
-          showInfo: true,
-          content: props.address
+          content: props.address,
+          animation: 0
         }  
       ]
     }
@@ -34,9 +29,24 @@ export default class ReceivedLocation extends Component {
         bounds.extend(marker.position)
       }
     );
-    this.setState({
-      bounds : bounds
-    })
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition( (position) => {
+          var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+          });
+          bounds.extend(marker.position);
+          var newMarker = {position: {lat: position.coords.latitude, lng: position.coords.longitude}, content: "You are here!" }
+          var newMarkers = this.state.markers;
+          newMarkers.push(newMarker);
+          this.setState({
+            bounds : bounds,
+            markers : newMarkers,
+            animation : 1
+          })
+        });
+    } else {
+       console.log("Geolocation is not supported by this browser.");
+    }
   }
 
   componentDidUpdate() {

@@ -27,7 +27,7 @@ class ContentModal extends Component {
 								return <ContentViewer messageData={this.props.messageSelected.data}/>
 								break;
 							case 5: 
-								return <ReceivedLocation address={this.props.messageSelected.text} yourPosition={{lat: this.props.messageSelected.lat, lng: this.props.messageSelected.lng}} myPosition={{lat: 2, lng: -79}}/>
+								return <ReceivedLocation address={this.props.messageSelected.text} yourPosition={{lat: this.props.messageSelected.lat, lng: this.props.messageSelected.lng}}/>
 								break;
 							default:
 								return <div>{this.props.messageSelected.data}</div>
