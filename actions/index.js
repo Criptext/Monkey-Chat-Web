@@ -18,7 +18,7 @@ export const addConversation = (conversation) => {
 
 export const addUserSession = (user) => {
 	return {
-		type: ADD_USER,
+		type: ADD_USER_SESSION,
 		user: user
 	}
 }
