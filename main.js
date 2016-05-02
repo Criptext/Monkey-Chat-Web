@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import MonkeyUI from './components/MonkeyUI.js'
-import monkey from './src/monkey.js'
+// import monkey from './src/monkey.js'
 
 import { createStore } from 'redux'
 import reducer from './reducers'

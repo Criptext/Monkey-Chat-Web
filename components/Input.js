@@ -118,10 +118,7 @@ class Input extends Component {
 	}
 	
     handleMenuVisibility(){
-        console.log('handle');
-        this.setState({
-          menuVisibility : !this.state.menuVisibility
-        });
+        this.setState({menuVisibility : !this.state.menuVisibility});
     }
 
 	textMessageInput(text) {
@@ -196,7 +193,6 @@ class Input extends Component {
     }
     
     setTime() {
-	    console.log(this.secondsRecording);
 	    ++this.secondsRecording;
 	    let seconds = ("0" + this.secondsRecording%60).slice(-2);
         this.setState({seconds: seconds});
@@ -218,14 +214,11 @@ class Input extends Component {
     }
 
     handleSendMessage(){
-    	console.log('SEND MESSAGE this.typeMessageToSend = ', this.typeMessageToSend)
     	switch (this.typeMessageToSend) {
             case 0:
-     			console.log('MESSAGE = 0');
      			this.textMessageInput(e.target.value);
      			break;
             case 1:
-            	console.log('AUDIO = 1');
             	if (this.mediaRecorder != null) {
                     this.mediaRecorder.stop(); //detiene la grabacion del audio
                 }
@@ -236,13 +229,13 @@ class Input extends Component {
                 this.handleCancelAudio()
             	break;
             case 3:
-				console.log('IMAGE = 3');
+				
 				break;
             case 4:
-            	console.log('FILE = 4');
+            	
             	break;
             default:
-            	console.log('this.typeMessageToSend = default');
+            	
                 break;
         }
     }
@@ -344,10 +337,7 @@ class Input extends Component {
 
     readData(mp3Blob) {
         // read mp3 audio
-        console.log(mp3Blob)
-
         var that = this;
-
         FileAPI.readAsDataURL(mp3Blob, function (evt) {
             if (evt.type == 'load') {
                 // disabledAudioButton(false);
@@ -402,10 +392,7 @@ class Input extends Component {
     generateDataFile(file) {
         FileAPI.readAsDataURL(file, (evt) => {
             if( evt.type == 'load' ){
-	            console.log(file);
-	            console.log(evt);
 	            let message = {data: evt.result}
-	            
 	            let type = this.checkExtention(file);
 	            switch(type){
 		            case 1:{

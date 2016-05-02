@@ -20,29 +20,28 @@ class TimelineChat extends Component {
 		super(props);
 		context.userSession;
 		this.goBottom = false;
-		this.mounted = false;
 		this.handleScroll = this.handleScroll.bind(this);
 		this.updateScrollTop = this.updateScrollTop.bind(this);
 		this.state = {
 			scrollTop : 0,
 			update: 0
 		}
+		this.domNode;
 	}
 
 	componentWillReceiveProps(nextProps) {
-		var domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		if(this.props.conversationSelected != nextProps.conversationSelected){
-			this.mounted = false;
-		}else if(!this.goBottom){
-			var keys = Object.keys(this.props.conversationSelected.messages);
-			var key = keys[keys.length - 1];
-			var message = this.props.conversationSelected.messages[key];
-			if (message.senderId == this.context.userSession.id){
-				this.goBottom = true;
-			}
+		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
+		if(nextProps.conversationSelected.messages[nextProps.conversationSelected.lastMessage].senderId === this.context.userSession.id){
+			this.goBottom = true;
 		}
 	}
-
+	
+	componentWillMount() {
+		if(this.props.conversationSelected.unreadMessageCount === 0){
+			this.goBottom = true;
+		}
+	}
+	
 	render(){
 		return( <div ref="timelineChat" id='mky-chat-timeline'>
 			{typeof this.props.conversationSelected !== 'undefined' ? Object.keys(this.props.conversationSelected.messages).map( key => {
@@ -50,18 +49,15 @@ class TimelineChat extends Component {
 				switch(message.type){
 					case 1:
 						return <BubbleText_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'text'} />
-						break;
 					case 2:
 						return <BubbleImage_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'image'} messageSelected={this.props.messageSelected}/>
-						break;
 					case 3:
 						return <BubbleFile_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'file'} />
-						break;
 					case 4:
 						return <BubbleAudio_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'audio'} />
-						break;
 					case 5:
 						return <BubbleLocation_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'location'} />
+					default:
 						break;
 				}
 				
@@ -70,37 +66,33 @@ class TimelineChat extends Component {
 	}
 
 	componentDidMount() {
-		var domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		domNode.lastChild.scrollIntoView();
-	    domNode.addEventListener('scroll', this.handleScroll);
-	}
-
-	updateScrollTop(){
-		var domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		$(domNode).focus();
-		if(!this.mounted){
-			this.mounted = true;
-			this.goBottom = true;
-			this.setState({
-				scrollTop : 0 
-			});
-		}else if (this.goBottom){
-			this.goBottom = false;
-			console.log("did update : " + domNode.scrollHeight);
-			domNode.lastChild.scrollIntoView();
-		}else if(this.state.scrollTop != domNode.scrollTop){
-			this.setState({
-				scrollTop : domNode.scrollTop
-			});
-			if(domNode.scrollTop==0 && this.mounted){
-				console.log('load here!');
-			}
-		}
-
+		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
+		this.domNode.lastChild.scrollIntoView();
+	    this.domNode.addEventListener('scroll', this.handleScroll);
 	}
 
 	componentDidUpdate() {
-		this.updateScrollTop();
+		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
+		this.domNode.lastChild.scrollIntoView();
+ 		this.updateScrollTop();
+	}
+	
+	updateScrollTop(){
+		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
+		$(this.domNode).focus();
+
+		if(!this.goBottom && this.domNode.scrollTop != 0){
+			console.log('stop');
+			return;
+		}
+		
+		if (this.goBottom){
+			this.goBottom = false;
+// 			this.domNode.lastChild.scrollIntoView();
+			
+		}else if(this.domNode.scrollTop === 0){
+			console.log('load here!');
+		}	
 	}
 
 	handleScroll(event) {
