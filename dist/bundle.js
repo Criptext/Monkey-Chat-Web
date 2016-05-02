@@ -21589,6 +21589,184 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+<<<<<<< HEAD
+=======
+	var _reactDom = __webpack_require__(158);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	var _Bubble = __webpack_require__(170);
+
+	var _Bubble2 = _interopRequireDefault(_Bubble);
+
+	var _BubbleText = __webpack_require__(171);
+
+	var _BubbleText2 = _interopRequireDefault(_BubbleText);
+
+	var _BubbleImage = __webpack_require__(172);
+
+	var _BubbleImage2 = _interopRequireDefault(_BubbleImage);
+
+	var _BubbleFile = __webpack_require__(173);
+
+	var _BubbleFile2 = _interopRequireDefault(_BubbleFile);
+
+	var _BubbleAudio = __webpack_require__(174);
+
+	var _BubbleAudio2 = _interopRequireDefault(_BubbleAudio);
+
+	var _BubbleLocation = __webpack_require__(175);
+
+	var _BubbleLocation2 = _interopRequireDefault(_BubbleLocation);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var BubbleText_ = (0, _Bubble2.default)(_BubbleText2.default);
+	var BubbleImage_ = (0, _Bubble2.default)(_BubbleImage2.default);
+	var BubbleFile_ = (0, _Bubble2.default)(_BubbleFile2.default);
+	var BubbleAudio_ = (0, _Bubble2.default)(_BubbleAudio2.default);
+	var BubbleLocation_ = (0, _Bubble2.default)(_BubbleLocation2.default);
+
+	var TimelineChat = function (_Component) {
+		_inherits(TimelineChat, _Component);
+
+		function TimelineChat(props, context) {
+			_classCallCheck(this, TimelineChat);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TimelineChat).call(this, props));
+
+			context.userSession;
+			_this.goBottom = false;
+			_this.mounted = false;
+			_this.handleScroll = _this.handleScroll.bind(_this);
+			_this.updateScrollTop = _this.updateScrollTop.bind(_this);
+			_this.state = {
+				scrollTop: 0,
+				update: 0
+			};
+			return _this;
+		}
+
+		_createClass(TimelineChat, [{
+			key: 'componentWillReceiveProps',
+			value: function componentWillReceiveProps(nextProps) {
+				var domNode = _reactDom2.default.findDOMNode(this.refs.timelineChat);
+				if (this.props.conversationSelected != nextProps.conversationSelected) {
+					this.mounted = false;
+				} else if (!this.goBottom) {
+					var keys = Object.keys(this.props.conversationSelected.messages);
+					var key = keys[keys.length - 1];
+					var message = this.props.conversationSelected.messages[key];
+					if (message.senderId == this.context.userSession.id) {
+						this.goBottom = true;
+					}
+				}
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				var _this2 = this;
+
+				return _react2.default.createElement(
+					'div',
+					{ ref: 'timelineChat', id: 'mky-chat-timeline' },
+					typeof this.props.conversationSelected !== 'undefined' ? Object.keys(this.props.conversationSelected.messages).map(function (key) {
+						var message = _this2.props.conversationSelected.messages[key];
+						switch (message.type) {
+							case 1:
+								return _react2.default.createElement(BubbleText_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'text' });
+								break;
+							case 2:
+								return _react2.default.createElement(BubbleImage_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'image', messageSelected: _this2.props.messageSelected });
+								break;
+							case 3:
+								return _react2.default.createElement(BubbleFile_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'file' });
+								break;
+							case 4:
+								return _react2.default.createElement(BubbleAudio_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'audio' });
+								break;
+							case 5:
+								return _react2.default.createElement(BubbleLocation_, { key: message.id, message: message, userSessionId: _this2.context.userSession.id, layerClass: 'location', messageSelected: _this2.props.messageSelected });
+								break;
+						}
+					}) : null
+				);
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				var domNode = _reactDom2.default.findDOMNode(this.refs.timelineChat);
+				domNode.lastChild.scrollIntoView();
+				domNode.addEventListener('scroll', this.handleScroll);
+			}
+		}, {
+			key: 'updateScrollTop',
+			value: function updateScrollTop() {
+				var domNode = _reactDom2.default.findDOMNode(this.refs.timelineChat);
+				$(domNode).focus();
+				if (!this.mounted) {
+					this.mounted = true;
+					this.goBottom = true;
+					this.setState({
+						scrollTop: 0
+					});
+				} else if (this.goBottom) {
+					this.goBottom = false;
+					console.log("did update : " + domNode.scrollHeight);
+					domNode.lastChild.scrollIntoView();
+				} else if (this.state.scrollTop != domNode.scrollTop) {
+					this.setState({
+						scrollTop: domNode.scrollTop
+					});
+					if (domNode.scrollTop == 0 && this.mounted) {
+						console.log('load here!');
+					}
+				}
+			}
+		}, {
+			key: 'componentDidUpdate',
+			value: function componentDidUpdate() {
+				this.updateScrollTop();
+			}
+		}, {
+			key: 'handleScroll',
+			value: function handleScroll(event) {
+				this.updateScrollTop();
+			}
+		}]);
+
+		return TimelineChat;
+	}(_react.Component);
+
+	TimelineChat.contextTypes = {
+		userSession: _react2.default.PropTypes.object.isRequired
+	};
+
+	exports.default = TimelineChat;
+
+/***/ },
+/* 170 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+>>>>>>> see location modal
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -22226,6 +22404,7 @@
 	  var nextListeners = currentListeners;
 	  var isDispatching = false;
 
+<<<<<<< HEAD
 	  function ensureCanMutateNextListeners() {
 	    if (nextListeners === currentListeners) {
 	      nextListeners = currentListeners.slice();
@@ -22240,6 +22419,46 @@
 	  function getState() {
 	    return currentState;
 	  }
+=======
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BubbleLocation).call(this, props));
+
+			_this.openMap = _this.openMap.bind(_this);
+			return _this;
+		}
+
+		_createClass(BubbleLocation, [{
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'div',
+					{ className: 'mky-content-location' },
+					_react2.default.createElement(
+						'a',
+						{ target: '_blank', onClick: this.openMap },
+						_react2.default.createElement('img', { src: 'images/gmap_default.png' }),
+						_react2.default.createElement(
+							'div',
+							{ className: 'mky-location-detail' },
+							_react2.default.createElement(
+								'div',
+								{ className: 'mky-location-name' },
+								_react2.default.createElement(
+									'span',
+									{ className: 'mky-ellipsify' },
+									'Ver Mapa'
+								)
+							)
+						)
+					)
+				);
+			}
+		}, {
+			key: 'openMap',
+			value: function openMap() {
+				this.props.messageSelected(this.props.message);
+			}
+		}]);
+>>>>>>> see location modal
 
 	  /**
 	   * Adds a change listener. It will be called any time an action is dispatched,
@@ -35080,9 +35299,95 @@
 						}
 					}
 
+<<<<<<< HEAD
 					// if no content
 					if ( status === 204 || s.type === "HEAD" ) {
 						statusText = "nocontent";
+=======
+	    _this.state = {
+	      opacity: 0,
+	      lat: 0,
+	      lng: 0,
+	      address: ""
+	    };
+	    return _this;
+	  }
+
+	  _createClass(LocationInput, [{
+	    key: 'getLocation',
+	    value: function getLocation() {
+	      var _this2 = this;
+
+	      console.log('aqui casual');
+	      if (navigator.geolocation) {
+	        console.log('bien aqui casual');
+	        navigator.geolocation.getCurrentPosition(function (position) {
+	          console.log('vamo a localizar');
+	          console.log("latitude: " + position.coords.latitude + ", longitude: " + position.coords.longitude);
+	          _this2.refs.googleMap.setMarker(position.coords.latitude, position.coords.longitude);
+	          _this2.refs.googleMap.setMapCenter(position.coords.latitude, position.coords.longitude);
+	          console.log('bien 1!');
+	        }, function (error) {
+	          var errors = {
+	            1: 'Permission denied',
+	            2: 'Position unavailable',
+	            3: 'Request timeout'
+	          };
+	          alert("Error: " + errors[error.code]);
+	        });
+	        console.log('bien!');
+	      } else {
+	        console.log("Geolocation is not supported by this browser.");
+	      }
+	    }
+	  }, {
+	    key: 'setOpacity',
+	    value: function setOpacity(value) {
+	      this.setState({
+	        opacity: value
+	      });
+	    }
+	  }, {
+	    key: 'locationMessageInput',
+	    value: function locationMessageInput(lat) {
+	      var message = {
+	        type: 5,
+	        text: this.state.address,
+	        lat: this.state.lat,
+	        lng: this.state.lng
+	      };
+	      this.props.messageCreated(message);
+	      this.props.disableGeoInput();
+	    }
+	  }, {
+	    key: 'updateGeoLocation',
+	    value: function updateGeoLocation(lat, lng, address) {
+	      this.setState({
+	        lat: lat,
+	        lng: lng,
+	        address: address
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { style: {
+	            height: 'calc(100% - 86px)',
+	            width: '100%',
+	            zIndex: 1000
+	          }
+	        },
+	        _react2.default.createElement(_Gmap2.default, { updateGeoLocation: this.updateGeoLocation.bind(this), fireChangeEvent: this.setOpacity.bind(this), ref: 'googleMap' }),
+	        _react2.default.createElement('div', { className: 'testing-location', onClick: this.getLocation.bind(this) }),
+	        _react2.default.createElement('div', { className: 'quit-location', onClick: this.props.disableGeoInput }),
+	        _react2.default.createElement('div', { className: 'send-location', onClick: this.locationMessageInput.bind(this) }),
+	        _react2.default.createElement('div', { className: 'pin-location', style: { display: this.state.opacity ? "block" : "none" } })
+	      );
+	    }
+	  }]);
+>>>>>>> see location modal
 
 					// if not modified
 					} else if ( status === 304 ) {
@@ -35107,9 +35412,13 @@
 					}
 				}
 
+<<<<<<< HEAD
 				// Set data for the fake xhr object
 				jqXHR.status = status;
 				jqXHR.statusText = ( nativeStatusText || statusText ) + "";
+=======
+	'use strict';
+>>>>>>> see location modal
 
 				// Success/Error
 				if ( isSuccess ) {
@@ -35178,6 +35487,7 @@
 		return jQuery.ajax( {
 			url: url,
 
+<<<<<<< HEAD
 			// Make this explicit, since user can override this through ajaxSetup (#11264)
 			type: "GET",
 			dataType: "script",
@@ -35186,6 +35496,96 @@
 			"throws": true
 		} );
 	};
+=======
+	  _createClass(SimpleMapPage, [{
+	    key: 'setMarker',
+	    value: function setMarker(lat, lng) {
+	      this.setState({
+	        lat: lat,
+	        lng: lng
+	      });
+	    }
+	  }, {
+	    key: 'setMapCenter',
+	    value: function setMapCenter(lat, lng) {
+	      this.setState({
+	        mapLat: lat,
+	        mapLng: lng
+	      });
+	    }
+	  }, {
+	    key: 'handleCenterChanged',
+	    value: function handleCenterChanged() {
+	      var coords = this.refs.map.getCenter();
+	      this.setMarker(coords.lat(), coords.lng());
+	      this.setMapCenter(coords.lat(), coords.lng());
+	      this.setState({
+	        animation: 0,
+	        opacity: 0
+	      });
+	      this.props.fireChangeEvent(1);
+	    }
+	  }, {
+	    key: 'handleIdle',
+	    value: function handleIdle() {
+	      var _this2 = this;
+
+	      this.setState({
+	        animation: 1,
+	        opacity: 1
+	      });
+	      this.props.fireChangeEvent(0);
+	      var geocoder = new google.maps.Geocoder();
+	      var lat = this.state.lat;
+	      var lng = this.state.lng;
+	      var latlng = new google.maps.LatLng(lat, lng);
+	      geocoder.geocode({ 'latLng': latlng }, function (results, status) {
+	        if (status == google.maps.GeocoderStatus.OK) {
+	          if (results[0]) {
+	            var request = {
+	              placeId: results[0].place_id
+	            };
+	            _this2.props.updateGeoLocation(_this2.state.lat, _this2.state.lng, results[0].formatted_address);
+	          } else {
+	            alert("No results found");
+	          }
+	        } else {
+	          alert("Geocoder failed due to: " + status);
+	        }
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(_reactGoogleMaps.GoogleMapLoader, { ref: 'maploader',
+	        containerElement: _react2.default.createElement('div', _extends({}, this.props, {
+	          style: {
+	            height: '100%',
+	            width: '100%',
+	            zIndex: 1000,
+	            overflow: 'visible !important'
+	          },
+
+	          id: 'map-id'
+	        })),
+	        googleMapElement: _react2.default.createElement(
+	          _reactGoogleMaps.GoogleMap,
+	          {
+	            ref: 'map',
+	            onCenterChanged: this.handleCenterChanged.bind(this),
+	            onIdle: this.handleIdle.bind(this),
+	            defaultZoom: 17,
+	            center: { lat: this.state.mapLat, lng: this.state.mapLng },
+	            defaultOptions: { streetViewControl: false, mapTypeControl: false, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP } }
+	          },
+	          _react2.default.createElement(_reactGoogleMaps.Marker, {
+	            position: { lat: this.state.lat, lng: this.state.lng }, ref: 'myMarker', animation: this.state.animation, opacity: this.state.opacity
+	          })
+	        )
+	      });
+	    }
+	  }]);
+>>>>>>> see location modal
 
 
 	jQuery.fn.extend( {
@@ -39851,9 +40251,272 @@
 /* 246 */
 /***/ function(module, exports) {
 
+<<<<<<< HEAD
 	// https://developers.google.com/maps/documentation/javascript/3.exp/reference#Polygon
 	// [].map.call($0.querySelectorAll("tr>td>code"), function(it){ return it.textContent; })
 	"use strict";
+=======
+	// https://developers.google.com/maps/documentation/javascript/3.exp/reference#SearchBox
+	// [].map.call($0.querySelectorAll("tr>td>code"), function(it){ return it.textContent; })
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports["default"] = ["places_changed"];
+	module.exports = exports["default"];
+
+/***/ },
+/* 233 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _ContentViewer = __webpack_require__(234);
+
+	var _ContentViewer2 = _interopRequireDefault(_ContentViewer);
+
+	var _ReceivedLocation = __webpack_require__(261);
+
+	var _ReceivedLocation2 = _interopRequireDefault(_ReceivedLocation);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ContentModal = function (_Component) {
+		_inherits(ContentModal, _Component);
+
+		function ContentModal(props) {
+			_classCallCheck(this, ContentModal);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ContentModal).call(this, props));
+
+			_this.state = {
+				messageSelected: _this.props.messageSelected,
+				visible: ''
+			};
+
+			_this.hideViwer = _this.hideViwer.bind(_this);
+
+			return _this;
+		}
+
+		_createClass(ContentModal, [{
+			key: 'render',
+			value: function render() {
+				var _this2 = this;
+
+				if (this.props.messageSelected != undefined) {
+
+					return _react2.default.createElement(
+						'div',
+						{ className: 'mky-viewer-content ' + this.state.visible },
+						_react2.default.createElement(
+							'button',
+							{ id: 'mky-button-exit', onClick: this.hideViwer },
+							' X '
+						),
+						function () {
+							switch (_this2.props.messageSelected.type) {
+								case 2:
+									return _react2.default.createElement(_ContentViewer2.default, { messageData: _this2.props.messageSelected.data });
+									break;
+								case 5:
+									return _react2.default.createElement(_ReceivedLocation2.default, { address: _this2.props.messageSelected.text, yourPosition: { lat: _this2.props.messageSelected.lat, lng: _this2.props.messageSelected.lng }, myPosition: { lat: 2, lng: -79 } });
+									break;
+								default:
+									return _react2.default.createElement(
+										'div',
+										null,
+										_this2.props.messageSelected.data
+									);
+									break;
+							}
+						}(),
+						_react2.default.createElement('div', { className: 'mky-brand-app' })
+					);
+				} else {
+
+					return _react2.default.createElement('div', null);
+				}
+			}
+		}, {
+			key: 'hideViwer',
+			value: function hideViwer() {
+				this.props.showModal();
+			}
+		}]);
+
+		return ContentModal;
+	}(_react.Component);
+
+	exports.default = ContentModal;
+
+/***/ },
+/* 234 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ContentViewer = function (_Component) {
+		_inherits(ContentViewer, _Component);
+
+		function ContentViewer(props) {
+			_classCallCheck(this, ContentViewer);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(ContentViewer).call(this, props));
+		}
+
+		_createClass(ContentViewer, [{
+			key: "render",
+			value: function render() {
+				return _react2.default.createElement(
+					"div",
+					{ className: "mky-viewer-image-container" },
+					_react2.default.createElement(
+						"div",
+						{ className: "mky-viewer-toolbar" },
+						_react2.default.createElement(
+							"a",
+							{ href: this.props.messageData, download: "file" },
+							_react2.default.createElement(
+								"button",
+								{ className: "mky-button-download", title: "Download" },
+								"Download"
+							)
+						),
+						_react2.default.createElement(
+							"button",
+							{ className: "mky-button-download", title: "Download" },
+							"Print"
+						)
+					),
+					_react2.default.createElement(
+						"div",
+						{ id: "file_viewer_image", className: "mky-viewer-image" },
+						_react2.default.createElement("img", { src: this.props.messageData })
+					)
+				);
+			}
+		}]);
+
+		return ContentViewer;
+	}(_react.Component);
+
+	exports.default = ContentViewer;
+
+/***/ },
+/* 235 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ContentLogin = function ContentLogin(Component) {
+		return function (_React$Component) {
+			_inherits(_class, _React$Component);
+
+			function _class(props) {
+				_classCallCheck(this, _class);
+
+				return _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, props));
+			}
+
+			_createClass(_class, [{
+				key: 'render',
+				value: function render() {
+					return _react2.default.createElement(
+						'div',
+						{ id: 'mky-chat-login' },
+						_react2.default.createElement(Component, this.props)
+					);
+				}
+			}]);
+
+			return _class;
+		}(_react2.default.Component);
+	};
+
+	exports.default = ContentLogin;
+
+/***/ },
+/* 236 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _myform = __webpack_require__(237);
+
+	var _myform2 = _interopRequireDefault(_myform);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+>>>>>>> see location modal
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -40889,6 +41552,125 @@
 	}(_react.Component);
 
 	exports.default = ContentViewer;
+
+/***/ },
+/* 261 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactGoogleMaps = __webpack_require__(186);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ReceivedLocation = function (_Component) {
+	  _inherits(ReceivedLocation, _Component);
+
+	  function ReceivedLocation(props) {
+	    _classCallCheck(this, ReceivedLocation);
+
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ReceivedLocation).call(this, props));
+
+	    _this.state = {
+	      lat: -2.1667,
+	      lng: -79.9000,
+	      markers: [{
+	        position: props.myPosition,
+	        showInfo: true,
+	        content: "You're Here"
+	      }, {
+	        position: props.yourPosition,
+	        showInfo: true,
+	        content: props.address
+	      }]
+	    };
+	    return _this;
+	  }
+
+	  _createClass(ReceivedLocation, [{
+	    key: "componentDidMount",
+	    value: function componentDidMount() {
+	      var bounds = new google.maps.LatLngBounds();
+	      this.state.markers.map(function (marker, index) {
+	        var marker = new google.maps.Marker({
+	          position: new google.maps.LatLng(marker.position.lat, marker.position.lng)
+	        });
+
+	        bounds.extend(marker.position);
+	      });
+	      this.setState({
+	        bounds: bounds
+	      });
+	    }
+	  }, {
+	    key: "componentDidUpdate",
+	    value: function componentDidUpdate() {
+	      console.log('the map: ' + this.refs.map);
+	      this.refs.map.fitBounds(this.state.bounds);
+	    }
+	  }, {
+	    key: "render",
+	    value: function render() {
+	      console.log("gg");
+	      return _react2.default.createElement(_reactGoogleMaps.GoogleMapLoader, { ref: "maploader",
+	        containerElement: _react2.default.createElement("div", _extends({}, this.props, {
+	          style: {
+	            height: "100%",
+	            width: "100%",
+	            zIndex: 1000,
+	            overflow: "visible !important"
+	          },
+
+	          id: "map-id"
+	        })),
+	        googleMapElement: _react2.default.createElement(
+	          _reactGoogleMaps.GoogleMap,
+	          {
+	            ref: "map",
+	            center: { lat: this.state.lat, lng: this.state.lng },
+	            defaultZoom: 15,
+	            defaultOptions: { streetViewControl: false, mapTypeControl: false, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM } }
+	          },
+	          this.state.markers.map(function (marker, index) {
+	            return _react2.default.createElement(
+	              _reactGoogleMaps.InfoWindow,
+	              { key: index, position: marker.position },
+	              _react2.default.createElement(
+	                "div",
+	                null,
+	                " ",
+	                marker.content,
+	                " "
+	              )
+	            );
+	          })
+	        )
+	      });
+	    }
+	  }]);
+
+	  return ReceivedLocation;
+	}(_react.Component);
+
+	exports.default = ReceivedLocation;
 
 /***/ }
 /******/ ]);
