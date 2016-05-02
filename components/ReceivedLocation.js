@@ -35,13 +35,12 @@ export default class ReceivedLocation extends Component {
             position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
           });
           bounds.extend(marker.position);
-          var newMarker = {position: {lat: position.coords.latitude, lng: position.coords.longitude}, content: "You are here!" }
+          var newMarker = {position: {lat: position.coords.latitude, lng: position.coords.longitude}, content: "You are here!", animation : 0}
           var newMarkers = this.state.markers;
           newMarkers.push(newMarker);
           this.setState({
             bounds : bounds,
             markers : newMarkers,
-            animation : 1
           })
         });
     } else {
@@ -56,6 +55,8 @@ export default class ReceivedLocation extends Component {
 
   render() {
     console.log("gg");
+    var icon_color = 'http://i.stack.imgur.com/orZ4x.png';
+
     return (
       
        <GoogleMapLoader ref="maploader"
@@ -83,9 +84,9 @@ export default class ReceivedLocation extends Component {
               
               {             
                 return ( 
-                    <InfoWindow key={index} position={marker.position}>
-                      <div> {marker.content} </div>
-                    </InfoWindow>
+                    <Marker 
+                      key={index} position={marker.position} ref="myMarker" animation={marker.animation} icon={index==1 ? icon_color : ""}
+                    />
                 );    
               } 
             )} 

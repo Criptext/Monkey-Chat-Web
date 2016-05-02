@@ -40535,13 +40535,12 @@
 	            position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
 	          });
 	          bounds.extend(marker.position);
-	          var newMarker = { position: { lat: position.coords.latitude, lng: position.coords.longitude }, content: "You are here!" };
+	          var newMarker = { position: { lat: position.coords.latitude, lng: position.coords.longitude }, content: "You are here!", animation: 0 };
 	          var newMarkers = _this2.state.markers;
 	          newMarkers.push(newMarker);
 	          _this2.setState({
 	            bounds: bounds,
-	            markers: newMarkers,
-	            animation: 1
+	            markers: newMarkers
 	          });
 	        });
 	      } else {
@@ -40558,6 +40557,8 @@
 	    key: "render",
 	    value: function render() {
 	      console.log("gg");
+	      var icon_color = 'http://i.stack.imgur.com/orZ4x.png';
+
 	      return _react2.default.createElement(_reactGoogleMaps.GoogleMapLoader, { ref: "maploader",
 	        containerElement: _react2.default.createElement("div", _extends({}, this.props, {
 	          style: {
@@ -40578,17 +40579,9 @@
 	            defaultOptions: { streetViewControl: false, mapTypeControl: false, zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM } }
 	          },
 	          this.state.markers.map(function (marker, index) {
-	            return _react2.default.createElement(
-	              _reactGoogleMaps.InfoWindow,
-	              { key: index, position: marker.position },
-	              _react2.default.createElement(
-	                "div",
-	                null,
-	                " ",
-	                marker.content,
-	                " "
-	              )
-	            );
+	            return _react2.default.createElement(_reactGoogleMaps.Marker, {
+	              key: index, position: marker.position, ref: "myMarker", animation: marker.animation, icon: index == 1 ? icon_color : ""
+	            });
 	          })
 	        )
 	      });
