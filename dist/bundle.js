@@ -178,8 +178,7 @@
 				user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 				user.id = 'if9ynf7looscygpvakhxs9k9';
 				store.dispatch(actions.addUserSession(user));
-				console.log(user);
-				//monkey.init("idkgwf6ghcmyfvvrxqiwwmi", "9da5bbc32210ed6501de82927056b8d2", user, true, MONKEY_DEBUG_MODE);
+				monkey.init("idkgwf6ghcmyfvvrxqiwwmi", "9da5bbc32210ed6501de82927056b8d2", user, true, MONKEY_DEBUG_MODE);
 				/*
 	   		user.id = 'if9ynf7looscygpvakhxs9k9';
 	   		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
@@ -204,12 +203,25 @@
 	render();
 	store.subscribe(render);
 
+	// MonkeyKit
+
 	monkey.addListener('onConnect', function (event) {
 		var user = event;
-		user.id = event.monkeyId;
 		console.log(user);
-		// 	store.dispatch(actions.addUserSession(user));
+		store.dispatch(actions.addUserSession(user));
+		getConversations();
 	});
+
+	function getConversations() {
+		monkey.getAllConversations(function (onComplete, err) {
+			if (err) {
+				console.log(err);
+			} else if (onComplete.data.conversations) {
+				console.log(onComplete);
+				//             loadConversations(onComplete.data.conversations);
+			}
+		});
+	}
 
 /***/ },
 /* 1 */
@@ -20125,7 +20137,8 @@
 								{ id: 'mky-session-name' },
 								this.context.userSession.name
 							)
-						)
+						),
+						_react2.default.createElement('div', null)
 					),
 					_react2.default.createElement(_ConversationList2.default, { conversations: this.props.conversations, conversationSelected: this.props.conversationSelected })
 				);
@@ -52143,8 +52156,16 @@
 		// Map over jQuery in case of overwrite
 		_jQuery = window.jQuery,
 
+<<<<<<< a7c788311f38334362b3168e09b5328ce8c7a0e0
 		// Map over the $ in case of overwrite
 		_$ = window.$;
+=======
+		  proto.requestSession = function requestSession() {
+		    this.session.exchangeKeys = new NodeRSA({ b: 2048 }, { encryptionScheme: 'pkcs1' });
+		    var isSync = false;
+		    var endpoint = '/user/session';
+		    var params = { user_info: this.session.user, monkey_id: this.session.id, expiring: this.session.expireSession };
+>>>>>>> update monkey 0.14
 
 	jQuery.noConflict = function( deep ) {
 		if ( window.$ === jQuery ) {
@@ -52189,7 +52210,12 @@
 
 	var _Gmap2 = _interopRequireDefault(_Gmap);
 
+<<<<<<< a7c788311f38334362b3168e09b5328ce8c7a0e0
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+=======
+		      var key = new NodeRSA(respObj.data.publicKey, 'public', { encryptionScheme: 'pkcs1' });
+		      var encryptedAES = key.encrypt(myKeyParams, 'base64');
+>>>>>>> update monkey 0.14
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 

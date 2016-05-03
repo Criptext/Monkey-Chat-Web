@@ -67,8 +67,7 @@ class App extends React.Component {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.id = 'if9ynf7looscygpvakhxs9k9';
 		store.dispatch(actions.addUserSession(user));
-		console.log(user);
-		//monkey.init("idkgwf6ghcmyfvvrxqiwwmi", "9da5bbc32210ed6501de82927056b8d2", user, true, MONKEY_DEBUG_MODE);
+		monkey.init("idkgwf6ghcmyfvvrxqiwwmi", "9da5bbc32210ed6501de82927056b8d2", user, true, MONKEY_DEBUG_MODE);
 /*
 		user.id = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
@@ -89,9 +88,22 @@ function render() {
 render();
 store.subscribe(render);
 
+// MonkeyKit
+
 monkey.addListener('onConnect', function(event){
 	let user = event;
-	user.id = event.monkeyId;
 	console.log(user);
-// 	store.dispatch(actions.addUserSession(user));
+	store.dispatch(actions.addUserSession(user));
+	getConversations();
 })
+
+function getConversations() {
+	monkey.getAllConversations(function(onComplete,err){
+        if(err){
+            console.log(err);
+        }else if(onComplete.data.conversations){
+	        console.log(onComplete);
+//             loadConversations(onComplete.data.conversations);
+        }
+    });
+}

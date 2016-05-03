@@ -23,11 +23,12 @@
     "fileapi": "^2.0.20",
     "jquery": "^2.2.3",
     "jquery-knob": "^1.2.11",
-    "monkeykit": "0.0.12",
+    "monkeykit": "0.0.14",
     "react": "^0.14.8",
     "react-dom": "^0.14.8",
     "react-dropzone": "^3.4.0",
     "react-google-maps": "^4.10.1",
+    "react-motion": "^0.4.3",
     "react-search-input": "^0.8.0",
     "redux": "^3.4.0"
   }
