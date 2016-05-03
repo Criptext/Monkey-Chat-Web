@@ -42,9 +42,16 @@ export default class ReceivedLocation extends Component {
             bounds : bounds,
             markers : newMarkers,
           })
+        }, (error) => {
+          this.setState({
+            bounds : bounds
+          })
         });
     } else {
-       console.log("Geolocation is not supported by this browser.");
+      this.setState({
+        bounds : bounds
+      })
+      console.log("Geolocation is not supported by this browser.");
     }
   }
 

@@ -23388,7 +23388,7 @@
 					status: 52,
 					type: 5,
 					lat: -7.1667,
-					lng: -79.9000,
+					lng: -69.9000,
 					text: 'Location'
 				}
 			}
@@ -40542,8 +40542,15 @@
 	            bounds: bounds,
 	            markers: newMarkers
 	          });
+	        }, function (error) {
+	          _this2.setState({
+	            bounds: bounds
+	          });
 	        });
 	      } else {
+	        this.setState({
+	          bounds: bounds
+	        });
 	        console.log("Geolocation is not supported by this browser.");
 	      }
 	    }
