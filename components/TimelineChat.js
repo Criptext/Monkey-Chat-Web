@@ -56,7 +56,7 @@ class TimelineChat extends Component {
 					case 4:
 						return <BubbleAudio_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'audio'} />
 					case 5:
-						return <BubbleLocation_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'location'} />
+						return <BubbleLocation_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'location'} messageSelected={this.props.messageSelected}/>
 					default:
 						break;
 				}
@@ -79,7 +79,6 @@ class TimelineChat extends Component {
 	
 	updateScrollTop(){
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		$(this.domNode).focus();
 
 		if(!this.goBottom && this.domNode.scrollTop != 0){
 			console.log('stop');

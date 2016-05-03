@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ContentViewer from './ContentViewer.js';
+import ReceivedLocation from './ReceivedLocation.js';
 
 class ContentModal extends Component {
 	constructor(props){
@@ -24,6 +25,9 @@ class ContentModal extends Component {
 						switch(this.props.messageSelected.type){
 							case 2: 
 								return <ContentViewer messageData={this.props.messageSelected.data}/>
+								break;
+							case 5: 
+								return <ReceivedLocation address={this.props.messageSelected.text} yourPosition={{lat: this.props.messageSelected.lat, lng: this.props.messageSelected.lng}}/>
 								break;
 							default:
 								return <div>{this.props.messageSelected.data}</div>

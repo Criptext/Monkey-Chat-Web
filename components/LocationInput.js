@@ -8,7 +8,8 @@ export default class LocationInput extends Component {
 		this.state = {
 			opacity: 0,
 			lat: 0,
-			lng: 0
+			lng: 0,
+			address: ""
 		}
 	}
 
@@ -37,7 +38,7 @@ export default class LocationInput extends Component {
 	locationMessageInput(lat) {
 		let message = {
 			type: 5,
-			text: "Location",
+			text: this.state.address,
 			lat: this.state.lat,
 			lng: this.state.lng
 		}
@@ -45,10 +46,11 @@ export default class LocationInput extends Component {
 		this.props.disableGeoInput();
 	}
 
-	updateGeoLocation(lat, lng){
+	updateGeoLocation(lat, lng, address){
 		this.setState({
 			lat : lat,
-			lng : lng
+			lng : lng,
+			address : address
 		});
 	}
 

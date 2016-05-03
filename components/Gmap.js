@@ -46,7 +46,22 @@ export default class SimpleMapPage extends Component {
 			opacity: 1
 		})
 		this.props.fireChangeEvent(0);
-		this.props.updateGeoLocation(this.state.lat, this.state.lng);
+		var geocoder = new google.maps.Geocoder();
+		var lat = this.state.lat;
+		var lng = this.state.lng;
+		var latlng = new google.maps.LatLng(lat, lng);
+		geocoder.geocode({'latLng': latlng}, (results, status) => {
+			if (status == google.maps.GeocoderStatus.OK){
+				if (results[0]){
+					this.props.updateGeoLocation(this.state.lat, this.state.lng, results[0].formatted_address);
+				}else{
+					this.props.updateGeoLocation(this.state.lat, this.state.lng, "Location");
+				}
+			}
+			else{
+				this.props.updateGeoLocation(this.state.lat, this.state.lng, "Location");
+			}
+		});
 	}
 
 	render() {

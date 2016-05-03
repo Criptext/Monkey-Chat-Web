@@ -122,7 +122,7 @@ export default {
 				status: 52,
 				type: 5,
 				lat: -7.1667,
-				lng: -79.9000,
+				lng: -69.9000,
 				text: 'Location'
 			}
 		}
