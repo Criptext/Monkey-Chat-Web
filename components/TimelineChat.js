@@ -79,7 +79,6 @@ class TimelineChat extends Component {
 	
 	updateScrollTop(){
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		$(this.domNode).focus();
 
 		if(!this.goBottom && this.domNode.scrollTop != 0){
 			console.log('stop');
