@@ -50,6 +50,9 @@ export default {
 		name: 'Alberto',
 		unreadMessageCount: 0,
 		urlAvatar: 'https://secure.criptext.com/avatars/avatar_707.png',
+		lastOpenMe: 1462356238,
+		lastOpenApp:1462359838,
+		onlineStatus: 0,
 		messages: {
 			'1': {
 				id: 1,
@@ -79,6 +82,9 @@ export default {
 		name: 'Luis Loaiza',
 		unreadMessageCount: 0,
 		urlAvatar: 'https://secure.criptext.com/avatars/avatar_62.png',
+		lastOpenMe: 1462359838,
+		lastOpenApp:1462356238,
+		onlineStatus: 1,
 		messages: {
 			'1': {
 				id: 1,
