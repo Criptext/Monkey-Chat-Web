@@ -2,12 +2,16 @@ var webpack = require('webpack');
 var path = require('path');
 
 var config = {
-	entry: path.resolve(__dirname, 'main.js'),
+	entry: {
+		tabChat: './tabchat.js',
+		mobileChat: './mobilechat.js',
+		conversationsChat: './conversationschat.js',
+	},
 	output: {
-		path: path.resolve(__dirname, 'dist'),
-		filename: 'bundle.js'
-  	},
-  	module : {
+    	path: path.join(__dirname, 'dist'),
+		filename: '[name].js'
+	},
+	module : {
     	loaders : [{
         	test : /\.js$/,
 			exclude : /node_modules/,

@@ -16,10 +16,11 @@ class ContentAside extends Component {
 					<div id='mky-session-description'>
 						<span id='mky-session-name'>{this.context.userSession.name}</span>
 					</div>
+					<div></div>
 				</header>
 				<ConversationList conversations={this.props.conversations} conversationSelected={this.props.conversationSelected}/>
 			</aside>
-		);
+		)
 	}
 }
 
