@@ -19,7 +19,7 @@ class ContentWindow extends Component {
 		if(this.props.conversationSelected != undefined){
 			this.classStateWindow = '';
 		}
-		
+
     	return (
 	    	<section className={this.classExpand+' '+this.classStateWindow}>
 	    	{
