@@ -30,10 +30,11 @@ class TimelineChat extends Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		if(nextProps.conversationSelected.messages[nextProps.conversationSelected.lastMessage].senderId === this.context.userSession.id){
-			this.goBottom = true;
-		}
+		if(Object.keys(nextProps.conversationSelected).length) {
+			if(nextProps.conversationSelected.messages[nextProps.conversationSelected.lastMessage].senderId === this.context.userSession.id){
+				this.goBottom = true;
+			}
+		}	
 	}
 	
 	componentWillMount() {
@@ -44,24 +45,25 @@ class TimelineChat extends Component {
 	
 	render(){
 		return( <div ref="timelineChat" id='mky-chat-timeline'>
-			{typeof this.props.conversationSelected !== 'undefined' ? Object.keys(this.props.conversationSelected.messages).map( key => {
-				const message = this.props.conversationSelected.messages[key];
-				switch(message.type){
-					case 1:
-						return <BubbleText_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'text'} />
-					case 2:
-						return <BubbleImage_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'image'} messageSelected={this.props.messageSelected}/>
-					case 3:
-						return <BubbleFile_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'file'} />
-					case 4:
-						return <BubbleAudio_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'audio'} />
-					case 5:
-						return <BubbleLocation_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'location'} messageSelected={this.props.messageSelected}/>
-					default:
-						break;
-				}
-				
-			}) : null}
+			{ Object.keys(this.props.conversationSelected).length
+				? Object.keys(this.props.conversationSelected.messages).map( key => {
+					const message = this.props.conversationSelected.messages[key];
+					switch(message.type){
+						case 1:
+							return <BubbleText_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'text'} />
+						case 2:
+							return <BubbleImage_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'image'} messageSelected={this.props.messageSelected}/>
+						case 3:
+							return <BubbleFile_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'file'} />
+						case 4:
+							return <BubbleAudio_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'audio'} />
+						case 5:
+							return <BubbleLocation_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'location'} messageSelected={this.props.messageSelected}/>
+						default:
+							break;
+					}
+				})
+				: null}
 		</div>)
 	}
 

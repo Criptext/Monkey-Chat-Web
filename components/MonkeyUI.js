@@ -11,7 +11,7 @@ class MonkeyUI extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			conversation: undefined,
+			conversation: {},
 			tabStyle: undefined,
 			classLoading: 'mky-disappear',
 			idTabButton: 'mky-w-max'
@@ -53,7 +53,9 @@ class MonkeyUI extends React.Component {
 	}
 	
 	componentWillReceiveProps(nextProps) {
-		if(this.state.conversation){
+		if(nextProps.conversation){ // conversation selected sent by props
+			this.setState({conversation: nextProps.conversation});
+		}else if(this.state.conversation){
 			this.setState({conversation: nextProps.conversations[this.state.conversation.id]});
 		}
 		this.setState({conversations: nextProps.conversations});
@@ -83,7 +85,7 @@ class MonkeyUI extends React.Component {
 									</div>
 								</div>
 								{ this.showConversations
-									? <ContentAside conversations={this.props.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
+									? <ContentAside conversations={this.state.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
 									: null
 								}
 								<ContentWindow conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>

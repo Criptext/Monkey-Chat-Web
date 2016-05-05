@@ -15,7 +15,7 @@ const conversations = (state = {}, action) => {
 			return {
 				...state,
 				[conversationId]: conversation(state[conversationId], action)
-			};
+			}
 		}
 		default:
 			return state;
@@ -27,10 +27,8 @@ const conversation = (state = {}, action) => {
 		case ADD_MESSAGE: 
 			return {
 				...state,
-					messages: messages(state.messages, action),
-					lastMessage: action.message.id
-				
-				
+				messages: messages(state.messages, action),
+				lastMessage: action.message.id
 			}	
 	}
 	return state;

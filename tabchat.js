@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import MonkeyUI from './components/MonkeyUI.js'
-import Monkey from 'monkeykit'
+import Monkey from 'monkey-sdk'
 
 import { createStore } from 'redux'
 import reducer from './reducers'
@@ -17,7 +17,7 @@ class App extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			conversation: undefined
+			conversation: {}
 		}
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
@@ -31,24 +31,20 @@ class App extends React.Component {
 		}
 	}
 	
-	componentWillMount() {
-		//this.setState({userSession: this.props.userSession});
-		//this.setState({conversations: this.props.conversations});
-/*
-		let conversation = this.props.conversations['ife4c0qdb0dopbg538lg14i'];
-		this.setState({conversation: conversation});
-*/		
-	}
-	
 	componentWillReceiveProps(nextProps) {
-		if(this.props.store.conversations){
-			console.log('new add conversation!');
+		if(Object.keys(nextProps.store.conversations).length){
+			this.setState({conversation: nextProps.store.conversations[Object.keys(nextProps.store.conversations)[0]]});
+/*
+			Object.keys(nextProps.store.conversations)[0];
+			console.log(Object.keys(nextProps.store.conversations)[0]);
+			console.log('new add conversation! - REDUX');
+*/
 		}
 	}
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} messageToSet={this.handleMessageToSet} userSessionToSet={this.handleUserSessionToSet}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} messageToSet={this.handleMessageToSet} userSessionToSet={this.handleUserSessionToSet} conversation={this.state.conversation}/>
 		)
 	}
 	
@@ -81,32 +77,28 @@ store.subscribe(render);
 monkey.addListener('onConnect', function(event){
 	let user = event;
 	user.id = event.monkeyId;
-	console.log(user);
 	store.dispatch(actions.addUserSession(user));
 	addConversation(user);
 });
 
 function addConversation(user) {
-	let conversationId = 'G:252';
+	let conversationId = 'G:388';
 	if(isConversationGroup(conversationId)) { // group conversation
 		monkey.getInfoById(conversationId, function(error, data){
 	        if(data != undefined){
-		        console.log(data);
 		        var _members = data.members;
-		        var _info = {avatar: '', name: myUser.name}
+		        var _info = {name: 'Support: '+user.name}
 		        monkey.createGroup(_members, _info, null, null, function(error, data){ // create new group
 			        if(data != undefined){
-			        	console.log(data);
-			        	
-			        	let newConversation;
-			        	newConversation.id = data.group_id;
-			        	newConversation.name = data.group_info.name;
-			        	newConversation.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
-			        	newConversation.unreadMessageCount = 0;
-			        	newConversation.members = data.members_info;
-			        	console.log(newConversation);
-			        	
-			        	store.dispatch(actions.addConversation);
+			        	let newConversation = {
+				        	id: data.group_id,
+				        	name: data.group_info.name,
+				        	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
+				        	unreadMessageCount: 0,
+				        	members: data.members_info,
+				        	messages: {}
+			        	};
+			        	store.dispatch(actions.addConversation(newConversation));
 			        }else{
 				        console.log(error);
 			        }
