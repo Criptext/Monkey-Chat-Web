@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import MonkeyUI from './components/MonkeyUI.js'
 import Monkey from 'monkey-sdk'
+import * as vars from './utils/monkey-const.js'
 
 import { createStore } from 'redux'
 import reducer from './reducers'
@@ -11,7 +12,6 @@ const store = createStore(reducer, { conversations: initData, users: {} });
 import * as actions from './actions'
 import dataConversation from './utils/dataNewConversation'
 
-var MONKEY_DEBUG_MODE = true;
 var CRIPTEXT_AVATAR_URL = "https://secure.criptext.com/avatars/";
 var monkey = new Monkey ();
 
@@ -47,7 +47,7 @@ class App extends React.Component {
 	
 	handleUserSessionToSet(user) {
 		store.dispatch(actions.addUserSession(user));
-		monkey.init("idkgwf6ghcmyfvvrxqiwwmi", "9da5bbc32210ed6501de82927056b8d2", user, true, MONKEY_DEBUG_MODE);
+		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, true, vars.MONKEY_DEBUG_MODE);
 	}
 	
 	conversationToSet() {

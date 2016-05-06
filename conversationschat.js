@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import MonkeyUI from './components/MonkeyUI.js'
 import Monkey from 'monkey-sdk'
 import { isConversationGroup } from './utils/monkey-utils.js'
+import * as vars from './utils/monkey-const.js'
 
 import { createStore } from 'redux'
 import reducer from './reducers'
@@ -12,7 +13,6 @@ const store = createStore(reducer, { conversations: {}, users: {} });
 import * as actions from './actions'
 import dataConversation from './utils/dataNewConversation'
 
-var MONKEY_DEBUG_MODE = true;
 var monkey = new Monkey ();
 
 class App extends React.Component {
@@ -52,7 +52,7 @@ class App extends React.Component {
 	handleUserSessionToSet(user) {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
-		monkey.init('idkgwf6ghcmyfvvrxqiwwmi', '9da5bbc32210ed6501de82927056b8d2', user, true, MONKEY_DEBUG_MODE);
+		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, true, vars.MONKEY_DEBUG_MODE);
 	}
 	
 	conversationToSet() {
