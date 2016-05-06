@@ -1,7 +1,11 @@
-import { ADD_CONVERSATION, ADD_MESSAGE } from '../actions'
+import { ADD_CONVERSATIONS, ADD_CONVERSATION, ADD_MESSAGE } from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
+		case ADD_CONVERSATIONS: {
+			return action.conversations
+		}
+		
 		case ADD_CONVERSATION: {
 			const conversationId = action.conversation.id;
 			return {
@@ -24,7 +28,7 @@ const conversations = (state = {}, action) => {
 
 const conversation = (state = {}, action) => {
 	switch (action.type) {
-		case ADD_MESSAGE: 
+		case ADD_MESSAGE:
 			return {
 				...state,
 				messages: messages(state.messages, action),

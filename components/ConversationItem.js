@@ -32,7 +32,7 @@ class ConversationItem extends Component {
 const Badge = (props) => (
 	<div className="mky-conversation-notification">
 	{
-		props.value !== 0
+		props.value > 0 
 		? <div className="mky-notification-amount">{props.value}</div>
 		: null
 	}
