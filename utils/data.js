@@ -46,7 +46,6 @@ export default {
 	'idlk0p519nvfmfgfzdbfn7b9': {
 		id: 'idlk0p519nvfmfgfzdbfn7b9',
 		lastMessage: 2,
-		members: undefined,
 		name: 'Alberto',
 		unreadMessageCount: 0,
 		urlAvatar: 'https://secure.criptext.com/avatars/avatar_707.png',

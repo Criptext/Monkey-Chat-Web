@@ -2,16 +2,17 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import MonkeyUI from './components/MonkeyUI.js'
 import Monkey from 'monkey-sdk'
+import { isConversationGroup } from './utils/monkey-utils.js'
 
 import { createStore } from 'redux'
 import reducer from './reducers'
 import initData from './utils/data'
-const store = createStore(reducer, { conversations: initData, users: {} });
+const store = createStore(reducer, { conversations: {}, users: {} });
 
 import * as actions from './actions'
 import dataConversation from './utils/dataNewConversation'
 
-var MONKEY_DEBUG_MODE = false;
+var MONKEY_DEBUG_MODE = true;
 var monkey = new Monkey ();
 
 class App extends React.Component {
@@ -38,7 +39,7 @@ class App extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} messageToSet={this.handleMessageToSet} userSessionToSet={this.handleUserSessionToSet}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} messageToSet={this.handleMessageToSet}userSessionToSet={this.handleUserSessionToSet}/>
 		)
 	}
 	
@@ -49,13 +50,9 @@ class App extends React.Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		store.dispatch(actions.addUserSession(user));
-		monkey.init("idkgwf6ghcmyfvvrxqiwwmi", "9da5bbc32210ed6501de82927056b8d2", user, true, MONKEY_DEBUG_MODE);
-/*
-		user.id = 'if9ynf7looscygpvakhxs9k9';
+		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
-		this.setState({userSession: user});
-*/
+		monkey.init('idkgwf6ghcmyfvvrxqiwwmi', '9da5bbc32210ed6501de82927056b8d2', user, true, MONKEY_DEBUG_MODE);
 	}
 	
 	conversationToSet() {
@@ -75,18 +72,42 @@ store.subscribe(render);
 
 monkey.addListener('onConnect', function(event){
 	let user = event;
-	console.log(user);
 	store.dispatch(actions.addUserSession(user));
 	getConversations();
 })
 
 function getConversations() {
-	monkey.getAllConversations(function(onComplete,err){
+	monkey.getAllConversations(function(err, res){
         if(err){
             console.log(err);
-        }else if(onComplete){
-	        console.log(onComplete);
-//             loadConversations(onComplete.data.conversations);
+        }else if(res){
+	        let conversations = {};
+	        res.data.conversations.map (conversation => {
+		        if(!Object.keys(conversation.info).length)
+		        	return;
+		        	
+		        let conversationTmp = {
+			    	id: conversation.id,
+			    	name: conversation.info.name,
+			    	messages: {
+			    		[conversation.last_message.id]: {
+				    		id: conversation.last_message.id,
+					    	datetime: conversation.last_message.datetime,
+					    	recipientId: conversation.last_message.rid,
+					    	senderId: conversation.last_message.sid,
+					    	text: conversation.last_message.msg,
+					    	type: 1
+			    		}
+			    	},
+			    	lastMessage: conversation.last_message.id
+		    	}
+		    	
+		        if(isConversationGroup(conversation.id)){
+			        conversationTmp.members = conversation.members;
+		        }
+		        conversations[conversationTmp.id] = conversationTmp;
+	        })
+	        store.dispatch(actions.addConversations(conversations));
         }
     });
 }

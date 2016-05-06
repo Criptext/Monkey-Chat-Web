@@ -317,3 +317,17 @@ body, html {
 .mky-partialsize #mky-chat-timeline {
     height: calc(100% - 62px);
 }
+
+.mky-session-conversations{
+	height: calc(100% - 65px);
+}
+
+#mky-conversation-list {
+    width: 100%;
+    height: calc(100% - 50px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: auto;
+    background: #fafafa;
+}

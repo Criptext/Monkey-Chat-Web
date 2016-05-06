@@ -1,11 +1,19 @@
 export const ADD_USER_SESSION = 'ADD_USER_SESSION'
 export const ADD_MESSAGE = 'ADD_MESSAGE'
 export const ADD_CONVERSATION = 'ADD_CONVERSATION'
+export const ADD_CONVERSATIONS = 'ADD_CONVERSATIONS'
 
-export const addMessage = (message) => {
+export const addUserSession = (user) => {
 	return {
-		type: ADD_MESSAGE,
-		message: message
+		type: ADD_USER_SESSION,
+		user: user
+	}
+}
+
+export const addConversations = (conversations) => {
+	return {
+		type: ADD_CONVERSATIONS,
+		conversations: conversations
 	}
 }
 
@@ -16,9 +24,9 @@ export const addConversation = (conversation) => {
 	}
 }
 
-export const addUserSession = (user) => {
+export const addMessage = (message) => {
 	return {
-		type: ADD_USER_SESSION,
-		user: user
+		type: ADD_MESSAGE,
+		message: message
 	}
 }

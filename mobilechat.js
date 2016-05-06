@@ -11,14 +11,15 @@ const store = createStore(reducer, { conversations: initData, users: {} });
 import * as actions from './actions'
 import dataConversation from './utils/dataNewConversation'
 
-var MONKEY_DEBUG_MODE = false;
+var MONKEY_DEBUG_MODE = true;
+var CRIPTEXT_AVATAR_URL = "https://secure.criptext.com/avatars/";
 var monkey = new Monkey ();
 
 class App extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			conversation: undefined
+			conversation: {}
 		}
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
@@ -26,25 +27,6 @@ class App extends React.Component {
 		this.view = {
 			type: 'fullscreen'
 		}
-/*
-		this.view = {
-			type: 'classic',
-			data: {
-            	width: '380px',
-				height: '500px'
-        	}
-		}
-*/
-
-	}
-	
-	componentWillMount() {
-		//this.setState({userSession: this.props.userSession});
-		//this.setState({conversations: this.props.conversations});
-/*
-		let conversation = this.props.conversations['ife4c0qdb0dopbg538lg14i'];
-		this.setState({conversation: conversation});
-*/		
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -53,7 +35,7 @@ class App extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} messageToSet={this.handleMessageToSet} userSessionToSet={this.handleUserSessionToSet}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} messageToSet={this.handleMessageToSet} userSessionToSet={this.handleUserSessionToSet} conversation={this.state.conversation}/>
 		)
 	}
 	
@@ -64,15 +46,8 @@ class App extends React.Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
-		user.id = 'if9ynf7looscygpvakhxs9k9';
 		store.dispatch(actions.addUserSession(user));
 		monkey.init("idkgwf6ghcmyfvvrxqiwwmi", "9da5bbc32210ed6501de82927056b8d2", user, true, MONKEY_DEBUG_MODE);
-/*
-		user.id = 'if9ynf7looscygpvakhxs9k9';
-		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
-		this.setState({userSession: user});
-*/
 	}
 	
 	conversationToSet() {
@@ -92,18 +67,31 @@ store.subscribe(render);
 
 monkey.addListener('onConnect', function(event){
 	let user = event;
-	console.log(user);
+	user.id = event.monkeyId;
 	store.dispatch(actions.addUserSession(user));
-	getConversations();
+	addConversation();
 })
 
-function getConversations() {
-	monkey.getAllConversations(function(onComplete,err){
-        if(err){
-            console.log(err);
-        }else if(onComplete.data.conversations){
-	        console.log(onComplete);
-//             loadConversations(onComplete.data.conversations);
-        }
-    });
+function addConversation() {
+	let conversation;
+	let newConversation = {
+		id: data.group_id,
+		name: data.group_info.name,
+		urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
+		unreadMessageCount: 0,
+		members: data.members_info,
+		messages: {}
+	};
+	store.dispatch(actions.addConversation(newConversation));
+}
+
+// My chat
+
+function initConversation(userConversation){
+	let newConversation = {
+		id: userConversation.monkey_id,
+		name: userConversation.name,
+		urlAvatar: CRIPTEXT_AVATAR_URL + userConversation.id + 'png'
+	};
+	store.dispatch(actions.addConversation(newConversation));
 }

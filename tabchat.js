@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import MonkeyUI from './components/MonkeyUI.js'
 import Monkey from 'monkey-sdk'
+import { isConversationGroup } from './utils/monkey-utils.js'
 
 import { createStore } from 'redux'
 import reducer from './reducers'
@@ -10,7 +11,7 @@ const store = createStore(reducer, { conversations: {}, users: {} });
 import * as actions from './actions'
 import dataConversation from './utils/dataNewConversation'
 
-var MONKEY_DEBUG_MODE = false;
+var MONKEY_DEBUG_MODE = true;
 var monkey = new Monkey ();
 
 class App extends React.Component {
@@ -34,11 +35,6 @@ class App extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		if(Object.keys(nextProps.store.conversations).length){
 			this.setState({conversation: nextProps.store.conversations[Object.keys(nextProps.store.conversations)[0]]});
-/*
-			Object.keys(nextProps.store.conversations)[0];
-			console.log(Object.keys(nextProps.store.conversations)[0]);
-			console.log('new add conversation! - REDUX');
-*/
 		}
 	}
 	
@@ -108,23 +104,4 @@ function addConversation(user) {
 	        }
         });
 	}
-}
-
-// Util
-
-function isEmpty(object) {
-  for(var key in object) {
-    if(object.hasOwnProperty(key)){
-      return false;
-    }
-  }
-  return true;
-}
-
-function isConversationGroup(conversationId){
-    var result = false;
-    if(conversationId.indexOf("G:") >= 0){
-        result = true;
-    }
-    return result;
 }
