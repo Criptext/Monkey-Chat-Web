@@ -19,9 +19,6 @@ class App extends React.Component {
 		this.state = {
 			conversation: {}
 		}
-		this.handleMessageToSet = this.handleMessageToSet.bind(this);
-		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
-		this.conversationToSet = this.conversationToSet.bind(this);
 		this.view = {
 			type: 'classic',
 			data: {
@@ -29,6 +26,9 @@ class App extends React.Component {
 				height: '500px'
         	}
 		}
+		this.handleMessageToSet = this.handleMessageToSet.bind(this);
+		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
+		this.conversationToSet = this.conversationToSet.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -39,7 +39,7 @@ class App extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} messageToSet={this.handleMessageToSet} userSessionToSet={this.handleUserSessionToSet} conversation={this.state.conversation}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} />
 		)
 	}
 	

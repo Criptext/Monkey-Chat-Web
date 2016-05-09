@@ -16,7 +16,13 @@ class ConversationItem extends Component {
 				<div className='mky-conversation-image'><img src={this.props.conversation.urlAvatar} onerror='imgError(this);'/></div>
 				<div className='mky-conversation-description'>
 					<div className='mky-conversation-name'><span className='mky-ellipsify'>{this.props.conversation.name}</span></div>
-					<div className="mky-conversation-state"><span className="mky-ellipsify">{this.props.conversation.messages[this.props.conversation.lastMessage].text}</span></div>
+					<div className="mky-conversation-state">
+						{ this.props.conversation.messages
+							? <span className="mky-ellipsify">{this.props.conversation.messages[this.props.conversation.lastMessage].text}</span>
+							: <span className="mky-ellipsify">Click to open conversation</span>
+						}
+						
+					</div>
 				</div>
 				<Badge value={this.state.unreadMessageCount}/>
 			</li>

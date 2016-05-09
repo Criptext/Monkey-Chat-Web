@@ -1,4 +1,4 @@
-import { ADD_CONVERSATIONS, ADD_CONVERSATION, ADD_MESSAGE } from '../actions'
+import { ADD_CONVERSATIONS, ADD_CONVERSATION, UPDATE_CONVERSATION_STATUS, ADD_MESSAGE } from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
@@ -13,7 +13,15 @@ const conversations = (state = {}, action) => {
 				[conversationId]: action.conversation
 			}
 		}
-			
+		
+		case UPDATE_CONVERSATION_STATUS: {
+			const conversationId = action.conversation.id;
+			return {
+				...state,
+				[conversationId]: action.conversation
+			}
+		}
+		
 		case ADD_MESSAGE: {
 			const conversationId = action.message.recipientId;
 			return {
@@ -26,8 +34,17 @@ const conversations = (state = {}, action) => {
 	}
 }
 
-const conversation = (state = {}, action) => {
+const conversation = (state, action) => {
 	switch (action.type) {
+		case UPDATE_CONVERSATION_STATUS: {
+			return {
+				...state,
+				lastOpenMe: action.conversation.lastOpenMe,
+				lastOpenApp: action.conversation.lastOpenApp,
+				online: action.conversation.online
+			}
+		}
+		
 		case ADD_MESSAGE:
 			return {
 				...state,
@@ -38,7 +55,7 @@ const conversation = (state = {}, action) => {
 	return state;
 }
 
-const messages = (state = {}, action) => {
+const messages = (state, action) => {
 	switch (action.type) {
 		case ADD_MESSAGE:
 			return {

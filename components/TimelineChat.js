@@ -30,7 +30,7 @@ class TimelineChat extends Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		if(Object.keys(nextProps.conversationSelected).length) {
+		if(nextProps.conversationSelected.lastMessage) {
 			if(nextProps.conversationSelected.messages[nextProps.conversationSelected.lastMessage].senderId === this.context.userSession.id){
 				this.goBottom = true;
 			}
