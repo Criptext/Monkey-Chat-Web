@@ -188,15 +188,23 @@ function getConversations() {
 }
 
 function prepareMessage(message) {
-	store.dispatch(actions.addMessage(message));
 	switch (message.bubbleType){
-		case 1: {
-/*
+		case 1: { // bubble text
 			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null);
 			console.log(mokMessage);
-*/
-			
-			
+			store.dispatch(actions.addMessage(message));
+			break;
+		}
+		case 2: { // bubble image
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.filetype, 3, true, null, null, function(err, message){
+				if (err){
+					console.log(err);
+				}else{
+					console.log(message);
+					
+				}
+			});
+			break;
 		}
 	}
 }
