@@ -144,7 +144,6 @@ class MonkeyUI extends React.Component {
 		message.recipientId = this.state.conversation.id;
 		message.timestamp = defineTime(timestamp);
 		message.status = 0;
-		
 		this.props.messageToSet(message);
 	}
 }
