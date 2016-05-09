@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import MonkeyUI from './components/MonkeyUI.js'
 import Monkey from 'monkey-sdk'
 import { isConversationGroup } from './utils/monkey-utils.js'
+import * as vars from './utils/monkey-const.js'
 
 import { createStore } from 'redux'
 import reducer from './reducers'
@@ -10,8 +11,6 @@ const store = createStore(reducer, { conversations: {}, users: {} });
 
 import * as actions from './actions'
 import dataConversation from './utils/dataNewConversation'
-
-var MONKEY_DEBUG_MODE = true;
 var monkey = new Monkey ();
 
 class App extends React.Component {
@@ -20,9 +19,6 @@ class App extends React.Component {
 		this.state = {
 			conversation: {}
 		}
-		this.handleMessageToSet = this.handleMessageToSet.bind(this);
-		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
-		this.conversationToSet = this.conversationToSet.bind(this);
 		this.view = {
 			type: 'classic',
 			data: {
@@ -30,6 +26,9 @@ class App extends React.Component {
 				height: '500px'
         	}
 		}
+		this.handleMessageToSet = this.handleMessageToSet.bind(this);
+		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
+		this.conversationToSet = this.conversationToSet.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -40,7 +39,7 @@ class App extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} messageToSet={this.handleMessageToSet} userSessionToSet={this.handleUserSessionToSet} conversation={this.state.conversation}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} />
 		)
 	}
 	
@@ -52,7 +51,7 @@ class App extends React.Component {
 	
 	handleUserSessionToSet(user) {
 		store.dispatch(actions.addUserSession(user));
-		monkey.init("idkgwf6ghcmyfvvrxqiwwmi", "9da5bbc32210ed6501de82927056b8d2", user, true, MONKEY_DEBUG_MODE);
+		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, true, vars.MONKEY_DEBUG_MODE);
 	}
 	
 	conversationToSet() {

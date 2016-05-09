@@ -1,4 +1,5 @@
 node_modules
 dist
+utils/monkey-const.js
 .DS_Store
 *.DS_Store*

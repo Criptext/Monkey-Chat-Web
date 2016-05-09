@@ -30,7 +30,7 @@ class TimelineChat extends Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		if(Object.keys(nextProps.conversationSelected).length) {
+		if(nextProps.conversationSelected.lastMessage) {
 			if(nextProps.conversationSelected.messages[nextProps.conversationSelected.lastMessage].senderId === this.context.userSession.id){
 				this.goBottom = true;
 			}
@@ -48,7 +48,7 @@ class TimelineChat extends Component {
 			{ Object.keys(this.props.conversationSelected).length
 				? Object.keys(this.props.conversationSelected.messages).map( key => {
 					const message = this.props.conversationSelected.messages[key];
-					switch(message.type){
+					switch(message.bubbleType){
 						case 1:
 							return <BubbleText_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'text'} />
 						case 2:

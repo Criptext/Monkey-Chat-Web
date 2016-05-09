@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import MonkeyUI from './components/MonkeyUI.js'
 import Monkey from 'monkey-sdk'
 import { isConversationGroup } from './utils/monkey-utils.js'
+import * as vars from './utils/monkey-const.js'
 
 import { createStore } from 'redux'
 import reducer from './reducers'
@@ -12,21 +13,20 @@ const store = createStore(reducer, { conversations: {}, users: {} });
 import * as actions from './actions'
 import dataConversation from './utils/dataNewConversation'
 
-var MONKEY_DEBUG_MODE = true;
-var monkey = new Monkey ();
+const monkey = new Monkey ();
 
 class App extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			conversation: undefined
+			conversation: {}
 		}
-		this.handleMessageToSet = this.handleMessageToSet.bind(this);
-		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
-		this.conversationToSet = this.conversationToSet.bind(this);
 		this.view = {
 			type: 'fullscreen'
 		}
+		this.handleMessageToSet = this.handleMessageToSet.bind(this);
+		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
+		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 	}
 	
 	componentWillMount() {
@@ -34,31 +34,36 @@ class App extends React.Component {
 	}
 	
 	componentWillReceiveProps(nextProps) {
-
+	
 	}
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} messageToSet={this.handleMessageToSet}userSessionToSet={this.handleUserSessionToSet}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened}/>
 		)
-	}
-	
-	handleMessageToSet(message) {
-		// replace message.id with oldMessageId, when use monkey
-		message.id = Object.keys(this.props.store.conversations[message.recipientId].messages).length + 1;
-		store.dispatch(actions.addMessage(message));
 	}
 	
 	handleUserSessionToSet(user) {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
-		monkey.init('idkgwf6ghcmyfvvrxqiwwmi', '9da5bbc32210ed6501de82927056b8d2', user, true, MONKEY_DEBUG_MODE);
+		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, true, vars.MONKEY_DEBUG_MODE);
 	}
 	
+	handleMessageToSet(message) {
+		prepareMessage(message);
+	}
+	
+	handleConversationOpened(conversation) {
+		console.log('hi conversation');
+		monkey.sendOpenToUser(conversation.id);
+	}
+	
+/*
 	conversationToSet() {
 		let newConversation = dataConversation;
 		store.dispatch(actions.addConversation(newConversation));
 	}
+*/
 }
 
 function render() {
@@ -70,11 +75,75 @@ store.subscribe(render);
 
 // MonkeyKit
 
-monkey.addListener('onConnect', function(event){
+// --------------- ON CONNECT ----------------- //
+monkey.on('onConnect', function(event){
 	let user = event;
 	store.dispatch(actions.addUserSession(user));
 	getConversations();
-})
+});
+
+// -------------- ON DISCONNECT --------------- //
+monkey.on('onDisconnect', function(event){
+	console.log('onDisconnect');
+	console.log(event);
+});
+
+// --------------- ON MESSAGE ----------------- //
+monkey.on('onMessage', function(mokMessage){
+// 	console.log('onMessage');
+	console.log(mokMessage);
+});
+
+// ------------- ON NOTIFICATION --------------- //
+monkey.on('onNotification', function(mokMessage){
+// 	console.log('onNotification');
+	console.log(mokMessage);
+});
+
+// -------------- ON ACKNOWLEDGE --------------- //
+monkey.on('onAcknowledge', function(mokMessage){
+	console.log('onAcknowledge');
+	console.log(mokMessage);
+	
+	let ackType = mokMessage.protocolType;
+	let conversationId = mokMessage.senderId;
+	switch (ackType){
+        case 1:{ // text
+            console.log('text message received by the user');
+            
+            let old_id = mokMessage.oldId;
+            let new_id = mokMessage.id;
+            let status = mokMessage.props.status;
+//             monkeyUI.updateStatusMessageBubble(old_id,new_id,status);
+        }
+		break;
+        case 2:{ // media
+            console.log('file message received by the user');
+
+            let old_id = mokMessage.oldId;
+            let new_id = mokMessage.id;
+            let status = mokMessage.props.status;
+//             monkeyUI.updateStatusMessageBubble(old_id,new_id,status);
+        }
+        break;
+        case 203:{ // open conversation
+            console.log('open conversation received by the user');
+            let conversation = {
+	            id: conversationId,
+	            lastOpenMe: Number(mokMessage.props.last_open_me)*1000,
+	            lastOpenApp: Number(mokMessage.props.last_seen)*1000,
+	            online: Number(mokMessage.props.online)
+            }
+            store.dispatch(actions.updateConversationStatus(conversation));
+//             _conversation.setLastOpenMe(_lastOpenMe);
+            //monkeyUI.updateStatusMessageBubbleByTime(_conversationId,_lastOpenMe);
+//             monkeyUI.updateOnlineStatus(_lastOpenApp,_online);
+        }
+        break;
+        default:
+            break;
+    }
+});
 
 function getConversations() {
 	monkey.getAllConversations(function(err, res){
@@ -85,18 +154,20 @@ function getConversations() {
 	        res.data.conversations.map (conversation => {
 		        if(!Object.keys(conversation.info).length)
 		        	return;
-		        	
+		        
 		        let conversationTmp = {
 			    	id: conversation.id,
 			    	name: conversation.info.name,
 			    	messages: {
 			    		[conversation.last_message.id]: {
 				    		id: conversation.last_message.id,
-					    	datetime: conversation.last_message.datetime,
+					    	datetimeCreation: conversation.last_message.datetimeCreation,
+					    	datetimeOrder: conversation.last_message.datetimeOrder,
 					    	recipientId: conversation.last_message.rid,
 					    	senderId: conversation.last_message.sid,
-					    	text: conversation.last_message.msg,
-					    	type: 1
+					    	text: conversation.last_message.text,
+					    	preview: conversation.last_message.text,
+					    	bubbleType: 1
 			    		}
 			    	},
 			    	lastMessage: conversation.last_message.id
@@ -104,10 +175,28 @@ function getConversations() {
 		    	
 		        if(isConversationGroup(conversation.id)){
 			        conversationTmp.members = conversation.members;
+		        }else{
+			        conversationTmp.lastOpenMe = undefined,
+			    	conversationTmp.lastOpenApp = undefined,
+			    	conversationTmp.online = undefined
 		        }
 		        conversations[conversationTmp.id] = conversationTmp;
 	        })
 	        store.dispatch(actions.addConversations(conversations));
         }
     });
+}
+
+function prepareMessage(message) {
+	store.dispatch(actions.addMessage(message));
+	switch (message.bubbleType){
+		case 1: {
+/*
+			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null);
+			console.log(mokMessage);
+*/
+			
+			
+		}
+	}
 }

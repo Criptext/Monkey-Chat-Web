@@ -2,8 +2,10 @@ import React, { Component } from 'react'
 import {render} from 'react-dom';
 import ContentAside from './ContentAside.js';
 import ContentWindow from './ContentWindow.js';
-
 import ContentLogin from './ContentLogin.js';
+
+import { defineTime } from '../utils/monkey-utils.js'
+
 import MyForm from './MyForm.js';
 const Form_ = ContentLogin(MyForm);
 
@@ -20,7 +22,6 @@ class MonkeyUI extends React.Component {
 		this.handleLoginSession = this.handleLoginSession.bind(this);
 		this.handleConversationSelected = this.handleConversationSelected.bind(this);
 		this.handleMessageCreated = this.handleMessageCreated.bind(this);
-		this.defineTime = this.defineTime.bind(this);
 		this.classContent;
 		this.showConversations = true;
 		this.expandWindow = false;
@@ -133,34 +134,18 @@ class MonkeyUI extends React.Component {
 	}
 	
 	handleConversationSelected(conversation) {
-		this.setState({conversation: conversation})
+		this.setState({conversation: conversation});
+		this.props.conversationOpened(conversation);
 	}
 	
 	handleMessageCreated(message){	
 		var timestamp = new Date().getTime();
 		message.senderId = this.props.userSession.id;
 		message.recipientId = this.state.conversation.id;
-		message.timestamp = this.defineTime( timestamp);
+		message.timestamp = defineTime(timestamp);
 		message.status = 0;
 		
 		this.props.messageToSet(message);
-	}
-	
-	defineTime(time) {
-	    var _d = new Date(+time);
-	    var nhour = _d.getHours(),
-	        nmin = _d.getMinutes(),
-	        ap;
-	    if (nhour == 0) {
-	        ap = " AM";nhour = 12;
-	    } else if (nhour < 12) {
-	        ap = " AM";
-	    } else if (nhour == 12) {
-	        ap = " PM";
-	    } else if (nhour > 12) {
-			ap = " PM";nhour -= 12;
-	    }
-	    return ("0" + nhour).slice(-2) + ":" + ("0" + nmin).slice(-2) + ap + "";
 	}
 }
 
