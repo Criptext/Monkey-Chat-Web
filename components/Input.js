@@ -392,8 +392,13 @@ class Input extends Component {
     
     generateDataFile(file) {
         FileAPI.readAsDataURL(file, (evt) => {
+            let message = {
+                filename: file.name,
+                filesize: file.size
+            }
+            
             if( evt.type == 'load' ){
-	            let message = {data: evt.result}
+	           message.data = evt.result;
 	            let type = this.checkExtention(file);
 	            switch(type){
 		            case 1:{
