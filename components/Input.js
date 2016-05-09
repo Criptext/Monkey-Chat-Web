@@ -123,8 +123,9 @@ class Input extends Component {
 
 	textMessageInput(text) {
 		let message = {
-			type: 1,
-			text: text
+			bubbleType: 1,
+			text: text,
+			preview: text
 		}
 		this.props.messageCreated(message);	
 	}
@@ -350,7 +351,7 @@ class Input extends Component {
                 that.audioCaptured.oldId = that.audioMessageOldId;
                 that.audioCaptured.type = 'audio/mpeg';
                 
-                let message = {data: that.audioCaptured.src, type: 4, text: 'Audio'};
+                let message = {data: that.audioCaptured.src, bubbleType: 4, preview: 'Audio'};
                 that.props.messageCreated(message);
 
             } else if (evt.type == 'progress') {
@@ -396,13 +397,13 @@ class Input extends Component {
 	            let type = this.checkExtention(file);
 	            switch(type){
 		            case 1:{
-			            message.type = 2;
-			            message.text = 'Image';
+			            message.bubbleType = 2;
+			            message.preview = 'Image';
 			            break;
 		            }
 		            case 2:{
-			            message.type = 3;
-			            message.text = 'File';
+			            message.bubbleType = 3;
+			            message.preview = 'File';
 			            break;
 		            }
 	            }

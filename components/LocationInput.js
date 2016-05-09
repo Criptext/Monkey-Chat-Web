@@ -37,8 +37,9 @@ export default class LocationInput extends Component {
 
 	locationMessageInput(lat) {
 		let message = {
-			type: 5,
+			bubbleType: 5,
 			text: this.state.address,
+			preview: 'Location',
 			lat: this.state.lat,
 			lng: this.state.lng
 		}

@@ -18,7 +18,7 @@ class ConversationItem extends Component {
 					<div className='mky-conversation-name'><span className='mky-ellipsify'>{this.props.conversation.name}</span></div>
 					<div className="mky-conversation-state">
 						{ this.props.conversation.messages
-							? <span className="mky-ellipsify">{this.props.conversation.messages[this.props.conversation.lastMessage].text}</span>
+							? <span className="mky-ellipsify">{this.props.conversation.messages[this.props.conversation.lastMessage].preview}</span>
 							: <span className="mky-ellipsify">Click to open conversation</span>
 						}
 						

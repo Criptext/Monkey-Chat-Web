@@ -34,7 +34,7 @@ class App extends React.Component {
 	}
 	
 	componentWillReceiveProps(nextProps) {
-		console.log(nextProps);
+	
 	}
 	
 	render() {
@@ -50,9 +50,7 @@ class App extends React.Component {
 	}
 	
 	handleMessageToSet(message) {
-		// replace message.id with oldMessageId, when use monkey
-		message.id = Object.keys(this.props.store.conversations[message.recipientId].messages).length + 1;
-		store.dispatch(actions.addMessage(message));
+		prepareMessage(message);
 	}
 	
 	handleConversationOpened(conversation) {
@@ -92,13 +90,13 @@ monkey.on('onDisconnect', function(event){
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('onMessage', function(mokMessage){
-	console.log('onMessage');
+// 	console.log('onMessage');
 	console.log(mokMessage);
 });
 
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('onNotification', function(mokMessage){
-	console.log('onNotification');
+// 	console.log('onNotification');
 	console.log(mokMessage);
 });
 
@@ -136,7 +134,6 @@ monkey.on('onAcknowledge', function(mokMessage){
 	            lastOpenApp: Number(mokMessage.props.last_seen)*1000,
 	            online: Number(mokMessage.props.online)
             }
-            console.log(conversation);
             store.dispatch(actions.updateConversationStatus(conversation));
 //             _conversation.setLastOpenMe(_lastOpenMe);
             //monkeyUI.updateStatusMessageBubbleByTime(_conversationId,_lastOpenMe);
@@ -169,21 +166,37 @@ function getConversations() {
 					    	recipientId: conversation.last_message.rid,
 					    	senderId: conversation.last_message.sid,
 					    	text: conversation.last_message.text,
-					    	type: 1
+					    	preview: conversation.last_message.text,
+					    	bubbleType: 1
 			    		}
 			    	},
-			    	lastMessage: conversation.last_message.id,
-			    	lastOpenMe: undefined,
-			    	lastOpenApp: undefined,
-			    	online: undefined
+			    	lastMessage: conversation.last_message.id
 		    	}
 		    	
 		        if(isConversationGroup(conversation.id)){
 			        conversationTmp.members = conversation.members;
+		        }else{
+			        conversationTmp.lastOpenMe = undefined,
+			    	conversationTmp.lastOpenApp = undefined,
+			    	conversationTmp.online = undefined
 		        }
 		        conversations[conversationTmp.id] = conversationTmp;
 	        })
 	        store.dispatch(actions.addConversations(conversations));
         }
     });
+}
+
+function prepareMessage(message) {
+	store.dispatch(actions.addMessage(message));
+	switch (message.bubbleType){
+		case 1: {
+/*
+			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null);
+			console.log(mokMessage);
+*/
+			
+			
+		}
+	}
 }

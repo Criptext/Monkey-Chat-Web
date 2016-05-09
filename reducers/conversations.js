@@ -18,7 +18,7 @@ const conversations = (state = {}, action) => {
 			const conversationId = action.conversation.id;
 			return {
 				...state,
-				[conversationId]: action.conversation
+				[conversationId]: conversation(state[conversationId], action)
 			}
 		}
 		
