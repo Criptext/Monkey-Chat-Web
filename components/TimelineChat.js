@@ -93,6 +93,7 @@ class TimelineChat extends Component {
 			
 		}else if(this.domNode.scrollTop === 0){
 			console.log('load here!');
+			this.props.loadMessages(this.props.conversationSelected);
 		}	
 	}
 

@@ -39,7 +39,7 @@ class App extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages}/>
 		)
 	}
 	
@@ -58,6 +58,12 @@ class App extends React.Component {
 		monkey.sendOpenToUser(conversation.id);
 	}
 	
+	handleLoadMessages(conversation) {
+		console.log('load more messages from conversation');
+		monkey.getConversationMessages(conversation.id, 10, conversation.messages[0], function(){
+			console.log('hello its me from the get conversations ' + conversation.messages);
+		});
+	}
 /*
 	conversationToSet() {
 		let newConversation = dataConversation;
