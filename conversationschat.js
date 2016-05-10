@@ -103,11 +103,23 @@ monkey.on('onMessage', function(mokMessage){
     	datetimeOrder: mokMessage.datetimeOrder,
     	recipientId: mokMessage.recipientId,
     	senderId: mokMessage.senderId,
-    	text: mokMessage.text,
-    	bubbleType: 1
+    	text: mokMessage.text
+	}
+	switch (mokMessage.protocolType){
+		case 1:{
+			message.bubbleType = 1;
+			break;
+		}
+		case 2:{
+			if(mokMessage.props.file_type == 1){ // audio
+				message.bubbleType = 4;
+			}else if(mokMessage.props.file_type == 3){ // image
+				message.bubbleType = 2;
+			}
+			break;
+		}
 	}
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.recipientId : mokMessage.senderId;
-	console.log(conversationId);
 	store.dispatch(actions.addMessage(message, conversationId));
 });
 
