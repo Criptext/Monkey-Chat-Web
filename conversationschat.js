@@ -82,14 +82,17 @@ store.subscribe(render);
 // --------------- ON CONNECT ----------------- //
 monkey.on('onConnect', function(event){
 	let user = event;
-	store.dispatch(actions.addUserSession(user));
-	getConversations();
+	if(!Object.keys(store.getState().users).length){
+		store.dispatch(actions.addUserSession(user));
+	}
+	if(!Object.keys(store.getState().conversations).length){
+		getConversations();
+	}
 });
 
 // -------------- ON DISCONNECT --------------- //
 monkey.on('onDisconnect', function(event){
-	console.log('onDisconnect');
-	console.log(event);
+	console.log('App - onDisconnect');
 });
 
 // --------------- ON MESSAGE ----------------- //
