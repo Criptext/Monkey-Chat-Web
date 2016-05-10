@@ -90,8 +90,18 @@ monkey.on('onDisconnect', function(event){
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('onMessage', function(mokMessage){
-// 	console.log('onMessage');
+	console.log('onMessage');
 	console.log(mokMessage);
+	let message = {
+		id: mokMessage.id,
+		oldId: mokMessage.oldId,
+    	datetimeCreation: mokMessage.datetimeCreation,
+    	datetimeOrder: mokMessage.datetimeOrder,
+    	recipientId: mokMessage.recipientId,
+    	senderId: mokMessage.senderId,
+    	text: mokMessage.text
+	}
+	
 });
 
 // ------------- ON NOTIFICATION --------------- //
@@ -114,6 +124,7 @@ monkey.on('onAcknowledge', function(mokMessage){
             let old_id = mokMessage.oldId;
             let new_id = mokMessage.id;
             let status = mokMessage.props.status;
+            
 //             monkeyUI.updateStatusMessageBubble(old_id,new_id,status);
         }
 		break;
@@ -183,20 +194,68 @@ function getConversations() {
 		        conversations[conversationTmp.id] = conversationTmp;
 	        })
 	        store.dispatch(actions.addConversations(conversations));
+	        monkey.getPendingMessages();
         }
     });
 }
 
 function prepareMessage(message) {
-	store.dispatch(actions.addMessage(message));
 	switch (message.bubbleType){
-		case 1: {
-/*
+		case 1: { // bubble text
 			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null);
-			console.log(mokMessage);
-*/
-			
-			
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = mokMessage.datetimeCreation;
+			message.datetimeOrder = mokMessage.datetimeOrder;
+			store.dispatch(actions.addMessage(message));
+			break;
+		}
+		case 2: { // bubble image
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, false, null, null, function(err, message){
+				if (err){
+					console.log(err);
+				}else{
+					console.log(message);
+					
+				}
+			});
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = mokMessage.datetimeCreation;
+			message.datetimeOrder = mokMessage.datetimeOrder;
+			store.dispatch(actions.addMessage(message));
+			break;
+		}
+		case 3: { // bubble file
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, false, null, null, function(err, message){
+				if (err){
+					console.log(err);
+				}else{
+					console.log(message);
+					
+				}
+			});
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = mokMessage.datetimeCreation;
+			message.datetimeOrder = mokMessage.datetimeOrder;
+			store.dispatch(actions.addMessage(message));
+			break;
+		}
+		case 4: { // bubble audio
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, false, null, null, function(err, message){
+				if (err){
+					console.log(err);
+				}else{
+					console.log(message);
+				}
+			});
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = mokMessage.datetimeCreation;
+			message.datetimeOrder = mokMessage.datetimeOrder;
+			store.dispatch(actions.addMessage(message));
+			break;
 		}
 	}
 }
