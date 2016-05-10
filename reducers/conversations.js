@@ -23,7 +23,7 @@ const conversations = (state = {}, action) => {
 		}
 		
 		case ADD_MESSAGE: {
-			const conversationId = action.message.recipientId;
+			const conversationId = action.conversationId;
 			return {
 				...state,
 				[conversationId]: conversation(state[conversationId], action)

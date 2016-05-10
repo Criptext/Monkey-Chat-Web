@@ -30,11 +30,9 @@ class App extends React.Component {
 	}
 	
 	componentWillMount() {
-
 	}
 	
 	componentWillReceiveProps(nextProps) {
-	
 	}
 	
 	render() {
@@ -105,15 +103,18 @@ monkey.on('onMessage', function(mokMessage){
     	datetimeOrder: mokMessage.datetimeOrder,
     	recipientId: mokMessage.recipientId,
     	senderId: mokMessage.senderId,
-    	text: mokMessage.text
+    	text: mokMessage.text,
+    	bubbleType: 1
 	}
-	
+	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.recipientId : mokMessage.senderId;
+	console.log(conversationId);
+	store.dispatch(actions.addMessage(message, conversationId));
 });
 
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('onNotification', function(mokMessage){
 // 	console.log('onNotification');
-	console.log(mokMessage);
+// 	console.log(mokMessage);
 });
 
 // -------------- ON ACKNOWLEDGE --------------- //
@@ -213,7 +214,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message));
+			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
 		case 2: { // bubble image
@@ -229,7 +230,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message));
+			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
 		case 3: { // bubble file
@@ -245,7 +246,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message));
+			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
 		case 4: { // bubble audio
@@ -260,7 +261,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message));
+			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
 	}
