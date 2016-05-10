@@ -32,9 +32,10 @@ export const updateConversationStatus = (conversation) => {
 	}
 }
 
-export const addMessage = (message) => {
+export const addMessage = (message, conversationId) => {
 	return {
 		type: ADD_MESSAGE,
-		message: message
+		message: message,
+		conversationId: conversationId
 	}
 }

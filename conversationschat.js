@@ -30,11 +30,9 @@ class App extends React.Component {
 	}
 	
 	componentWillMount() {
-
 	}
 	
 	componentWillReceiveProps(nextProps) {
-	
 	}
 	
 	render() {
@@ -107,13 +105,28 @@ monkey.on('onMessage', function(mokMessage){
     	senderId: mokMessage.senderId,
     	text: mokMessage.text
 	}
-	
+	switch (mokMessage.protocolType){
+		case 1:{
+			message.bubbleType = 1;
+			break;
+		}
+		case 2:{
+			if(mokMessage.props.file_type == 1){ // audio
+				message.bubbleType = 4;
+			}else if(mokMessage.props.file_type == 3){ // image
+				message.bubbleType = 2;
+			}
+			break;
+		}
+	}
+	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.recipientId : mokMessage.senderId;
+	store.dispatch(actions.addMessage(message, conversationId));
 });
 
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('onNotification', function(mokMessage){
 // 	console.log('onNotification');
-	console.log(mokMessage);
+// 	console.log(mokMessage);
 });
 
 // -------------- ON ACKNOWLEDGE --------------- //
@@ -213,7 +226,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message));
+			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
 		case 2: { // bubble image
@@ -229,7 +242,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message));
+			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
 		case 3: { // bubble file
@@ -245,7 +258,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message));
+			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
 		case 4: { // bubble audio
@@ -260,7 +273,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message));
+			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
 	}

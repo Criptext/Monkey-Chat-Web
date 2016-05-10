@@ -23,7 +23,7 @@
     "fileapi": "^2.0.20",
     "jquery": "^2.2.3",
     "jquery-knob": "^1.2.11",
-    "monkey-sdk": "0.0.33",
+    "monkey-sdk": "0.0.34",
     "react": "^0.14.8",
     "react-dom": "^0.14.8",
     "react-dropzone": "^3.4.0",
