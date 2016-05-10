@@ -42,9 +42,9 @@ class App extends React.Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
+		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
-		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE);
+		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
 	
 	handleMessageToSet(message) {
@@ -82,45 +82,25 @@ store.subscribe(render);
 // --------------- ON CONNECT ----------------- //
 monkey.on('onConnect', function(event){
 	let user = event;
-	store.dispatch(actions.addUserSession(user));
-	getConversations();
+	if(!Object.keys(store.getState().users).length){
+		console.log('App - onConnect');
+		user.id = event.monkeyId;
+		store.dispatch(actions.addUserSession(user));
+	}
+	if(!Object.keys(store.getState().conversations).length){
+		getConversations();
+	}
 });
 
 // -------------- ON DISCONNECT --------------- //
 monkey.on('onDisconnect', function(event){
-	console.log('onDisconnect');
-	console.log(event);
+	console.log('App - onDisconnect');
 });
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('onMessage', function(mokMessage){
 	console.log('onMessage');
-	console.log(mokMessage);
-	let message = {
-		id: mokMessage.id,
-		oldId: mokMessage.oldId,
-    	datetimeCreation: mokMessage.datetimeCreation,
-    	datetimeOrder: mokMessage.datetimeOrder,
-    	recipientId: mokMessage.recipientId,
-    	senderId: mokMessage.senderId,
-    	text: mokMessage.text
-	}
-	switch (mokMessage.protocolType){
-		case 1:{
-			message.bubbleType = 1;
-			break;
-		}
-		case 2:{
-			if(mokMessage.props.file_type == 1){ // audio
-				message.bubbleType = 4;
-			}else if(mokMessage.props.file_type == 3){ // image
-				message.bubbleType = 2;
-			}
-			break;
-		}
-	}
-	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.recipientId : mokMessage.senderId;
-	store.dispatch(actions.addMessage(message, conversationId));
+	defineMessage(mokMessage);
 });
 
 // ------------- ON NOTIFICATION --------------- //
@@ -277,4 +257,66 @@ function prepareMessage(message) {
 			break;
 		}
 	}
+}
+
+function defineMessage(mokMessage) {
+	console.log(mokMessage);
+	console.log(store.getState().users.userSession);
+	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
+	let message = {
+		id: mokMessage.id,
+		oldId: mokMessage.oldId,
+    	datetimeCreation: mokMessage.datetimeCreation,
+    	datetimeOrder: mokMessage.datetimeOrder,
+    	recipientId: mokMessage.recipientId,
+    	senderId: mokMessage.senderId
+	}
+	switch (mokMessage.protocolType){
+		case 1:{
+			message.bubbleType = 1;
+			message.text = mokMessage.text;
+			message.preview = mokMessage.text;
+			break;
+		}
+		case 2:{
+			message.filename = mokMessage.props.file_type;
+			message.mimetype = mokMessage.props.mime_type;
+			message.filesize = mokMessage.props.size;
+			if(mokMessage.props.file_type == 1){ // audio
+				message.bubbleType = 4;
+				message.preview = 'Audio';
+				
+				monkey.downloadFile(mokMessage, function(err, data){
+					let src = 'data:audio/mpeg;base64,'+data;
+					let message = {
+						id: mokMessage.id,
+						data: src
+					}
+					console.log(mokMessage.id);
+					console.log(mokMessage.oldId);
+					store.dispatch(actions.updateMessageData(message, conversationId));
+				});
+				
+			}else if(mokMessage.props.file_type == 3){ // image
+				message.bubbleType = 2;
+				message.preview = 'Image';
+				monkey.downloadFile(mokMessage, function(err, data){
+					console.log(data);
+					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
+					let message = {
+						id: mokMessage.id,
+						data: src
+					}
+					console.log(mokMessage.id);
+					console.log(mokMessage.oldId);
+// 					store.dispatch(actions.updateMessageData(message, conversationId));
+				});
+			}else if(mokMessage.props.file_type == 4){ // file
+				message.bubbleType = 3;
+				message.preview = 'File';
+			}
+			break;
+		}
+	}
+	store.dispatch(actions.addMessage(message, conversationId));
 }
