@@ -42,9 +42,9 @@ class App extends React.Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
+		user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
 		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
-		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, true, vars.MONKEY_DEBUG_MODE);
+		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE);
 	}
 	
 	handleMessageToSet(message) {
