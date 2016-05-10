@@ -89,7 +89,7 @@ class MonkeyUI extends React.Component {
 									? <ContentAside conversations={this.state.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
 									: null
 								}
-								<ContentWindow conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
+								<ContentWindow loadMessages={this.props.loadMessages} conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
 							</div>
 						)
 						: <Form_ handleLoginSession={this.handleLoginSession} />
