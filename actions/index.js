@@ -1,6 +1,7 @@
 export const ADD_USER_SESSION = 'ADD_USER_SESSION'
 export const ADD_MESSAGE = 'ADD_MESSAGE'
 export const UPDATE_MESSAGE_STATUS = 'UPDATE_MESSAGE_STATUS'
+export const UPDATE_MESSAGE_DATA = 'UPDATE_MESSAGE_DATA'
 export const ADD_CONVERSATION = 'ADD_CONVERSATION'
 export const ADD_CONVERSATIONS = 'ADD_CONVERSATIONS'
 export const UPDATE_CONVERSATION_STATUS = 'UPDATE_CONVERSATION_STATUS'
@@ -42,6 +43,14 @@ export const addMessage = (message, conversationId) => {
 }
 
 export const updateMessageData = (message, conversationId) => {
+	return {
+		type: UPDATE_MESSAGE_DATA,
+		message: message,
+		conversationId: conversationId
+	}
+}
+
+export const updateMessageStatus = (message, conversationId) => {
 	return {
 		type: UPDATE_MESSAGE_STATUS,
 		message: message,
