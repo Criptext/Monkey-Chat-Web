@@ -32,7 +32,9 @@ class App extends React.Component {
 	componentWillMount() {
 
 		if(monkey.getUser() != null){
-			this.props.store.users.userSession = monkey.getUser();
+			var user = monkey.getUser();
+			user.id = monkey.getMonkeyId();
+			store.dispatch(actions.addUserSession(user));
 			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, monkey.getUser(), false, vars.MONKEY_DEBUG_MODE, false);
 		}
 
