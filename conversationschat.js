@@ -8,12 +8,12 @@ import * as vars from './utils/monkey-const.js'
 import { createStore } from 'redux'
 import reducer from './reducers'
 import initData from './utils/data'
-const store = createStore(reducer, { conversations: {}, users: {} });
 
 import * as actions from './actions'
 import dataConversation from './utils/dataNewConversation'
 
 const monkey = new Monkey ();
+const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 
 class App extends React.Component {
 	constructor(props){
@@ -30,6 +30,14 @@ class App extends React.Component {
 	}
 	
 	componentWillMount() {
+
+		if(monkey.getUser() != null){
+			var user = monkey.getUser();
+			user.id = monkey.getMonkeyId();
+			store.dispatch(actions.addUserSession(user));
+			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
+		}
+
 	}
 	
 	componentWillReceiveProps(nextProps) {
