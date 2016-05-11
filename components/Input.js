@@ -37,7 +37,7 @@ class Input extends Component {
 		}
 		this.handleOnKeyDownTextArea = this.handleOnKeyDownTextArea.bind(this);
 		this.textMessageInput = this.textMessageInput.bind(this);
-		
+
 		this.handleRecordAudio = this.handleRecordAudio.bind(this);
 		this.startRecordAudio = this.startRecordAudio.bind(this);
 		this.onMediaSuccess = this.onMediaSuccess.bind(this);
@@ -65,7 +65,7 @@ class Input extends Component {
 		};
 		this.secondsRecording = 0;
 		this.refreshIntervalId;
-		this.typeMessageToSend = 0; 
+		this.typeMessageToSend = 0;
 		this.audioCaptured= {};
 		this.audioMessageOldId;
 		this.ffmpegRunning = false;
@@ -83,11 +83,12 @@ class Input extends Component {
 			<div id='mky-chat-input'>
 				<div id='mky-divider-chat-input'></div>
 				<div className={'mky-button-input '+this.state.classAttachButton}>
-					<button id="mky-button-attach" className='mky-button-icon' onClick={this.handleMenuVisibility}></button>
+					<i id="mky-button-attach" className="mky-button-icon demo-icon mky-attach" onClick={this.handleMenuVisibility}>&#xe80a;</i>
 				</div>
                 <InputMenu toggleVisibility={this.handleMenuVisibility} visible={this.state.menuVisibility} enableGeoInput={this.props.enableGeoInput} handleAttach={this.handleAttach}/>
 				<div className={'mky-button-input '+this.state.classCancelAudioButton}>
-					<button id="mky-button-cancel-audio" className='mky-button-icon' onClick={this.handleCancelAudio}></button>
+
+					<i id="mky-button-cancel-audio" className=" mky-button-icon demo-icon mky-trashcan-empty"  onClick={this.handleCancelAudio}>&#xe80e;</i>
 				</div>
 				<textarea ref='textareaInput' id="mky-message-text-input" className={'mky-textarea-input '+this.state.classTextArea} value={this.state.text} placeholder="Write a secure message" onKeyDown={this.handleOnKeyDownTextArea} onChange={this.handleOnChangeTextArea}></textarea>
 				<div id='mky-record-area' className={this.state.classAudioArea}>
@@ -101,10 +102,10 @@ class Input extends Component {
 					</div>
 				</div>
 				<div className={'mky-button-input '+this.state.classSendButton}>
-					<button id='mky-button-send-message' className="mky-button-icon" onClick={this.handleSendMessage}></button>
+					<i id='mky-button-send-message'  className="demo-icon mky-send-empty" onClick={this.handleSendMessage}>&#xe811;</i>
 				</div>
 				<div className={'mky-button-input mky-disabledd '+this.state.classAudioButton}>
-					<button id="mky-button-record-audio" className="mky-button-icon" onClick={this.handleRecordAudio}></button>
+					<i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe801;</i>
 				</div>
 				<Dropzone ref="dropzone" className='mky-disappear' onDrop={this.onDrop} >
 	            	<div>Try dropping some files here, or click to select files to upload.</div>
@@ -116,7 +117,7 @@ class Input extends Component {
 	componentDidMount() {
 		this.ffmpegWorker = this.getFFMPEGWorker();
 	}
-	
+
     handleMenuVisibility(){
         this.setState({menuVisibility : !this.state.menuVisibility});
     }
@@ -127,9 +128,9 @@ class Input extends Component {
 			text: text,
 			preview: text
 		}
-		this.props.messageCreated(message);	
+		this.props.messageCreated(message);
 	}
-	
+
 	handleOnKeyDownTextArea(event) {
 		this.typeMessageToSend = 0;
 		if(event.keyCode === 13 && !event.shiftKey) {
@@ -141,11 +142,11 @@ class Input extends Component {
 			this.setState({text: ''});
 		}
 	}
-	
+
 	handleOnChangeTextArea(event, value){
 		this.setState({text: event.target.value});
 	}
-	
+
 	handleRecordAudio() {
 		this.setState({
 			classAudioArea: 'mky-appear',
@@ -157,7 +158,7 @@ class Input extends Component {
 		});
 		this.startRecordAudio();
 	}
-	
+
 	startRecordAudio() {
 		this.typeMessageToSend = 1;
 
@@ -170,8 +171,8 @@ class Input extends Component {
                 this.pauseAllAudio ('');
             }
         }
-    }   
-    
+    }
+
     onMediaSuccess(stream) {
         //default settings to record
         this.mediaRecorder = new MediaStreamRecorder(stream);
@@ -188,11 +189,11 @@ class Input extends Component {
         this.refreshIntervalId = setInterval(this.setTime, 1000);//start recording timer
         this.mediaRecorder.start(99999999999);//starts recording
     }
-    
+
     onMediaError(e) {
         console.error('media error', e);
     }
-    
+
     setTime() {
 	    ++this.secondsRecording;
 	    let seconds = ("0" + this.secondsRecording%60).slice(-2);
@@ -200,7 +201,7 @@ class Input extends Component {
         let minutes = ("0" + parseInt(this.secondsRecording/60)).slice(-2);
         this.setState({minutes: minutes});
     }
-    
+
     handleCancelAudio() {
 	    this.setState({
 			classAudioArea: 'mky-disappear',
@@ -230,17 +231,17 @@ class Input extends Component {
                 this.handleCancelAudio()
             	break;
             case 3:
-				
+
 				break;
             case 4:
-            	
+
             	break;
             default:
-            	
+
                 break;
         }
     }
-    
+
     clearAudioRecordTimer() {
         this.secondsRecording = 0;
         clearInterval(this.refreshIntervalId);
@@ -314,7 +315,7 @@ class Input extends Component {
         var that = this;
         ffmpegWorker.onmessage = function (event) {
             var message = event.data;
-            
+
             if (message.type === "ready" && window.File && window.FileList && window.FileReader) {} else if (message.type == "stdout") {
                 // console.log(message.data);
             } else if (message.type == "stderr") {} else if (message.type == "done") {
@@ -350,7 +351,7 @@ class Input extends Component {
                 that.audioCaptured.monkeyFileType = 1;
                 that.audioCaptured.oldId = that.audioMessageOldId;
                 that.audioCaptured.type = 'audio/mpeg';
-                
+
                 let message = {data: that.audioCaptured.src, bubbleType: 4, preview: 'Audio'};
                 that.props.messageCreated(message);
 
@@ -370,26 +371,26 @@ class Input extends Component {
                     audios[i].pause();
                     $('.mky-bubble-audio-button').hide();
                     $('.mky-bubble-audio-play-button').show();
-                }   
+                }
             }
         }, true);
     }
-    
+
     handleAttach() {
         this.handleMenuVisibility();
 	    this.refs.dropzone.open();
     }
-    
+
     onDrop(files) {
 		let _file;
 	    files.map((file) => (_file = file))
 		this.catchUpFile(_file);
     }
-    
+
     catchUpFile(file) {
         this.generateDataFile(file);
     }
-    
+
     generateDataFile(file) {
         FileAPI.readAsDataURL(file, (evt) => {
             if( evt.type == 'load' ){
@@ -416,21 +417,21 @@ class Input extends Component {
             }
         });
     }
-    
+
     getExtention(file) {
         let arr = file.name.split('.');
         let extension= arr[arr.length-1];
         return extension;
     }
-    
+
     checkExtention(files) {
         var ft=0;  //fileType by extention
-        
+
         var file=["doc","docx","pdf","xls", "xlsx","ppt","pptx"];
         var img=["jpe","jpeg","jpg","png","gif"]; //1
 
         var extension = this.getExtention(files);
-        
+
         if(img.indexOf(extension)>-1){
             ft=1;
         }else if(file.indexOf(extension)>-1){

@@ -5,18 +5,19 @@ class MyForm extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			text: ''	
+			text: ''
 		};
 		this.login = this.login.bind(this);
 		this.handleOnChangeInput = this.handleOnChangeInput.bind(this);
 	}
-	
+
 	render() {
 		return (
 			<div className='monkey-login'>
 				<img className='monkey-logo' src='https://cdn.criptext.com/MonkeyUI/images/monkey_widget_logo.png'></img>
 					<form className='chat-login-container'>
 						<div className='field-login-text'>
+							
 							<p className='title'> <b>Welcome to our secure live-chat</b>  </p>
 							<p className='subtittle'>Please enter the information I need</p>
 						</div>
@@ -32,11 +33,11 @@ class MyForm extends React.Component {
 			</div>
 		)
 	}
-	
+
 	handleOnChangeInput(event, value) {
 		this.setState({text: event.target.value});
 	}
-	
+
 	login(event) {
 		event.preventDefault();
 		let text = this.state.text.trim();

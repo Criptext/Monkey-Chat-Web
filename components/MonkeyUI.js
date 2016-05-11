@@ -65,6 +65,7 @@ class MonkeyUI extends React.Component {
 	render() {
     	return (
 			<div className={'mky-wrapper-out '+this.classContent} style={this.state.tabStyle}>
+				
 				{ this.props.view.type === 'classic'
 					? (
 						<div className='mky-tab'>
