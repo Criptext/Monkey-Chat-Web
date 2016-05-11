@@ -1,4 +1,5 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import { defineTime } from '../utils/monkey-utils.js'
 
 const Bubble = Component => class extends React.Component {
 	constructor(props){
@@ -12,7 +13,6 @@ const Bubble = Component => class extends React.Component {
 		if(this.props.message.nameColor){
 			this.styleName = { color: this.props.message.nameColor };
 		}
-		
     	return (
 			<div className='mky-message-line'>
 				<div id={this.props.message.id} className={classBubble}>
@@ -24,8 +24,9 @@ const Bubble = Component => class extends React.Component {
 							? <span className="mky-message-user-name">{this.props.message.name}</span>
 							: null
 						)
+
 					}
-						<span className="mky-message-hour">{this.props.message.timestamp}</span>
+						<span className="mky-message-hour">{defineTime(this.props.message.datetimeCreation)}</span>
 					</div>
 					<Component {...this.props}/>
 				</div>
