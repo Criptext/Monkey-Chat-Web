@@ -27,6 +27,10 @@ class App extends React.Component {
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
+
+		if(monkey.getUser() != null){
+			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, monkey.getUser(), false, vars.MONKEY_DEBUG_MODE, false);
+		}
 	}
 	
 	componentWillMount() {
@@ -37,7 +41,7 @@ class App extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages}/>
+			<MonkeyUI view={this.view} userSession={monkey.getUser()} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages}/>
 		)
 	}
 	
