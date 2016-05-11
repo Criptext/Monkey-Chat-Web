@@ -47,7 +47,7 @@ class ContentConversation extends Component {
 				{ this.state.showLocationInput
 					? <LocationInput messageCreated={this.props.messageCreated} disableGeoInput={this.disableGeoInput.bind(this)} />
 					: ( <div className='mky-chat-area'>
-							<TimelineChat conversationSelected={this.props.conversationSelected} messageSelected={this.handleMessageSelected}/>
+							<TimelineChat loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageSelected={this.handleMessageSelected}/>
 							{ this.state.messageSelected 
 								? <ContentModal messageSelected={this.state.messageSelected}  showModal={this.handleShowModal}/>
 								: null

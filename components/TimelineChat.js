@@ -19,6 +19,7 @@ class TimelineChat extends Component {
 	constructor(props, context) {
 		super(props);
 		context.userSession;
+		this.orderedConversations = [];
 		this.goBottom = false;
 		this.handleScroll = this.handleScroll.bind(this);
 		this.updateScrollTop = this.updateScrollTop.bind(this);
@@ -34,7 +35,7 @@ class TimelineChat extends Component {
 			if(nextProps.conversationSelected.messages[nextProps.conversationSelected.lastMessage].senderId === this.context.userSession.id){
 				this.goBottom = true;
 			}
-		}	
+		}
 	}
 	
 	componentWillMount() {
@@ -43,11 +44,18 @@ class TimelineChat extends Component {
 		}
 	}
 	
+	componentWillUpdate(){
+		console.log(this.props.conversationSelected.messages);
+		this.orderedConversations = this.sortObject(this.props.conversationSelected.messages);
+		console.log("CONVERSATIONS");
+		console.log(this.orderedConversations);
+	}
+
 	render(){
 		return( <div ref="timelineChat" id='mky-chat-timeline'>
 			{ Object.keys(this.props.conversationSelected).length
-				? Object.keys(this.props.conversationSelected.messages).map( key => {
-					const message = this.props.conversationSelected.messages[key];
+				? this.orderedConversations.map( item => {
+					const message = this.props.conversationSelected.messages[item.key];
 					switch(message.bubbleType){
 						case 1:
 							return <BubbleText_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'text'} />
@@ -69,13 +77,13 @@ class TimelineChat extends Component {
 
 	componentDidMount() {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		this.domNode.lastChild.scrollIntoView();
+		//this.domNode.lastChild.scrollIntoView();
 	    this.domNode.addEventListener('scroll', this.handleScroll);
 	}
 
 	componentDidUpdate() {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		this.domNode.lastChild.scrollIntoView();
+		//this.domNode.lastChild.scrollIntoView();
  		this.updateScrollTop();
 	}
 	
@@ -93,11 +101,28 @@ class TimelineChat extends Component {
 			
 		}else if(this.domNode.scrollTop === 0){
 			console.log('load here!');
+			this.props.loadMessages(this.props.conversationSelected);
 		}	
 	}
 
 	handleScroll(event) {
 		this.updateScrollTop();
+	}
+
+	sortObject(obj) {
+    	var arr = [];
+	    var prop;
+	    Object.keys(obj).map(function(key, index) {
+	    	console.log('object : ' + key);
+	    	arr.push({
+                'key': key,
+                'date': obj[key].datetimeOrder
+            });
+        });
+	    arr.sort(function(a, b) {
+	        return a.date - b.date;
+	    });
+	    return arr;
 	}
 }
 
@@ -106,3 +131,4 @@ TimelineChat.contextTypes = {
 }
 
 export default TimelineChat;
+

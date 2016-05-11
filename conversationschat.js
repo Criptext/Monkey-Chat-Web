@@ -30,23 +30,21 @@ class App extends React.Component {
 	}
 	
 	componentWillMount() {
-
 	}
 	
 	componentWillReceiveProps(nextProps) {
-	
 	}
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages}/>
 		)
 	}
 	
 	handleUserSessionToSet(user) {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'https://secure.criptext.com/avatars/avatar_2275.png';
-		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, true, vars.MONKEY_DEBUG_MODE);
+		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
 	
 	handleMessageToSet(message) {
@@ -58,6 +56,12 @@ class App extends React.Component {
 		monkey.sendOpenToUser(conversation.id);
 	}
 	
+	handleLoadMessages(conversation) {
+		console.log('load more messages from conversation');
+		monkey.getConversationMessages(conversation.id, 10, conversation.messages[0], function(){
+			console.log('hello its me from the get conversations ' + conversation.messages);
+		});
+	}
 /*
 	conversationToSet() {
 		let newConversation = dataConversation;
@@ -78,26 +82,31 @@ store.subscribe(render);
 // --------------- ON CONNECT ----------------- //
 monkey.on('onConnect', function(event){
 	let user = event;
-	store.dispatch(actions.addUserSession(user));
-	getConversations();
+	if(!Object.keys(store.getState().users).length){
+		console.log('App - onConnect');
+		user.id = event.monkeyId;
+		store.dispatch(actions.addUserSession(user));
+	}
+	if(!Object.keys(store.getState().conversations).length){
+		getConversations();
+	}
 });
 
 // -------------- ON DISCONNECT --------------- //
 monkey.on('onDisconnect', function(event){
-	console.log('onDisconnect');
-	console.log(event);
+	console.log('App - onDisconnect');
 });
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('onMessage', function(mokMessage){
-// 	console.log('onMessage');
-	console.log(mokMessage);
+	console.log('onMessage');
+	defineMessage(mokMessage);
 });
 
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('onNotification', function(mokMessage){
 // 	console.log('onNotification');
-	console.log(mokMessage);
+// 	console.log(mokMessage);
 });
 
 // -------------- ON ACKNOWLEDGE --------------- //
@@ -114,6 +123,7 @@ monkey.on('onAcknowledge', function(mokMessage){
             let old_id = mokMessage.oldId;
             let new_id = mokMessage.id;
             let status = mokMessage.props.status;
+            
 //             monkeyUI.updateStatusMessageBubble(old_id,new_id,status);
         }
 		break;
@@ -183,20 +193,130 @@ function getConversations() {
 		        conversations[conversationTmp.id] = conversationTmp;
 	        })
 	        store.dispatch(actions.addConversations(conversations));
+	        monkey.getPendingMessages();
         }
     });
 }
 
 function prepareMessage(message) {
-	store.dispatch(actions.addMessage(message));
 	switch (message.bubbleType){
-		case 1: {
-/*
+		case 1: { // bubble text
 			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null);
-			console.log(mokMessage);
-*/
-			
-			
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = mokMessage.datetimeCreation;
+			message.datetimeOrder = mokMessage.datetimeOrder;
+			store.dispatch(actions.addMessage(message, message.recipientId));
+			break;
+		}
+		case 2: { // bubble image
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, false, null, null, function(err, message){
+				if (err){
+					console.log(err);
+				}else{
+					console.log(message);
+					
+				}
+			});
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = mokMessage.datetimeCreation;
+			message.datetimeOrder = mokMessage.datetimeOrder;
+			store.dispatch(actions.addMessage(message, message.recipientId));
+			break;
+		}
+		case 3: { // bubble file
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, false, null, null, function(err, message){
+				if (err){
+					console.log(err);
+				}else{
+					console.log(message);
+					
+				}
+			});
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = mokMessage.datetimeCreation;
+			message.datetimeOrder = mokMessage.datetimeOrder;
+			store.dispatch(actions.addMessage(message, message.recipientId));
+			break;
+		}
+		case 4: { // bubble audio
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, false, null, null, function(err, message){
+				if (err){
+					console.log(err);
+				}else{
+					console.log(message);
+				}
+			});
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = mokMessage.datetimeCreation;
+			message.datetimeOrder = mokMessage.datetimeOrder;
+			store.dispatch(actions.addMessage(message, message.recipientId));
+			break;
 		}
 	}
+}
+
+function defineMessage(mokMessage) {
+	console.log(mokMessage);
+	console.log(store.getState().users.userSession);
+	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
+	let message = {
+		id: mokMessage.id,
+		oldId: mokMessage.oldId,
+    	datetimeCreation: mokMessage.datetimeCreation,
+    	datetimeOrder: mokMessage.datetimeOrder,
+    	recipientId: mokMessage.recipientId,
+    	senderId: mokMessage.senderId
+	}
+	switch (mokMessage.protocolType){
+		case 1:{
+			message.bubbleType = 1;
+			message.text = mokMessage.text;
+			message.preview = mokMessage.text;
+			break;
+		}
+		case 2:{
+			message.filename = mokMessage.props.file_type;
+			message.mimetype = mokMessage.props.mime_type;
+			message.filesize = mokMessage.props.size;
+			if(mokMessage.props.file_type == 1){ // audio
+				message.bubbleType = 4;
+				message.preview = 'Audio';
+				
+				monkey.downloadFile(mokMessage, function(err, data){
+					let src = 'data:audio/mpeg;base64,'+data;
+					let message = {
+						id: mokMessage.id,
+						data: src
+					}
+					console.log(mokMessage.id);
+					console.log(mokMessage.oldId);
+					store.dispatch(actions.updateMessageData(message, conversationId));
+				});
+				
+			}else if(mokMessage.props.file_type == 3){ // image
+				message.bubbleType = 2;
+				message.preview = 'Image';
+				monkey.downloadFile(mokMessage, function(err, data){
+					console.log(data);
+					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
+					let message = {
+						id: mokMessage.id,
+						data: src
+					}
+					console.log(mokMessage.id);
+					console.log(mokMessage.oldId);
+// 					store.dispatch(actions.updateMessageData(message, conversationId));
+				});
+			}else if(mokMessage.props.file_type == 4){ // file
+				message.bubbleType = 3;
+				message.preview = 'File';
+			}
+			break;
+		}
+	}
+	store.dispatch(actions.addMessage(message, conversationId));
 }
