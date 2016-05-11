@@ -36,6 +36,7 @@ class TimelineChat extends Component {
 				this.goBottom = true;
 			}
 		}
+		this.orderedConversations = this.sortObject(nextProps.conversationSelected.messages);
 	}
 	
 	componentWillMount() {
@@ -45,10 +46,7 @@ class TimelineChat extends Component {
 	}
 	
 	componentWillUpdate(){
-		console.log(this.props.conversationSelected.messages);
-		this.orderedConversations = this.sortObject(this.props.conversationSelected.messages);
-		console.log("CONVERSATIONS");
-		console.log(this.orderedConversations);
+		
 	}
 
 	render(){
@@ -113,7 +111,6 @@ class TimelineChat extends Component {
     	var arr = [];
 	    var prop;
 	    Object.keys(obj).map(function(key, index) {
-	    	console.log('object : ' + key);
 	    	arr.push({
                 'key': key,
                 'date': obj[key].datetimeOrder
@@ -131,4 +128,3 @@ TimelineChat.contextTypes = {
 }
 
 export default TimelineChat;
-

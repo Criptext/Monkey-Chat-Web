@@ -112,7 +112,7 @@ monkey.on('onNotification', function(mokMessage){
 // -------------- ON ACKNOWLEDGE --------------- //
 monkey.on('onAcknowledge', function(mokMessage){
 	console.log('onAcknowledge');
-	console.log(mokMessage);
+// 	console.log(mokMessage);
 	
 	let ackType = mokMessage.protocolType;
 	let conversationId = mokMessage.senderId;
@@ -206,22 +206,32 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
+			console.log('App - message to add');
 			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
 		case 2: { // bubble image
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, false, null, null, function(err, message){
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, false, null, null, function(err, mokMessage){
 				if (err){
 					console.log(err);
 				}else{
-					console.log(message);
-					
+					console.log('to update');
+					console.log(mokMessage);
+					let message = {
+						id: mokMessage.id,
+						oldId: mokMessage.oldId,
+						status: 51,
+						recipientId: mokMessage.recipientId
+					}
+// 					store.dispatch(actions.updateMessageStatus(message, message.recipientId));
 				}
 			});
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation;
 			message.datetimeOrder = mokMessage.datetimeOrder;
+			console.log('to load');
+			console.log(message);
 			store.dispatch(actions.addMessage(message, message.recipientId));
 			break;
 		}
@@ -231,7 +241,6 @@ function prepareMessage(message) {
 					console.log(err);
 				}else{
 					console.log(message);
-					
 				}
 			});
 			message.id = mokMessage.id;

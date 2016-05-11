@@ -1,4 +1,4 @@
-import { ADD_CONVERSATIONS, ADD_CONVERSATION, UPDATE_CONVERSATION_STATUS, ADD_MESSAGE, UPDATE_MESSAGE_STATUS } from '../actions'
+import { ADD_CONVERSATIONS, ADD_CONVERSATION, UPDATE_CONVERSATION_STATUS, ADD_MESSAGE, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA } from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
@@ -23,6 +23,14 @@ const conversations = (state = {}, action) => {
 		}
 		
 		case ADD_MESSAGE: {
+			const conversationId = action.conversationId;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+		
+		case UPDATE_MESSAGE_DATA: {
 			const conversationId = action.conversationId;
 			return {
 				...state,
@@ -61,10 +69,19 @@ const conversation = (state, action) => {
 			}
 		}
 		
-		case UPDATE_MESSAGE_STATUS: {
+		case UPDATE_MESSAGE_DATA: {
 			return {
 				...state,
 				messages: messages(state.messages, action)
+			}
+		}
+		
+		case UPDATE_MESSAGE_STATUS: {
+			let lastMessage = messages.oldId === state.lasMessage ? messages.Id : state.lastMessage;
+			return {
+				...state,
+				messages: messages(state.messages, action),
+				lastMessage: lastMessage
 			}
 		}
 	}
@@ -80,12 +97,25 @@ const messages = (state, action) => {
 			}
 		}
 		
-		case UPDATE_MESSAGE_STATUS: {
+		case UPDATE_MESSAGE_DATA: {
 			const messageId = action.message.id;
 			return {
 				...state,
 				[messageId]: message(state[messageId], action)
 			}
+		}
+		
+		case UPDATE_MESSAGE_STATUS: {
+			const messageId = action.message.oldId;
+			const newMessageId = action.message.id;
+			console.log(state);
+			let newState = {
+				...state,
+				[newMessageId]: message(state[messageId], action)
+			}
+			delete newState[messageId];
+			console.log(newState);
+			return newState;
 		}
 	}
 	return state;
@@ -93,11 +123,18 @@ const messages = (state, action) => {
 
 const message = (state, action) => {
 	switch (action.type) {
-		case UPDATE_MESSAGE_STATUS: {
-			const messageId = action.message.id;
+		case UPDATE_MESSAGE_DATA: {
 			return {
 				...state,
-				data: action.messafe.data
+				data: action.message.data
+			}
+		}
+		
+		case UPDATE_MESSAGE_STATUS: {
+			return {
+				...state,
+				id: action.message.id,
+				status: action.message.status
 			}
 		}
 	}
