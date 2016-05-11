@@ -1,0 +1,13 @@
+
+.mky-attach:before { content: '\e802'; } /* '' */
+.mky-attach2:before { content: '\e803'; } /* '' */
+.mky-check:before { content: '\e804'; } /* '' */
+.mky-lock:before { content: '\e805'; } /* '' */
+.mky-logout:before { content: '\e806'; } /* '' */
+.mky-menu-down:before { content: '\e807'; } /* '' */
+.mky-menu-up:before { content: '\e808'; } /* '' */
+.mky-mic:before { content: '\e809'; } /* '' */
+.mky-picture:before { content: '\e80a'; } /* '' */
+.mky-search:before { content: '\e80b'; } /* '' */
+.mky-timer:before { content: '\e80c'; } /* '' */
+.mky-record:before { content: '\e80d'; } /* '' */
