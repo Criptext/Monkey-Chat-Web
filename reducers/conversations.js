@@ -77,7 +77,7 @@ const conversation = (state, action) => {
 		}
 		
 		case UPDATE_MESSAGE_STATUS: {
-			let lastMessage = messages.oldId === state.lasMessage ? messages.Id : state.lastMessage;
+			let lastMessage = action.message.oldId === state.lastMessage ? action.message.id : state.lastMessage;
 			return {
 				...state,
 				messages: messages(state.messages, action),
@@ -108,13 +108,11 @@ const messages = (state, action) => {
 		case UPDATE_MESSAGE_STATUS: {
 			const messageId = action.message.oldId;
 			const newMessageId = action.message.id;
-			console.log(state);
 			let newState = {
 				...state,
 				[newMessageId]: message(state[messageId], action)
 			}
 			delete newState[messageId];
-			console.log(newState);
 			return newState;
 		}
 	}
