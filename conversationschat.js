@@ -56,7 +56,6 @@ class MonkeyChat extends Component {
 	}
 	
 	handleConversationOpened(conversation) {
-		console.log('hi conversation');
 		monkey.sendOpenToUser(conversation.id);
 	}
 	
@@ -86,7 +85,8 @@ store.subscribe(render);
 // --------------- ON CONNECT ----------------- //
 monkey.on('onConnect', function(event){
 	let user = event;
-	if(!Object.keys(store.getState().users).length){
+	console.log(event);
+	if(!store.getState().users.userSession.id){
 		console.log('App - onConnect');
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
@@ -103,7 +103,7 @@ monkey.on('onDisconnect', function(event){
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('onMessage', function(mokMessage){
-	console.log('onMessage');
+	console.log('App - onMessage');
 	defineMessage(mokMessage);
 });
 
@@ -276,50 +276,48 @@ function defineMessage(mokMessage) {
 		case 2:{
 			if(mokMessage.props.file_type == 1){ // audio
 				monkey.downloadFile(mokMessage, function(err, data){
-					console.log('audio downloaded');
-					console.log(data);
+					console.log('App - audio downloaded');
 					let src = 'data:audio/mpeg;base64,'+data;
 					let message = {
 						id: mokMessage.id,
 						data: src
 					}
-					console.log(mokMessage.id);
-					console.log(mokMessage.oldId);
+					console.log('App - '+mokMessage.id);
+					console.log('App - '+mokMessage.oldId);
+					console.log('App - '+conversationId);
 					store.dispatch(actions.updateMessageData(message, conversationId));
 				});
 				
 			}else if(mokMessage.props.file_type == 3){ // image
 				monkey.downloadFile(mokMessage, function(err, data){
-					console.log('image downloaded');
-					console.log(data);
+					console.log('App - image downloaded');
 					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
 					let message = {
 						id: mokMessage.id,
 						data: src
 					}
-					console.log(mokMessage.id);
-					console.log(mokMessage.oldId);
+					console.log('App - '+mokMessage.id);
+					console.log('App - '+mokMessage.oldId);
+					console.log('App - '+conversationId);
 					store.dispatch(actions.updateMessageData(message, conversationId));
 				});
 			}else if(mokMessage.props.file_type == 4){ // file
 				monkey.downloadFile(mokMessage, function(err, data){
-					console.log('file downloaded');
-					console.log(data);
+					console.log('App - file downloaded');
 					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
 					let message = {
 						id: mokMessage.id,
 						data: src
 					}
-					console.log(mokMessage.id);
-					console.log(mokMessage.oldId);
+					console.log('App - '+mokMessage.id);
+					console.log('App - '+mokMessage.oldId);
+					console.log('App - '+conversationId);
 					store.dispatch(actions.updateMessageData(message, conversationId));
 				});
 			}
 			break;
 		}
 	}
-	console.log('message added');
-	console.log(message);
 	store.dispatch(actions.addMessage(message, conversationId));
 }
 
@@ -349,7 +347,7 @@ function defineBubbleMessage(mokMessage){
 	    	}else if(mokMessage.props.file_type == 3){
 		    	message.bubbleType = 'image';
 		    	message.preview = 'Image';
-	    	}else if(mokMessage.file_type == 4){
+	    	}else if(mokMessage.props.file_type == 4){
 		    	message.bubbleType = 'file';
 		    	message.preview = 'File';
 		    	message.filesize = mokMessage.props.size;

@@ -30,9 +30,10 @@ class TimelineChat extends Component {
 		if(this.props.conversationSelected.unreadMessageCount === 0){
 			this.goBottom = true;
 		}
+		this.orderedConversations = this.sortObject(this.props.conversationSelected.messages);
 	}
 	
-	componentWillUpdate(){
+	componentWillUpdate() {
 		
 	}
 
