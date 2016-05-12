@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 var playIntervalBubble;
 var $bubblePlayer;
 
-class BubbleAudio extends React.Component {
+class BubbleAudio extends Component {
 	constructor(props) {
 		super(props);
 		this.messageId = (this.props.message.id[0] == '-' ? (this.props.message.timestamp*1000) : this.props.message.id);

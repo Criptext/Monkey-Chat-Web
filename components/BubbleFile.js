@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-class BubbleFile extends React.Component {
+class BubbleFile extends Component {
 	constructor(props) {
 		super(props);
 	}
