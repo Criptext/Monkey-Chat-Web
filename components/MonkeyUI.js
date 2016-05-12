@@ -9,6 +9,12 @@ import { defineTime } from '../utils/monkey-utils.js'
 import MyForm from './MyForm.js';
 const Form_ = ContentLogin(MyForm);
 
+import BubbleText from './BubbleText.js';
+import BubbleImage from './BubbleImage.js';
+import BubbleFile from './BubbleFile.js';
+import BubbleAudio from './BubbleAudio.js';
+import BubbleLocation from './BubbleLocation.js';
+
 class MonkeyUI extends React.Component {
 	constructor(props){
 		super(props);
@@ -28,7 +34,14 @@ class MonkeyUI extends React.Component {
 	}
 	
 	getChildContext() {
-	    return { userSession: this.props.userSession }
+	    return { 
+		    userSession: this.props.userSession,
+		    text: BubbleText,
+		    image: BubbleImage,
+		    file: BubbleFile,
+		    audio: BubbleAudio,
+		    location: BubbleLocation,
+		}
 	}
 	
 	componentWillMount() {
@@ -162,7 +175,12 @@ MonkeyUI.defaultProps = {
 }
 
 MonkeyUI.childContextTypes = {
-	userSession: React.PropTypes.object
+	userSession: React.PropTypes.object,
+	text: React.PropTypes.any,
+    image: React.PropTypes.any,
+    file: React.PropTypes.any,
+    audio: React.PropTypes.any,
+    location: React.PropTypes.any,
 }
 
 export default MonkeyUI;

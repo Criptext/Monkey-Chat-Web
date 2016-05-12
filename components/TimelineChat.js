@@ -1,24 +1,11 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom';
-
 import Bubble from './Bubble.js';
-import BubbleText from './BubbleText.js';
-import BubbleImage from './BubbleImage.js';
-import BubbleFile from './BubbleFile.js';
-import BubbleAudio from './BubbleAudio.js';
-import BubbleLocation from './BubbleLocation.js';
-
-const BubbleText_ = Bubble(BubbleText);
-const BubbleImage_ = Bubble(BubbleImage);
-const BubbleFile_ = Bubble(BubbleFile);
-const BubbleAudio_ = Bubble(BubbleAudio);
-const BubbleLocation_ = Bubble(BubbleLocation);
 
 class TimelineChat extends Component {
 
 	constructor(props, context) {
-		super(props);
-		context.userSession;
+		super(props, context);
 		this.orderedConversations = [];
 		this.goBottom = false;
 		this.handleScroll = this.handleScroll.bind(this);
@@ -54,20 +41,8 @@ class TimelineChat extends Component {
 			{ Object.keys(this.props.conversationSelected).length
 				? this.orderedConversations.map( item => {
 					const message = this.props.conversationSelected.messages[item.key];
-					switch(message.bubbleType){
-						case 1:
-							return <BubbleText_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'text'} />
-						case 2:
-							return <BubbleImage_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'image'} messageSelected={this.props.messageSelected}/>
-						case 3:
-							return <BubbleFile_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'file'} />
-						case 4:
-							return <BubbleAudio_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'audio'} />
-						case 5:
-							return <BubbleLocation_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={'location'} messageSelected={this.props.messageSelected}/>
-						default:
-							break;
-					}
+					const Bubble_ = Bubble(this.context[message.bubbleType]);
+					return <Bubble_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={message.bubbleType} messageSelected={this.props.messageSelected}/>
 				})
 				: null}
 		</div>)
@@ -124,7 +99,12 @@ class TimelineChat extends Component {
 }
 
 TimelineChat.contextTypes = {
-    userSession: React.PropTypes.object.isRequired
+    userSession: React.PropTypes.object.isRequired,
+    text: React.PropTypes.any.isRequired,
+    image: React.PropTypes.any.isRequired,
+    file: React.PropTypes.any.isRequired,
+    audio: React.PropTypes.any.isRequired,
+    location: React.PropTypes.any.isRequired,
 }
 
 export default TimelineChat;
