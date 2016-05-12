@@ -15,7 +15,7 @@ import BubbleFile from './BubbleFile.js';
 import BubbleAudio from './BubbleAudio.js';
 import BubbleLocation from './BubbleLocation.js';
 
-class MonkeyUI extends React.Component {
+class MonkeyUI extends Component {
 	constructor(props){
 		super(props);
 		this.state = {

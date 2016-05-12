@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineTime } from '../utils/monkey-utils.js'
 
-const Bubble = Component => class extends React.Component {
+const Bubble = Component => class extends Component {
 	constructor(props){
 		super(props);
 		this.styleName;
