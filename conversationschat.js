@@ -207,6 +207,7 @@ function getConversations() {
         }else if(res){
 	        console.log(res);
 	        let conversations = {};
+	        let users = {};
 	        res.data.conversations.map (conversation => {
 		        if(!Object.keys(conversation.info).length)
 		        	return;
@@ -228,10 +229,19 @@ function getConversations() {
 			        conversationTmp.lastOpenMe = undefined,
 			    	conversationTmp.lastOpenApp = undefined,
 			    	conversationTmp.online = undefined
+			    	
+			    	let userTmp = {
+				    	id: conversation.id,
+				    	name: conversation.info.name
+			    	}
+			    	users[userTmp.id] = userTmp;
 		        }
 		        conversations[conversationTmp.id] = conversationTmp;
 	        })
 	        store.dispatch(actions.addConversations(conversations));
+	        if(Object.keys(users).length){
+		        store.dispatch(actions.addUsersContact(users));
+	        }
 	        monkey.getPendingMessages();
         }
     });

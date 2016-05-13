@@ -1,4 +1,4 @@
-import { ADD_USER_SESSION, ADD_USER_CONTACT } from '../actions'
+import { ADD_USER_SESSION, ADD_USER_CONTACT, ADD_USERS_CONTACT } from '../actions'
 
 const users = (state = {}, action) => {
 	switch(action.type) {
@@ -7,6 +7,12 @@ const users = (state = {}, action) => {
 				...state,
 				userSession: action.user,
 			}
+		
+		case ADD_USERS_CONTACT:
+			return {
+				...state,
+				...action.users
+			}
 			
 		case ADD_USER_CONTACT:
 			const userId = action.user.id;
@@ -14,6 +20,7 @@ const users = (state = {}, action) => {
 				...state,
 				[userId]: action.user,
 			}
+		
 		default:
 			return state;
 	}

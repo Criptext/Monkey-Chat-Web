@@ -3,7 +3,10 @@ import { ADD_CONVERSATIONS, ADD_CONVERSATION, UPDATE_CONVERSATION_STATUS, ADD_ME
 const conversations = (state = {}, action) => {
 	switch(action.type) {
 		case ADD_CONVERSATIONS: {
-			return action.conversations
+			return {
+				...state,
+				...action.conversations
+			}
 		}
 		
 		case ADD_CONVERSATION: {
@@ -70,9 +73,6 @@ const conversation = (state, action) => {
 		}
 		
 		case ADD_MESSAGE: {
-			console.log('MESSAGES');
-			console.log(state);
-			console.log(action);
 			var lastMessage;
 			if(action.message.datetimeCreation < state.messages[state.lastMessage].datetimeCreation){
 				lastMessage = state.lastMessage;
