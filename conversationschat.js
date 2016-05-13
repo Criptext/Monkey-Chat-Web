@@ -46,7 +46,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'ife4c0qdb0dopbg538lg14i';
+		user.monkeyId = 'iebhj34e7cs34ljtaffos9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
@@ -90,8 +90,11 @@ store.subscribe(render);
 // --------------- ON CONNECT ----------------- //
 monkey.on('onConnect', function(event){
 	let user = event;
-	console.log(event);
-	if(!store.getState().users.userSession.id){
+	if(!store.getState().users.userSession){
+		console.log('App - onConnect');
+		user.id = event.monkeyId;
+		store.dispatch(actions.addUserSession(user));
+	}else if(!store.getState().users.userSession.id){
 		console.log('App - onConnect');
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
@@ -202,6 +205,7 @@ function getConversations() {
         if(err){
             console.log(err);
         }else if(res){
+	        console.log(res);
 	        let conversations = {};
 	        res.data.conversations.map (conversation => {
 		        if(!Object.keys(conversation.info).length)
