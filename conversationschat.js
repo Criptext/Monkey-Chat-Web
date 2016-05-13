@@ -60,7 +60,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleLoadMessages(conversation, firstMessageId) {	
-		monkey.getConversationMessages(conversation.id, 2, firstMessageId, function(err, res){
+		monkey.getConversationMessages(conversation.id, 10, firstMessageId, function(err, res){
 			if(err){
 	            console.log(err);
 	        }else if(res){
