@@ -6,7 +6,7 @@ var $bubblePlayer;
 class BubbleAudio extends Component {
 	constructor(props) {
 		super(props);
-		this.messageId = (this.props.message.id[0] == '-' ? (this.props.message.timestamp*1000) : this.props.message.id);
+		this.messageId = (this.props.message.id[0] == '-' ? (this.props.message.datetimeCreation) : this.props.message.id);
 		this.state = {
 			disabledClass: 'mky-disabled',
 			minutes: '00',

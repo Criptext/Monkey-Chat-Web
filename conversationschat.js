@@ -332,7 +332,8 @@ function defineMessage(mokMessage) {
 
 function defineBubbleMessage(mokMessage){
 	let message = {
-    	id: mokMessage.id,
+    	id: mokMessage.id.toString(),
+    	oldId: mokMessage.oldId,
     	datetimeCreation: mokMessage.datetimeCreation*1000,
 		datetimeOrder: mokMessage.datetimeOrder,
 		recipientId: mokMessage.recipientId,
@@ -373,7 +374,6 @@ function defineConversationByMessage(mokMessage){
 	let message = defineBubbleMessage(mokMessage);
 	let conversation = {
     	id: mokMessage.senderId,
-    	oldId: mokMessage.oldId,
     	name: 'Unknown',
     	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
     	messages: {

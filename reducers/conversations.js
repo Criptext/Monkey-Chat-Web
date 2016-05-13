@@ -77,6 +77,9 @@ const conversation = (state, action) => {
 		}
 		
 		case UPDATE_MESSAGE_STATUS: {
+			if(!state.messages[action.message.oldId]) // handle repeated update
+				return state;
+			
 			let lastMessage = action.message.oldId === state.lastMessage ? action.message.id : state.lastMessage;
 			return {
 				...state,
