@@ -53,11 +53,19 @@ const conversations = (state = {}, action) => {
 const conversation = (state, action) => {
 	switch (action.type) {
 		case UPDATE_CONVERSATION_STATUS: {
-			return {
-				...state,
-				lastOpenMe: action.conversation.lastOpenMe,
-				lastOpenApp: action.conversation.lastOpenApp,
-				online: action.conversation.online
+			if (action.conversation.online == 0){
+				return {
+					...state,
+					lastOpenMe: action.conversation.lastOpenMe,
+					lastOpenApp: action.conversation.lastOpenApp,
+					online: action.conversation.online
+				}
+			}else{
+				return {
+					...state,
+					lastOpenMe: action.conversation.lastOpenMe,
+					online: action.conversation.online
+				}
 			}
 		}
 		

@@ -114,8 +114,36 @@ monkey.on('onMessage', function(mokMessage){
 
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('onNotification', function(mokMessage){
-// 	console.log('onNotification');
-// 	console.log(mokMessage);
+/*
+	console.log('App - onNotification');
+	console.log(mokMessage);
+*/
+	
+	let notType = mokMessage.protocolCommand;
+	let conversationId = mokMessage.senderId;
+	switch (notType){
+		case 200:{ // message
+			var proType = mokMessage.protocolType;
+			if(proType == 3){ // Temporal Notificatio
+				// HOW USE DATA BY PARAMS
+				let typeTmpNotif = mokMessage.params.type;
+                if (typeTmpNotif == 20 || typeTmpNotif == 21) { // typing state
+                    let conversation = {
+			            id: conversationId,
+			            typing: typeTmpNotif
+		            }
+// 		            store.dispatch(actions.updateConversationTyping(conversation));
+                }
+			}
+		}
+            break;
+        case 203:{ // open arrived
+
+        }
+            break;
+        default:
+            break;
+	}
 });
 
 // -------------- ON ACKNOWLEDGE --------------- //
