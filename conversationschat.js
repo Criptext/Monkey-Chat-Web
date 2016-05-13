@@ -284,6 +284,7 @@ function defineMessage(mokMessage) {
 	let message = defineBubbleMessage(mokMessage);
 	switch (mokMessage.protocolType){
 		case 1:{
+			console.log('App - Case 1')
 			break;
 		}
 		case 2:{
@@ -331,7 +332,11 @@ function defineMessage(mokMessage) {
 			break;
 		}
 	}
-	store.dispatch(actions.addMessage(message, conversationId));
+	console.log('MOK');
+	console.log(message);
+	if(message){
+		store.dispatch(actions.addMessage(message, conversationId));
+	}
 }
 
 function defineBubbleMessage(mokMessage){
@@ -368,6 +373,8 @@ function defineBubbleMessage(mokMessage){
 	    	}
     	}
     		break;
+		case 207:
+			return '';
     	default:
     		break;
     }
