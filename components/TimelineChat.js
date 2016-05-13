@@ -10,6 +10,7 @@ class TimelineChat extends Component {
 		this.goBottom = false;
 		this.scrollTop = 0;
 		this.scrollHeight = 0;
+		this.loadingMessages = 0;
 		this.handleScroll = this.handleScroll.bind(this);
 		this.updateScrollTop = this.updateScrollTop.bind(this);
 		this.state = {
@@ -24,7 +25,14 @@ class TimelineChat extends Component {
 				this.goBottom = true;
 			}
 		}
+		if(this.props.conversationSelected.id != nextProps.conversationSelected.id){
+			this.scrollTop = 0;
+			this.loadingMessages = 0;
+		}
 		this.orderedConversations = this.sortObject(nextProps.conversationSelected.messages);
+		if(Object.keys(nextProps.conversationSelected.messages).length != Object.keys(this.props.conversationSelected.messages).length && nextProps.conversationSelected.lastMessage == this.props.conversationSelected.lastMessage && this.props.conversationSelected.id == nextProps.conversationSelected.id){
+			this.loadingMessages = 1;
+		}
 	}
 	
 	componentWillMount() {
@@ -54,16 +62,16 @@ class TimelineChat extends Component {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
 		//this.domNode.lastChild.scrollIntoView();
 	    this.domNode.addEventListener('scroll', this.handleScroll);
-	    console.log('hi');
 	}
 
 	componentDidUpdate() {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
 		//this.domNode.lastChild.scrollIntoView();
  		this.updateScrollTop();
- 		console.log('height : ' + this.domNode.scrollHeight + " VS " + this.scrollHeight);
- 		if(this.scrollHeight != this.domNode.scrollHeight){
- 			this.domNode.scrollTop = this.domNode.scrollHeight - this.scrollHeight;
+ 		if(this.scrollHeight != this.domNode.scrollHeight && this.loadingMessages){
+ 			this.domNode.scrollTop += this.domNode.scrollHeight - this.scrollHeight;
+ 			this.scrollHeight = this.domNode.scrollHeight;
+ 			this.loadingMessages = 0;
  		}
 	}
 	
@@ -72,7 +80,6 @@ class TimelineChat extends Component {
 
 		if(!this.goBottom && this.domNode.scrollTop != 0){
 			this.scrollTop = this.domNode.scrollTop;
-			console.log('stop');
 			return;
 		}
 		
@@ -81,9 +88,8 @@ class TimelineChat extends Component {
 // 			this.domNode.lastChild.scrollIntoView();
 			
 		}else if(this.domNode.scrollTop === 0 && this.scrollTop != 0){
-			console.log('load here!');
 			this.scrollHeight = this.domNode.scrollHeight;
-			this.props.loadMessages(this.props.conversationSelected, this.orderedConversations[1].key);
+			this.props.loadMessages(this.props.conversationSelected, this.props.conversationSelected.messages[this.orderedConversations[0].key].datetimeCreation/1000);
 		}	
 		this.scrollTop = this.domNode.scrollTop;
 	}

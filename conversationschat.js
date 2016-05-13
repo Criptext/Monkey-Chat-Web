@@ -46,7 +46,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'ife4c0qdb0dopbg538lg14i';
+		user.monkeyId = 'iebhj34e7cs34ljtaffos9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
@@ -60,7 +60,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleLoadMessages(conversation, firstMessageId) {	
-		monkey.getConversationMessages(conversation.id, 2, firstMessageId, function(err, res){
+		monkey.getConversationMessages(conversation.id, 10, firstMessageId, function(err, res){
 			if(err){
 	            console.log(err);
 	        }else if(res){
@@ -90,8 +90,11 @@ store.subscribe(render);
 // --------------- ON CONNECT ----------------- //
 monkey.on('onConnect', function(event){
 	let user = event;
-	console.log(event);
-	if(!store.getState().users.userSession.id){
+	if(!store.getState().users.userSession){
+		console.log('App - onConnect');
+		user.id = event.monkeyId;
+		store.dispatch(actions.addUserSession(user));
+	}else if(!store.getState().users.userSession.id){
 		console.log('App - onConnect');
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
@@ -114,8 +117,36 @@ monkey.on('onMessage', function(mokMessage){
 
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('onNotification', function(mokMessage){
-// 	console.log('onNotification');
-// 	console.log(mokMessage);
+/*
+	console.log('App - onNotification');
+	console.log(mokMessage);
+*/
+	
+	let notType = mokMessage.protocolCommand;
+	let conversationId = mokMessage.senderId;
+	switch (notType){
+		case 200:{ // message
+			var proType = mokMessage.protocolType;
+			if(proType == 3){ // Temporal Notificatio
+				// HOW USE DATA BY PARAMS
+				let typeTmpNotif = mokMessage.params.type;
+                if (typeTmpNotif == 20 || typeTmpNotif == 21) { // typing state
+                    let conversation = {
+			            id: conversationId,
+			            typing: typeTmpNotif
+		            }
+// 		            store.dispatch(actions.updateConversationTyping(conversation));
+                }
+			}
+		}
+            break;
+        case 203:{ // open arrived
+
+        }
+            break;
+        default:
+            break;
+	}
 });
 
 // -------------- ON ACKNOWLEDGE --------------- //
@@ -174,6 +205,7 @@ function getConversations() {
         if(err){
             console.log(err);
         }else if(res){
+	        console.log(res);
 	        let conversations = {};
 	        res.data.conversations.map (conversation => {
 		        if(!Object.keys(conversation.info).length)

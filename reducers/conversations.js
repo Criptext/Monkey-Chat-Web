@@ -53,19 +53,36 @@ const conversations = (state = {}, action) => {
 const conversation = (state, action) => {
 	switch (action.type) {
 		case UPDATE_CONVERSATION_STATUS: {
-			return {
-				...state,
-				lastOpenMe: action.conversation.lastOpenMe,
-				lastOpenApp: action.conversation.lastOpenApp,
-				online: action.conversation.online
+			if (action.conversation.online == 0){
+				return {
+					...state,
+					lastOpenMe: action.conversation.lastOpenMe,
+					lastOpenApp: action.conversation.lastOpenApp,
+					online: action.conversation.online
+				}
+			}else{
+				return {
+					...state,
+					lastOpenMe: action.conversation.lastOpenMe,
+					online: action.conversation.online
+				}
 			}
 		}
 		
 		case ADD_MESSAGE: {
+			console.log('MESSAGES');
+			console.log(state);
+			console.log(action);
+			var lastMessage;
+			if(action.message.datetimeCreation < state.messages[state.lastMessage].datetimeCreation){
+				lastMessage = state.lastMessage;
+			}else{
+				lastMessage = action.message.id
+			}
 			return {
 				...state,
 				messages: messages(state.messages, action),
-				lastMessage: action.message.id
+				lastMessage: lastMessage
 			}
 		}
 		
