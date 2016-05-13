@@ -10,6 +10,7 @@ class TimelineChat extends Component {
 		this.goBottom = false;
 		this.scrollTop = 0;
 		this.scrollHeight = 0;
+		this.conversationId;
 		this.loadingMessages = 0;
 		this.handleScroll = this.handleScroll.bind(this);
 		this.updateScrollTop = this.updateScrollTop.bind(this);
@@ -30,6 +31,15 @@ class TimelineChat extends Component {
 			this.loadingMessages = 0;
 		}
 		this.orderedConversations = this.sortObject(nextProps.conversationSelected.messages);
+		console.log('SUPER DATA');
+		console.log(nextProps.conversationSelected);
+		console.log(nextProps.conversationSelected.messages.length+ ", " +this.props.conversationSelected.messages.length);
+		console.log(nextProps.conversationSelected.lastMessage + ", "+ this.props.conversationSelected.lastMessage);
+		console.log(this.props.conversationSelected.id + ', '+ nextProps.conversationSelected.id);
+		if(Object.keys(nextProps.conversationSelected.messages).length != Object.keys(this.props.conversationSelected.messages).length && nextProps.conversationSelected.lastMessage == this.props.conversationSelected.lastMessage && this.props.conversationSelected.id == nextProps.conversationSelected.id){
+			console.log('loading back message');
+			this.loadingMessages = 1;
+		}
 	}
 	
 	componentWillMount() {
@@ -68,6 +78,7 @@ class TimelineChat extends Component {
  		if(this.scrollHeight != this.domNode.scrollHeight && this.loadingMessages){
  			this.domNode.scrollTop += this.domNode.scrollHeight - this.scrollHeight;
  			this.scrollHeight = this.domNode.scrollHeight;
+ 			console.log('updateando ando');
  			this.loadingMessages = 0;
  		}
 	}
@@ -88,7 +99,6 @@ class TimelineChat extends Component {
 		}else if(this.domNode.scrollTop === 0 && this.scrollTop != 0){
 			console.log('load here! ' + this.domNode.scrollHeight);
 			this.scrollHeight = this.domNode.scrollHeight;
-			this.loadingMessages = 1;
 			this.props.loadMessages(this.props.conversationSelected, this.props.conversationSelected.messages[this.orderedConversations[0].key].datetimeCreation/1000);
 			console.log(this.orderedConversations);
 		}	
