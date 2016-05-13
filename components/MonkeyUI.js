@@ -13,6 +13,27 @@ import BubbleFile from './BubbleFile.js';
 import BubbleAudio from './BubbleAudio.js';
 import BubbleLocation from './BubbleLocation.js';
 
+var isMobile = {
+    Android: function() {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function() {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function() {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera: function() {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function() {
+        return navigator.userAgent.match(/IEMobile/i);
+    },
+    any: function() {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+    }
+};
+
 class MonkeyUI extends Component {
 	constructor(props){
 		super(props);
@@ -20,19 +41,22 @@ class MonkeyUI extends Component {
 			conversation: {},
 			tabStyle: undefined,
 			classLoading: 'mky-disappear',
-			idTabButton: 'mky-w-max'
+			idTabButton: 'mky-w-max',
+			isMobile: isMobile.any() ? true : false,
+			showConversations:true
 		}
 		this.openTab = this.openTab.bind(this);
 		this.handleLoginSession = this.handleLoginSession.bind(this);
 		this.handleConversationSelected = this.handleConversationSelected.bind(this);
 		this.handleMessageCreated = this.handleMessageCreated.bind(this);
 		this.classContent;
-		this.showConversations = true;
+		// this.showConversations = true;
 		this.expandWindow = false;
+		this.handleShowAside = this.handleShowAside.bind(this);
 	}
-	
+
 	getChildContext() {
-	    return { 
+	    return {
 		    userSession: this.props.userSession,
 		    text: BubbleText,
 		    image: BubbleImage,
@@ -41,10 +65,10 @@ class MonkeyUI extends Component {
 		    location: BubbleLocation,
 		}
 	}
-	
+
 	componentWillMount() {
 		this.setState({conversation: this.props.conversation});
-		
+
 		let screenMode;
 		if(this.props.view.type === 'fullscreen'){
 			screenMode = 'fullsize';
@@ -57,13 +81,14 @@ class MonkeyUI extends Component {
 			this.setState({tabStyle: style});
 		}
 		this.classContent = this.props.prefix+screenMode+' '+this.props.prefix+this.props.view.type;
-		
+
 		if(this.props.view.type === 'classic'){
-			this.showConversations = false;
+			// this.showConversations = false;
+			this.setState({showConversations:false});
 			this.expandWindow = true;
 		}
 	}
-	
+
 	componentWillReceiveProps(nextProps) {
 		if(nextProps.conversation){ // conversation selected sent by props
 			this.setState({conversation: nextProps.conversation});
@@ -72,11 +97,11 @@ class MonkeyUI extends Component {
 		}
 		this.setState({conversations: nextProps.conversations});
 	}
-	
+
 	render() {
     	return (
 			<div className={'mky-wrapper-out '+this.classContent} style={this.state.tabStyle}>
-				
+
 				{ this.props.view.type === 'classic'
 					? (
 						<div className='mky-tab'>
@@ -97,11 +122,12 @@ class MonkeyUI extends Component {
 										<div className='mky-bounce3'></div>
 									</div>
 								</div>
-								{ this.showConversations
+								{ this.state.showConversations
 									? <ContentAside conversations={this.state.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
 									: null
 								}
-								<ContentWindow loadMessages={this.props.loadMessages} conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow}/>
+
+								<ContentWindow loadMessages={this.props.loadMessages} conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow} expandAside={this.handleShowAside} isMobile={this.state.isMobile}/>
 							</div>
 						)
 						: <Form_ handleLoginSession={this.handleLoginSession} />
@@ -110,7 +136,7 @@ class MonkeyUI extends Component {
 			</div>
 		)
 	}
-	
+
 	openTab() {
 		if(this.state.idTabButton === 'mky-w-max'){
 			this.setState({
@@ -128,11 +154,11 @@ class MonkeyUI extends Component {
 			});
 		}
 	}
-	
+
 	handleLoginSession(user) {
 		this.props.userSessionToSet(user);
 	}
-	
+
 	setLoading(value) {
 		if(value){
 			this.setState({classLoading: 'mky-appear'});
@@ -140,17 +166,27 @@ class MonkeyUI extends Component {
 			this.setState({classLoading: 'mky-disappear'});
 		}
 	}
-	
+
 	handleConversationAdd(conversation) {
 	  	this.setState({conversations: this.state.conversations.concat(conversation)})
 	}
-	
+
 	handleConversationSelected(conversation) {
 		this.setState({conversation: conversation});
 		this.props.conversationOpened(conversation);
+		if (this.state.isMobile) {
+			this.setState({showConversations:false}); //escondiendo el aside solo cuando esta en mobile
+		}
+
 	}
-	
-	handleMessageCreated(message){	
+
+	handleShowAside(){
+		if (this.state.isMobile) {
+			this.setState({showConversations:true}); //mostrando el aside solo cuando esta en mobile
+		}
+	}
+
+	handleMessageCreated(message){
 		var timestamp = new Date().getTime();
 		message.senderId = this.props.userSession.id;
 		message.recipientId = this.state.conversation.id;
