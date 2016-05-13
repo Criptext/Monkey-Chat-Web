@@ -32,7 +32,12 @@ class ContentConversation extends Component {
 		return (
 	    	<div className='mky-content-conversation'>
 				<header id='mky-conversation-selected-header'>
-					<div className="mky-conversation-burger" onClick={this.showAside}> <button className="burger-menu-btn"></button> </div>
+					{
+						this.props.isMobile ?
+							<div className="mky-conversation-burger" onClick={this.showAside}> <button className="burger-menu-btn"></button> </div>
+							:null
+					}
+
 					<div id='mky-conversation-selected-image'><img src={this.props.conversationSelected.urlAvatar}/></div>
 					<div id='mky-conversation-selected-description'>
 						<span id='mky-conversation-selected-name'>{this.props.conversationSelected.name}</span>
@@ -40,7 +45,7 @@ class ContentConversation extends Component {
 							? ( this.props.conversationSelected.online == 0
 								? <span id='mky-conversation-selected-status'> {'Last seen ' + defineTime(this.props.conversationSelected.lastOpenApp)}</span>
 								: <span id='mky-conversation-selected-status'> Online </span>
-							)	
+							)
 							: <span id='mky-conversation-selected-status'> {this.listMembers(this.props.conversationSelected.members)}</span>
 						}
 					</div>
