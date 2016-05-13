@@ -4,8 +4,6 @@ import ContentAside from './ContentAside.js';
 import ContentWindow from './ContentWindow.js';
 import ContentLogin from './ContentLogin.js';
 
-import { defineTime } from '../utils/monkey-utils.js'
-
 import MyForm from './MyForm.js';
 const Form_ = ContentLogin(MyForm);
 
@@ -156,7 +154,6 @@ class MonkeyUI extends Component {
 		var timestamp = new Date().getTime();
 		message.senderId = this.props.userSession.id;
 		message.recipientId = this.state.conversation.id;
-		message.timestamp = defineTime(timestamp);
 		message.status = 0;
 		this.props.messageToSet(message);
 	}
