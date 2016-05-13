@@ -8,13 +8,13 @@ class ContentWindow extends Component {
 		this.classExpand = 'mky-content-window-with';
 		this.classStateWindow = 'mky-disabled';
 	}
-	
+
 	componentWillMount() {
 		if(this.props.expandWindow){
 			this.classExpand = 'mky-content-window-only';
 		}
 	}
-	
+
 	render() {
 		if(this.props.conversationSelected != undefined){
 			this.classStateWindow = '';
@@ -24,7 +24,7 @@ class ContentWindow extends Component {
 	    	<section className={this.classExpand+' '+this.classStateWindow}>
 	    	{
 		    	this.props.conversationSelected
-		    	? <ContentConversation loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageCreated={this.props.messageCreated}/>
+		    	? <ContentConversation loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageCreated={this.props.messageCreated} isMobile={this.props.isMobile} expandAside={this.props.expandAside}/>
 		    	: <ContentIntro />
 	    	}
 			</section>
