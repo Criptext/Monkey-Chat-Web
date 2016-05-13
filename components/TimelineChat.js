@@ -8,10 +8,11 @@ class TimelineChat extends Component {
 		super(props, context);
 		this.orderedConversations = [];
 		this.goBottom = false;
+		this.scrollTop = 0;
+		this.scrollHeight = 0;
 		this.handleScroll = this.handleScroll.bind(this);
 		this.updateScrollTop = this.updateScrollTop.bind(this);
 		this.state = {
-			scrollTop : 0,
 			update: 0
 		}
 		this.domNode;
@@ -53,18 +54,24 @@ class TimelineChat extends Component {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
 		//this.domNode.lastChild.scrollIntoView();
 	    this.domNode.addEventListener('scroll', this.handleScroll);
+	    console.log('hi');
 	}
 
 	componentDidUpdate() {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
 		//this.domNode.lastChild.scrollIntoView();
  		this.updateScrollTop();
+ 		console.log('height : ' + this.domNode.scrollHeight + " VS " + this.scrollHeight);
+ 		if(this.scrollHeight != this.domNode.scrollHeight){
+ 			this.domNode.scrollTop = this.domNode.scrollHeight - this.scrollHeight;
+ 		}
 	}
 	
 	updateScrollTop(){
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
 
 		if(!this.goBottom && this.domNode.scrollTop != 0){
+			this.scrollTop = this.domNode.scrollTop;
 			console.log('stop');
 			return;
 		}
@@ -73,10 +80,12 @@ class TimelineChat extends Component {
 			this.goBottom = false;
 // 			this.domNode.lastChild.scrollIntoView();
 			
-		}else if(this.domNode.scrollTop === 0){
+		}else if(this.domNode.scrollTop === 0 && this.scrollTop != 0){
 			console.log('load here!');
-			this.props.loadMessages(this.props.conversationSelected);
+			this.scrollHeight = this.domNode.scrollHeight;
+			this.props.loadMessages(this.props.conversationSelected, this.orderedConversations[1].key);
 		}	
+		this.scrollTop = this.domNode.scrollTop;
 	}
 
 	handleScroll(event) {

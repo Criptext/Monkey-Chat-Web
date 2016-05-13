@@ -46,7 +46,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
+		user.monkeyId = 'ife4c0qdb0dopbg538lg14i';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
@@ -59,10 +59,15 @@ class MonkeyChat extends Component {
 		monkey.sendOpenToUser(conversation.id);
 	}
 	
-	handleLoadMessages(conversation) {
-		console.log('load more messages from conversation');
-		monkey.getConversationMessages(conversation.id, 10, conversation.messages[0], function(){
-			console.log('hello its me from the get conversations ' + conversation.messages);
+	handleLoadMessages(conversation, firstMessageId) {	
+		monkey.getConversationMessages(conversation.id, 2, firstMessageId, function(err, res){
+			if(err){
+	            console.log(err);
+	        }else if(res){
+				res.map( message => {
+					defineMessage(message);
+				});
+			}
 		});
 	}
 /*
@@ -258,13 +263,17 @@ function prepareMessage(message) {
 }
 
 function defineMessage(mokMessage) {
+	console.log('EN DEFINE MESSAGE');
 	console.log(mokMessage);
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
-	
+	console.log(store.getState());
 	if(!store.getState().conversations[conversationId]){
+		console.log('HEY IM HEEEEEEEEEEEEREEEEEEEEEEE!!');
 		let conversation = defineConversationByMessage(mokMessage);
 		store.dispatch(actions.addConversation(conversation));
 		return;
+	}else{
+		console.log('si esta la conversacion!!!!');
 	}
 	
 	
