@@ -53,6 +53,7 @@ class MonkeyUI extends Component {
 		// this.showConversations = true;
 		this.expandWindow = false;
 		this.handleShowAside = this.handleShowAside.bind(this);
+		this.isLoading = false;
 	}
 
 	getChildContext() {
@@ -96,6 +97,12 @@ class MonkeyUI extends Component {
 			this.setState({conversation: nextProps.conversations[this.state.conversation.id]});
 		}
 		this.setState({conversations: nextProps.conversations});
+		
+		if(nextProps.userSession.id && this.state.classLoading === 'mky-appear'){
+			this.isLoading = false;
+			this.setLoading(this.isLoading);
+			console.log('App - login ok');
+		}
 	}
 
 	render() {
@@ -156,7 +163,10 @@ class MonkeyUI extends Component {
 	}
 
 	handleLoginSession(user) {
+		console.log('App - login name');
 		this.props.userSessionToSet(user);
+		this.isLoading = true;
+		this.setLoading(this.isLoading);
 	}
 
 	setLoading(value) {
