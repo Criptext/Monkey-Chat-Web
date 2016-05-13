@@ -436,3 +436,48 @@ body, html {
 #mky-button-send-message:hover{
   background: none;
 }
+
+
+
+
+/*CSS FOR MOBILE VERSION*/
+.mky-conversation-burger{
+  display: inline-block;
+  vertical-align: top;
+  float: left;
+  width: 50px;
+}
+.burger-menu-btn{
+  position: relative;
+  background-color: none;
+  border: none;
+  width: 45px;
+  height: 45px;
+  background: url('https://cdn4.iconfinder.com/data/icons/flat-black/128/menu.png');
+  background-size: 98%;
+  background-position: 50%;
+  margin-top: 11px;
+  cursor: pointer;
+}
+@media screen and (-webkit-min-device-pixel-ratio: 1) and (max-device-width: 640px) and (min-device-width: 320px){
+  .mky-wrapper-out aside{
+    display: block !important;
+    width: 100%;
+  }
+  .mky-conversation-description{
+    display: inline-block;
+  }
+  .mky-conversation-image{
+    margin: 7px;
+    float: left;
+  }
+  .mky-message-line{
+      max-width: 200px;
+      word-break: break-all;
+  }
+  #mky-conversation-selected-description{
+    width: calc(100% - 165px);
+  }
+
+
+}

@@ -16,6 +16,7 @@ class ContentConversation extends Component {
 		this.handleMessageSelected = this.handleMessageSelected.bind(this);
 		this.handleShowModal = this.handleShowModal.bind(this);
 		this.listMembers = this.listMembers.bind(this);
+		this.showAside = this.showAside.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps){
@@ -31,11 +32,12 @@ class ContentConversation extends Component {
 		return (
 	    	<div className='mky-content-conversation'>
 				<header id='mky-conversation-selected-header'>
+					<div className="mky-conversation-burger" onClick={this.showAside}> <button className="burger-menu-btn"></button> </div>
 					<div id='mky-conversation-selected-image'><img src={this.props.conversationSelected.urlAvatar}/></div>
 					<div id='mky-conversation-selected-description'>
 						<span id='mky-conversation-selected-name'>{this.props.conversationSelected.name}</span>
 						{ !isConversationGroup(this.props.conversationSelected.id)
-							? ( this.props.conversationSelected.online == 0 
+							? ( this.props.conversationSelected.online == 0
 								? <span id='mky-conversation-selected-status'> {'Last seen ' + defineTime(this.props.conversationSelected.lastOpenApp)}</span>
 								: <span id='mky-conversation-selected-status'> Online </span>
 							)	
@@ -48,7 +50,7 @@ class ContentConversation extends Component {
 					? <LocationInput messageCreated={this.props.messageCreated} disableGeoInput={this.disableGeoInput.bind(this)} />
 					: ( <div className='mky-chat-area'>
 							<TimelineChat loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageSelected={this.handleMessageSelected}/>
-							{ this.state.messageSelected 
+							{ this.state.messageSelected
 								? <ContentModal messageSelected={this.state.messageSelected}  showModal={this.handleShowModal}/>
 								: null
 							}
@@ -67,7 +69,7 @@ class ContentConversation extends Component {
 	handleShowModal(){
 		this.setState({messageSelected: undefined});
 	}
-	
+
 	listMembers(members){
 /*
 		var list = [];
@@ -77,6 +79,13 @@ class ContentConversation extends Component {
 		return list.join(', ');
 */
 		return 'group conversation';
+	}
+
+	showAside(){
+		if (this.props.isMobile) {
+			this.props.expandAside(true);
+		}
+
 	}
 
 	enableGeoInput(){
