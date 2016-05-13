@@ -120,7 +120,7 @@ monkey.on('onNotification', function(mokMessage){
 
 // -------------- ON ACKNOWLEDGE --------------- //
 monkey.on('onAcknowledge', function(mokMessage){
-	console.log('onAcknowledge');
+	console.log('App - onAcknowledge');
 	console.log(mokMessage);
 	
 	let ackType = mokMessage.protocolType;
@@ -151,7 +151,7 @@ monkey.on('onAcknowledge', function(mokMessage){
         }
         break;
         case 203:{ // open conversation
-            console.log('open conversation received by the user');
+            console.log('App - open conversation received by the user');
             let conversation = {
 	            id: conversationId,
 	            lastOpenMe: Number(mokMessage.props.last_open_me)*1000,
