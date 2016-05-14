@@ -1,19 +1,17 @@
 import React, { Component } from 'react'
-import {render} from 'react-dom';
-import ContentAside from './ContentAside.js';
-import ContentWindow from './ContentWindow.js';
-import ContentLogin from './ContentLogin.js';
+import {render} from 'react-dom'
+import ContentAside from './ContentAside.js'
+import ContentWindow from './ContentWindow.js'
 
-import MyForm from './MyForm.js';
-const Form_ = ContentLogin(MyForm);
+import BubbleText from './BubbleText.js'
+import BubbleImage from './BubbleImage.js'
+import BubbleFile from './BubbleFile.js'
+import BubbleAudio from './BubbleAudio.js'
+import BubbleLocation from './BubbleLocation.js'
 
-import BubbleText from './BubbleText.js';
-import BubbleImage from './BubbleImage.js';
-import BubbleFile from './BubbleFile.js';
-import BubbleAudio from './BubbleAudio.js';
-import BubbleLocation from './BubbleLocation.js';
+import ContentLogin from './ContentLogin.js'
 
-var isMobile = {
+const isMobile = {
     Android: function() {
         return navigator.userAgent.match(/Android/i);
     },
@@ -64,6 +62,7 @@ class MonkeyUI extends Component {
 		    file: BubbleFile,
 		    audio: BubbleAudio,
 		    location: BubbleLocation,
+		    form: this.props.form
 		}
 	}
 
@@ -106,6 +105,7 @@ class MonkeyUI extends Component {
 	}
 
 	render() {
+		const Form_ = ContentLogin(this.props.form);
     	return (
 			<div className={'mky-wrapper-out '+this.classContent} style={this.state.tabStyle}>
 
@@ -206,7 +206,8 @@ class MonkeyUI extends Component {
 }
 
 MonkeyUI.propTypes = {
-	view: React.PropTypes.object
+	view: React.PropTypes.object,
+	form: React.PropTypes.any.isRequired
 }
 
 MonkeyUI.defaultProps = {
@@ -224,6 +225,7 @@ MonkeyUI.childContextTypes = {
     file: React.PropTypes.any,
     audio: React.PropTypes.any,
     location: React.PropTypes.any,
+    form: React.PropTypes.any
 }
 
 export default MonkeyUI;
