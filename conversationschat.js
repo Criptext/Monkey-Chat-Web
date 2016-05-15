@@ -118,7 +118,6 @@ monkey.on('onMessage', function(mokMessage){
 monkey.on('onNotification', function(mokMessage){
 
 	console.log('App - onNotification');
-	console.log(mokMessage);	
 	
 	let notType = mokMessage.protocolCommand;
 	let conversationId = mokMessage.senderId;
