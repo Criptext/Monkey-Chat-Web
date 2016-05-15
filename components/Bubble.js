@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import { defineTime } from '../utils/monkey-utils.js'
 
 const Bubble = Component => class extends Component {
@@ -24,14 +24,13 @@ const Bubble = Component => class extends Component {
 							? <span className="mky-message-user-name">{this.props.message.name}</span>
 							: null
 						)
-
 					}
 						<span className="mky-message-hour">{defineTime(this.props.message.datetimeCreation)}</span>
 					</div>
 					<Component {...this.props}/>
 				</div>
 			</div>
-		);
+		)
 	}
 	
 	defineStatusClass(status) {

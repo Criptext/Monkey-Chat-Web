@@ -7,18 +7,18 @@ class ContentViewer extends Component {
 	
 	render() {
 		return(
-				<div className="mky-viewer-image-container">
-					<div className="mky-viewer-toolbar">
-						<a href={this.props.messageData} download="file" >
-							<button className="mky-button-download" title="Download">Download</button>
-						</a>
-						<button className="mky-button-download" title="Download" >Print</button>
-					</div>
-					<div id="file_viewer_image" className="mky-viewer-image">
-						<img  src={this.props.messageData}/>
-					</div>
+			<div className="mky-viewer-image-container">
+				<div className="mky-viewer-toolbar">
+					<a href={this.props.message.data} download="file" >
+						<button className="mky-button-download" title="Download">Download</button>
+					</a>
+					<button className="mky-button-download" title="Download" >Print</button>
 				</div>
-			);
+				<div id="file_viewer_image" className="mky-viewer-image">
+					<img  src={this.props.message.data}/>
+				</div>
+			</div>
+		)
 	}
 
 }

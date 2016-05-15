@@ -1,5 +1,6 @@
 export const ADD_USER_SESSION = 'ADD_USER_SESSION'
 export const ADD_USER_CONTACT = 'ADD_USER_CONTACT'
+export const ADD_USERS_CONTACT = 'ADD_USERS_CONTACT'
 
 export const ADD_MESSAGE = 'ADD_MESSAGE'
 export const UPDATE_MESSAGE_STATUS = 'UPDATE_MESSAGE_STATUS'
@@ -20,6 +21,13 @@ export const addUserContact = (user) => {
 	return {
 		type: ADD_USER_CONTACT,
 		user: user
+	}
+}
+
+export const addUsersContact = (users) => {
+	return {
+		type: ADD_USERS_CONTACT,
+		users: users
 	}
 }
 

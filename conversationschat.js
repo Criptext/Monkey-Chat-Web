@@ -12,6 +12,8 @@ import initData from './utils/data'
 import * as actions from './actions'
 import dataConversation from './utils/dataNewConversation'
 
+import MyForm from './components/MyForm.js'
+
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 
@@ -41,7 +43,7 @@ class MonkeyChat extends Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm}/>
 		)
 	}
 	
@@ -91,11 +93,9 @@ store.subscribe(render);
 monkey.on('onConnect', function(event){
 	let user = event;
 	if(!store.getState().users.userSession){
-		console.log('App - onConnect');
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}else if(!store.getState().users.userSession.id){
-		console.log('App - onConnect');
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}
@@ -111,17 +111,11 @@ monkey.on('onDisconnect', function(event){
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('onMessage', function(mokMessage){
-	console.log('App - onMessage');
 	defineMessage(mokMessage);
 });
 
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('onNotification', function(mokMessage){
-/*
-	console.log('App - onNotification');
-	console.log(mokMessage);
-*/
-	
 	let notType = mokMessage.protocolCommand;
 	let conversationId = mokMessage.senderId;
 	switch (notType){
@@ -151,15 +145,11 @@ monkey.on('onNotification', function(mokMessage){
 
 // -------------- ON ACKNOWLEDGE --------------- //
 monkey.on('onAcknowledge', function(mokMessage){
-	console.log('App - onAcknowledge');
-	console.log(mokMessage);
 	
 	let ackType = mokMessage.protocolType;
 	let conversationId = mokMessage.senderId;
 	switch (ackType){
         case 1:{ // text
-            console.log('text message received by the user');
-            
             let message = {
 				id: mokMessage.id,
 				oldId: mokMessage.oldId,
@@ -170,8 +160,6 @@ monkey.on('onAcknowledge', function(mokMessage){
         }
 		break;
         case 2:{ // media
-            console.log('file message received by the user');
-
             let message = {
 				id: mokMessage.id,
 				oldId: mokMessage.oldId,
@@ -182,7 +170,6 @@ monkey.on('onAcknowledge', function(mokMessage){
         }
         break;
         case 203:{ // open conversation
-            console.log('App - open conversation received by the user');
             let conversation = {
 	            id: conversationId,
 	            lastOpenMe: Number(mokMessage.props.last_open_me)*1000,
@@ -190,9 +177,8 @@ monkey.on('onAcknowledge', function(mokMessage){
 	            online: Number(mokMessage.props.online)
             }
             store.dispatch(actions.updateConversationStatus(conversation));
-//             _conversation.setLastOpenMe(_lastOpenMe);
             //monkeyUI.updateStatusMessageBubbleByTime(_conversationId,_lastOpenMe);
-//             monkeyUI.updateOnlineStatus(_lastOpenApp,_online);
+
         }
         break;
         default:
@@ -205,8 +191,8 @@ function getConversations() {
         if(err){
             console.log(err);
         }else if(res){
-	        console.log(res);
 	        let conversations = {};
+	        let users = {};
 	        res.data.conversations.map (conversation => {
 		        if(!Object.keys(conversation.info).length)
 		        	return;
@@ -228,10 +214,20 @@ function getConversations() {
 			        conversationTmp.lastOpenMe = undefined,
 			    	conversationTmp.lastOpenApp = undefined,
 			    	conversationTmp.online = undefined
+			    	
+			    	let userTmp = {
+				    	id: conversation.id,
+				    	name: conversation.info.name
+			    	}
+			    	users[userTmp.id] = userTmp;
 		        }
 		        conversations[conversationTmp.id] = conversationTmp;
 	        })
+	        
 	        store.dispatch(actions.addConversations(conversations));
+	        if(Object.keys(users).length){
+		        store.dispatch(actions.addUsersContact(users));
+	        }
 	        monkey.getPendingMessages();
         }
     });
@@ -249,22 +245,6 @@ function prepareMessage(message) {
 			break;
 		}
 		case 'image': { // bubble image
-/*
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, false, null, null, function(err, mokMessage){
-				if (err){
-					console.log(err);
-				}else{
-					let message = {
-						id: mokMessage.id,
-						oldId: mokMessage.oldId,
-						status: 51,
-						recipientId: mokMessage.recipientId
-					}
-					console.log('image acepted');
-// 					store.dispatch(actions.updateMessageStatus(message, message.recipientId));
-				}
-			});
-*/
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -295,18 +275,11 @@ function prepareMessage(message) {
 }
 
 function defineMessage(mokMessage) {
-	console.log('EN DEFINE MESSAGE');
-	console.log(mokMessage);
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
-	console.log(store.getState());
-	if(!store.getState().conversations[conversationId]){
-		console.log('HEY IM HEEEEEEEEEEEEREEEEEEEEEEE!!');
+	if(!store.getState().conversations[conversationId]){ // handle does not exits conversations
 		defineConversationByMessage(mokMessage);
 		return;
-	}else{
-		console.log('si esta la conversacion!!!!');
 	}
-	
 	
 	let message = defineBubbleMessage(mokMessage);
 	switch (mokMessage.protocolType){
@@ -421,5 +394,4 @@ function defineConversationByMessage(mokMessage){
 		}
 		store.dispatch(actions.addConversation(conversation));
 	});
-
 }

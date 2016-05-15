@@ -1,19 +1,20 @@
 import React, { Component } from 'react'
-import {render} from 'react-dom';
-import ContentAside from './ContentAside.js';
-import ContentWindow from './ContentWindow.js';
-import ContentLogin from './ContentLogin.js';
+import {render} from 'react-dom'
+import ContentAside from './ContentAside.js'
+import ContentWindow from './ContentWindow.js'
 
-import MyForm from './MyForm.js';
-const Form_ = ContentLogin(MyForm);
+import ContentLogin from './ContentLogin.js'
 
-import BubbleText from './BubbleText.js';
-import BubbleImage from './BubbleImage.js';
-import BubbleFile from './BubbleFile.js';
-import BubbleAudio from './BubbleAudio.js';
-import BubbleLocation from './BubbleLocation.js';
+import BubbleText from './BubbleText.js'
+import BubbleImage from './BubbleImage.js'
+import BubbleFile from './BubbleFile.js'
+import BubbleAudio from './BubbleAudio.js'
+import BubbleLocation from './BubbleLocation.js'
 
-var isMobile = {
+import ContentViewer from './ContentViewer.js'
+import ReceivedLocation from './ReceivedLocation.js'
+
+const isMobile = {
     Android: function() {
         return navigator.userAgent.match(/Android/i);
     },
@@ -32,7 +33,7 @@ var isMobile = {
     any: function() {
         return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
     }
-};
+}
 
 class MonkeyUI extends Component {
 	constructor(props){
@@ -59,11 +60,17 @@ class MonkeyUI extends Component {
 	getChildContext() {
 	    return {
 		    userSession: this.props.userSession,
-		    text: BubbleText,
-		    image: BubbleImage,
-		    file: BubbleFile,
-		    audio: BubbleAudio,
-		    location: BubbleLocation,
+		    bubbles: {
+			    text: BubbleText,
+			    image: BubbleImage,
+			    file: BubbleFile,
+			    audio: BubbleAudio,
+			    location: BubbleLocation
+		    },
+		    bubblePreviews: {
+			    image: ContentViewer,
+			    location: ReceivedLocation
+		    }
 		}
 	}
 
@@ -106,6 +113,7 @@ class MonkeyUI extends Component {
 	}
 
 	render() {
+		const Form_ = ContentLogin(this.props.form);
     	return (
 			<div className={'mky-wrapper-out '+this.classContent} style={this.state.tabStyle}>
 
@@ -187,7 +195,6 @@ class MonkeyUI extends Component {
 		if (this.state.isMobile) {
 			this.setState({showConversations:false}); //escondiendo el aside solo cuando esta en mobile
 		}
-
 	}
 
 	handleShowAside(){
@@ -206,7 +213,8 @@ class MonkeyUI extends Component {
 }
 
 MonkeyUI.propTypes = {
-	view: React.PropTypes.object
+	view: React.PropTypes.object,
+	form: React.PropTypes.any.isRequired
 }
 
 MonkeyUI.defaultProps = {
@@ -219,11 +227,8 @@ MonkeyUI.defaultProps = {
 
 MonkeyUI.childContextTypes = {
 	userSession: React.PropTypes.object,
-	text: React.PropTypes.any,
-    image: React.PropTypes.any,
-    file: React.PropTypes.any,
-    audio: React.PropTypes.any,
-    location: React.PropTypes.any,
+	bubbles: React.PropTypes.object,
+	bubblePreviews: React.PropTypes.object
 }
 
 export default MonkeyUI;
