@@ -283,15 +283,10 @@ function prepareMessage(message) {
 
 function defineMessage(mokMessage) {
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
-<<<<<<< HEAD
-	if(!store.getState().conversations[conversationId]){ // handle does not exits conversations
-		defineConversationByMessage(mokMessage);
-=======
-	console.log(store.getState());
+
 	if(!store.getState().conversations[conversationId]){
 		let conversation = defineConversationByMessage(mokMessage);
 		store.dispatch(actions.addConversation(conversation));
->>>>>>> UNSEEEEEEEEEEEENDgit add .git add .
 		return;
 	}
 	
