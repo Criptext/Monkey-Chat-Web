@@ -51,7 +51,7 @@ class TimelineChat extends Component {
 			{ Object.keys(this.props.conversationSelected).length
 				? this.orderedConversations.map( item => {
 					const message = this.props.conversationSelected.messages[item.key];
-					const Bubble_ = Bubble(this.context[message.bubbleType]);
+					const Bubble_ = Bubble(this.context.bubbles[message.bubbleType]);
 					return <Bubble_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={message.bubbleType} messageSelected={this.props.messageSelected}/>
 				})
 				: null}
@@ -116,11 +116,7 @@ class TimelineChat extends Component {
 
 TimelineChat.contextTypes = {
     userSession: React.PropTypes.object.isRequired,
-    text: React.PropTypes.any.isRequired,
-    image: React.PropTypes.any.isRequired,
-    file: React.PropTypes.any.isRequired,
-    audio: React.PropTypes.any.isRequired,
-    location: React.PropTypes.any.isRequired,
+    bubbles: React.PropTypes.object.isRequired,
 }
 
 export default TimelineChat;

@@ -11,8 +11,8 @@ export default class ReceivedLocation extends Component {
       lng: -79.9000,
       markers: [
         {
-          position: props.yourPosition,
-          content: props.address,
+          position: {lat: props.message.lat, lng: props.message.lng},
+          content: props.message.text,
           animation: 0
         }  
       ]

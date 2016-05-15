@@ -1,14 +1,15 @@
-import React, { Component } from 'react';
-import TimelineChat from './TimelineChat.js';
-import Input from './Input.js';
-import LocationInput from './LocationInput.js';
-import ContentModal from './ContentModal.js';
+import React, { Component } from 'react'
+import TimelineChat from './TimelineChat.js'
+import Input from './Input.js'
+import LocationInput from './LocationInput.js'
+
+import Modal from './Modal.js'
 
 import { defineTime, isConversationGroup } from '../utils/monkey-utils.js'
 
 class ContentConversation extends Component {
-	constructor(props) {
-		super(props);
+	constructor(props, context) {
+		super(props, context);
 		this.state = {
 			showLocationInput: false,
 			messageSelected: undefined
@@ -29,6 +30,10 @@ class ContentConversation extends Component {
 	}
 
 	render() {
+		if(this.state.messageSelected){
+			const Modal_ = Modal(this.context.bubblePreviews[this.state.messageSelected.bubbleType]);
+		}
+		
 		return (
 	    	<div className='mky-content-conversation'>
 				<header id='mky-conversation-selected-header'>
@@ -56,7 +61,7 @@ class ContentConversation extends Component {
 					: ( <div className='mky-chat-area'>
 							<TimelineChat loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageSelected={this.handleMessageSelected}/>
 							{ this.state.messageSelected
-								? <ContentModal messageSelected={this.state.messageSelected}  showModal={this.handleShowModal}/>
+								? <Modal_ messageSelected={this.state.messageSelected}  showModal={this.handleShowModal}/>
 								: null
 							}
 							<Input enableGeoInput={this.enableGeoInput.bind(this)} messageCreated={this.props.messageCreated}/>
@@ -90,7 +95,6 @@ class ContentConversation extends Component {
 		if (this.props.isMobile) {
 			this.props.expandAside(true);
 		}
-
 	}
 
 	enableGeoInput(){
@@ -100,6 +104,10 @@ class ContentConversation extends Component {
 	disableGeoInput(){
 		this.setState({showLocationInput: false});
 	}
+}
+
+ContentConversation.contextTypes = {
+	bubblePreviews: React.PropTypes.object.isRequired
 }
 
 export default ContentConversation;

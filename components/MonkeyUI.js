@@ -3,13 +3,16 @@ import {render} from 'react-dom'
 import ContentAside from './ContentAside.js'
 import ContentWindow from './ContentWindow.js'
 
+import ContentLogin from './ContentLogin.js'
+
 import BubbleText from './BubbleText.js'
 import BubbleImage from './BubbleImage.js'
 import BubbleFile from './BubbleFile.js'
 import BubbleAudio from './BubbleAudio.js'
 import BubbleLocation from './BubbleLocation.js'
 
-import ContentLogin from './ContentLogin.js'
+import ContentViewer from './ContentViewer.js'
+import ReceivedLocation from './ReceivedLocation.js'
 
 const isMobile = {
     Android: function() {
@@ -30,7 +33,7 @@ const isMobile = {
     any: function() {
         return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
     }
-};
+}
 
 class MonkeyUI extends Component {
 	constructor(props){
@@ -57,12 +60,17 @@ class MonkeyUI extends Component {
 	getChildContext() {
 	    return {
 		    userSession: this.props.userSession,
-		    text: BubbleText,
-		    image: BubbleImage,
-		    file: BubbleFile,
-		    audio: BubbleAudio,
-		    location: BubbleLocation,
-		    form: this.props.form
+		    bubbles: {
+			    text: BubbleText,
+			    image: BubbleImage,
+			    file: BubbleFile,
+			    audio: BubbleAudio,
+			    location: BubbleLocation
+		    },
+		    bubblePreviews: {
+			    image: ContentViewer,
+			    location: ReceivedLocation
+		    }
 		}
 	}
 
@@ -187,7 +195,6 @@ class MonkeyUI extends Component {
 		if (this.state.isMobile) {
 			this.setState({showConversations:false}); //escondiendo el aside solo cuando esta en mobile
 		}
-
 	}
 
 	handleShowAside(){
@@ -220,12 +227,8 @@ MonkeyUI.defaultProps = {
 
 MonkeyUI.childContextTypes = {
 	userSession: React.PropTypes.object,
-	text: React.PropTypes.any,
-    image: React.PropTypes.any,
-    file: React.PropTypes.any,
-    audio: React.PropTypes.any,
-    location: React.PropTypes.any,
-    form: React.PropTypes.any
+	bubbles: React.PropTypes.object,
+	bubblePreviews: React.PropTypes.object
 }
 
 export default MonkeyUI;
