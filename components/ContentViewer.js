@@ -16,15 +16,19 @@ class ContentViewer extends Component {
 					<button className="mky-button-download" title="Print" >Print</button>
 				</div>
 				<div id="file_viewer_image" className="mky-viewer-image" >
-					<img id="file_image" src={this.props.message.data} onLoad={this.handleImageLoaded} />
+					<img id="viewer-img" src={this.props.message.data} onLoad={this.handleImageLoaded} />
 				</div>
 			</div>
 		)
 	}
 
 	handleImageLoaded(){
-		console.log($('#file_viewer_image').height());
-		$('#file_image').css('max-height',$('#file_viewer_image').height()+'px');
+		var height_ = $('#file_viewer_image').parent().height();
+		var width_ = $('#file_viewer_image').parent().width();
+		$('#viewer-img').css({
+				'max-height': height_+'px',
+				'max-width': width_+'px'
+		});
 	}
 
 }
