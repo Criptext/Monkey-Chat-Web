@@ -7,8 +7,9 @@ class BubbleImage extends Component {
 		this.openImage = this.openImage.bind(this);
 		this.downloadData = this.downloadData.bind(this);
 	}
-	
+
 	render() {
+		// console.log(this.props.message);
 		return (
 			<div>
 				{ this.props.message.data
@@ -30,7 +31,7 @@ class BubbleImage extends Component {
 	openImage() {
 		this.props.messageSelected(this.props.message);
 	}
-	
+
 	downloadData() {
 		this.props.onClickMessage(this.props.message);
 	}
