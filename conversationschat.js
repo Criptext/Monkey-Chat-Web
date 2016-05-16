@@ -45,7 +45,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'iebhj34e7cs34ljtaffos9k9';
+		user.monkeyId = 'ife4c0qdb0dopbg538lg14i';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
@@ -112,6 +112,7 @@ monkey.on('onDisconnect', function(event){
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('onMessage', function(mokMessage){
+	console.log('App - onMessage');
 	defineMessage(mokMessage);
 });
 
@@ -119,7 +120,7 @@ monkey.on('onMessage', function(mokMessage){
 monkey.on('onNotification', function(mokMessage){
 
 	console.log('App - onNotification');
-	
+
 	let notType = mokMessage.protocolCommand;
 	let conversationId = mokMessage.senderId;
 	switch (notType){
@@ -206,16 +207,20 @@ function getConversations() {
 	        res.data.conversations.map (conversation => {
 		        if(!Object.keys(conversation.info).length)
 		        	return;
-		        
-		        let message = defineBubbleMessage(conversation.last_message);
+		        let messages = {};
+		        let messageId = null;
+		        if (conversation.last_message.protocolType != 207){
+		        	let message = defineBubbleMessage(conversation.last_message);
+		        	messageId = message.id;
+
+		        	messages[message.id] = message;
+		        }
 		        let conversationTmp = {
 			    	id: conversation.id,
 			    	name: conversation.info.name,
 			    	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
-			    	messages: {
-			    		[message.id]: message
-			    	},
-			    	lastMessage: message.id
+			    	messages: messages,
+			    	lastMessage: messageId
 		    	}
 		    	
 		        if(isConversationGroup(conversation.id)){
@@ -233,9 +238,8 @@ function getConversations() {
 		        }
 		        conversations[conversationTmp.id] = conversationTmp;
 	        })
-	        
 	        store.dispatch(actions.addConversations(conversations));
-	        if(Object.keys(users).length){
+	        if(Object.keys(users).length	){
 		        store.dispatch(actions.addUsersContact(users));
 	        }
 	        monkey.getPendingMessages();
@@ -291,7 +295,6 @@ function defineMessage(mokMessage) {
 		defineConversationByMessage(mokMessage);
 		return;
 	}
-	
 	let message = defineBubbleMessage(mokMessage);
 	switch (mokMessage.protocolType){
 		case 1:{
