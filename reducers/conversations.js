@@ -1,4 +1,4 @@
-import { ADD_CONVERSATIONS, ADD_CONVERSATION, UPDATE_CONVERSATION_STATUS, ADD_MESSAGE, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA } from '../actions'
+import { ADD_CONVERSATIONS, ADD_CONVERSATION, UPDATE_CONVERSATION_STATUS, ADD_MESSAGE, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
@@ -48,6 +48,15 @@ const conversations = (state = {}, action) => {
 				[conversationId]: conversation(state[conversationId], action)
 			}
 		}
+
+		case DELETE_MESSAGE: {
+			const conversationId = action.conversationId;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+
 		default:
 			return state;
 	}
@@ -104,6 +113,13 @@ const conversation = (state, action) => {
 				lastMessage: lastMessage
 			}
 		}
+
+		case DELETE_MESSAGE: {
+			return {
+				...state,
+				messages: messages(state.messages, action),
+			}
+		}
 	}
 	return state;
 }
@@ -133,6 +149,16 @@ const messages = (state, action) => {
 				[newMessageId]: message(state[messageId], action)
 			}
 			delete newState[messageId];
+			return newState;
+		}
+
+		case DELETE_MESSAGE: {
+			const deleteMessageId = action.message.id;
+			console.log('Delete : ' + deleteMessageId);
+			let newState = {
+				...state,
+			}
+			delete newState[deleteMessageId];
 			return newState;
 		}
 	}

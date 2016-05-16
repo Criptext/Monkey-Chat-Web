@@ -116,6 +116,9 @@ monkey.on('onMessage', function(mokMessage){
 
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('onNotification', function(mokMessage){
+
+	console.log('App - onNotification');
+	
 	let notType = mokMessage.protocolCommand;
 	let conversationId = mokMessage.senderId;
 	switch (notType){
@@ -136,6 +139,10 @@ monkey.on('onNotification', function(mokMessage){
             break;
         case 203:{ // open arrived
 
+        }
+            break;
+        case 207:{ // open arrived
+        	defineMessage(mokMessage);
         }
             break;
         default:
@@ -276,14 +283,17 @@ function prepareMessage(message) {
 
 function defineMessage(mokMessage) {
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
-	if(!store.getState().conversations[conversationId]){ // handle does not exits conversations
-		defineConversationByMessage(mokMessage);
+
+	if(!store.getState().conversations[conversationId]){
+		let conversation = defineConversationByMessage(mokMessage);
+		store.dispatch(actions.addConversation(conversation));
 		return;
 	}
 	
 	let message = defineBubbleMessage(mokMessage);
 	switch (mokMessage.protocolType){
 		case 1:{
+			console.log('App - Case 1')
 			break;
 		}
 		case 2:{
@@ -315,6 +325,7 @@ function defineMessage(mokMessage) {
 					store.dispatch(actions.updateMessageData(message, conversationId));
 				});
 			}else if(mokMessage.props.file_type == 4){ // file
+				console.log('FIIIIIIIILE');
 				monkey.downloadFile(mokMessage, function(err, data){
 					console.log('App - file downloaded');
 					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
@@ -330,8 +341,14 @@ function defineMessage(mokMessage) {
 			}
 			break;
 		}
+		case 207:{
+			store.dispatch(actions.deleteMessage(message, conversationId));
+			return;
+		}
 	}
-	store.dispatch(actions.addMessage(message, conversationId));
+	if(message){
+		store.dispatch(actions.addMessage(message, conversationId));
+	}
 }
 
 function defineBubbleMessage(mokMessage){
