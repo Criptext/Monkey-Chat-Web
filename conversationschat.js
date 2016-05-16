@@ -284,9 +284,8 @@ function prepareMessage(message) {
 function defineMessage(mokMessage) {
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
 
-	if(!store.getState().conversations[conversationId]){
-		let conversation = defineConversationByMessage(mokMessage);
-		store.dispatch(actions.addConversation(conversation));
+	if(!store.getState().conversations[conversationId]){ // handle does not exits conversations
+		defineConversationByMessage(mokMessage);
 		return;
 	}
 	
@@ -325,7 +324,6 @@ function defineMessage(mokMessage) {
 					store.dispatch(actions.updateMessageData(message, conversationId));
 				});
 			}else if(mokMessage.props.file_type == 4){ // file
-				console.log('FIIIIIIIILE');
 				monkey.downloadFile(mokMessage, function(err, data){
 					console.log('App - file downloaded');
 					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;

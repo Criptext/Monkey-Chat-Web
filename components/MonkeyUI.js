@@ -41,10 +41,10 @@ class MonkeyUI extends Component {
 		this.state = {
 			conversation: {},
 			tabStyle: undefined,
-			classLoading: 'mky-disappear',
 			idTabButton: 'mky-w-max',
 			isMobile: isMobile.any() ? true : false,
-			showConversations:true
+			showConversations: true,
+			isLoading: false
 		}
 		this.openTab = this.openTab.bind(this);
 		this.handleLoginSession = this.handleLoginSession.bind(this);
@@ -105,9 +105,8 @@ class MonkeyUI extends Component {
 		}
 		this.setState({conversations: nextProps.conversations});
 		
-		if(nextProps.userSession.id && this.state.classLoading === 'mky-appear'){
-			this.isLoading = false;
-			this.setLoading(this.isLoading);
+		if(nextProps.userSession.id && this.state.isLoading){
+			this.setState({isLoading: false});
 			console.log('App - login ok');
 		}
 	}
@@ -127,16 +126,22 @@ class MonkeyUI extends Component {
 					: null
 				}
 				<div className='mky-wrapper-in'>
+					{ this.state.isLoading
+						? (
+							<div id='mky-content-connection' className='mky-appear'>
+								<div className='mky-spinner'>
+									<div className='mky-bounce1'></div>
+									<div className='mky-bounce2'></div>
+									<div className='mky-bounce3'></div>
+								</div>
+							</div>
+						)
+						: null
+					}
+				
 					{ this.props.userSession
 						? (
 							<div id='mky-content-app' className=''>
-								<div id='mky-content-connection' className={this.state.classLoading}>
-									<div className='mky-spinner'>
-										<div className='mky-bounce1'></div>
-										<div className='mky-bounce2'></div>
-										<div className='mky-bounce3'></div>
-									</div>
-								</div>
 								{ this.state.showConversations
 									? <ContentAside conversations={this.state.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
 									: null
@@ -171,18 +176,13 @@ class MonkeyUI extends Component {
 	}
 
 	handleLoginSession(user) {
-		console.log('App - login name');
+		this.setLoading(true);
 		this.props.userSessionToSet(user);
-		this.isLoading = true;
-		this.setLoading(this.isLoading);
+		
 	}
 
 	setLoading(value) {
-		if(value){
-			this.setState({classLoading: 'mky-appear'});
-		}else{
-			this.setState({classLoading: 'mky-disappear'});
-		}
+		this.setState({isLoading: value});
 	}
 
 	handleConversationAdd(conversation) {

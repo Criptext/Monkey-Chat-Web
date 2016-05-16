@@ -154,7 +154,6 @@ const messages = (state, action) => {
 
 		case DELETE_MESSAGE: {
 			const deleteMessageId = action.message.id;
-			console.log('Delete : ' + deleteMessageId);
 			let newState = {
 				...state,
 			}
