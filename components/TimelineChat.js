@@ -60,13 +60,15 @@ class TimelineChat extends Component {
 
 	componentDidMount() {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		//this.domNode.lastChild.scrollIntoView();
+		this.domNode.lastChild.scrollIntoView();
 	    this.domNode.addEventListener('scroll', this.handleScroll);
 	}
 
 	componentDidUpdate() {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		//this.domNode.lastChild.scrollIntoView();
+		if(!this.loadingMessages){
+ 			this.domNode.lastChild.scrollIntoView();
+ 		}
  		this.updateScrollTop();
  		if(this.scrollHeight != this.domNode.scrollHeight && this.loadingMessages){
  			this.domNode.scrollTop += this.domNode.scrollHeight - this.scrollHeight;
