@@ -115,7 +115,6 @@ class MonkeyUI extends Component {
 		const Form_ = ContentLogin(this.props.form);
     	return (
 			<div className={'mky-wrapper-out '+this.classContent} style={this.state.tabStyle}>
-
 				{ this.props.view.type === 'classic'
 					? (
 						<div className='mky-tab'>
@@ -138,7 +137,6 @@ class MonkeyUI extends Component {
 						)
 						: null
 					}
-				
 					{ this.props.userSession
 						? (
 							<div id='mky-content-app' className=''>
@@ -146,8 +144,7 @@ class MonkeyUI extends Component {
 									? <ContentAside conversations={this.state.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
 									: null
 								}
-
-								<ContentWindow loadMessages={this.props.loadMessages} conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow} expandAside={this.handleShowAside} isMobile={this.state.isMobile}/>
+								<ContentWindow loadMessages={this.props.loadMessages} conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow} expandAside={this.handleShowAside} isMobile={this.state.isMobile} onClickMessage={this.props.onClickMessage}/>
 							</div>
 						)
 						: <Form_ handleLoginSession={this.handleLoginSession} />

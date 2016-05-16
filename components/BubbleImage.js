@@ -5,6 +5,7 @@ class BubbleImage extends Component {
 		super(props);
 
 		this.openImage = this.openImage.bind(this);
+		this.downloadData = this.downloadData.bind(this);
 	}
 	
 	render() {
@@ -26,8 +27,12 @@ class BubbleImage extends Component {
 		)
 	}
 
-	openImage(){
+	openImage() {
 		this.props.messageSelected(this.props.message);
+	}
+	
+	downloadData() {
+		this.props.onClickMessage(this.props.message);
 	}
 }
 

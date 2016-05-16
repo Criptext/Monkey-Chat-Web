@@ -22,9 +22,8 @@ class ContentWindow extends Component {
 
     	return (
 	    	<section className={this.classExpand+' '+this.classStateWindow}>
-	    	{
-		    	this.props.conversationSelected
-		    	? <ContentConversation loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageCreated={this.props.messageCreated} isMobile={this.props.isMobile} expandAside={this.props.expandAside}/>
+	    	{ this.props.conversationSelected
+		    	? <ContentConversation loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageCreated={this.props.messageCreated} isMobile={this.props.isMobile} expandAside={this.props.expandAside} onClickMessage={this.props.onClickMessage}/>
 		    	: <ContentIntro />
 	    	}
 			</section>
