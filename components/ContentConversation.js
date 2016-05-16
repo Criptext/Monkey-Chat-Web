@@ -54,7 +54,7 @@ class ContentConversation extends Component {
 				{ this.state.showLocationInput
 					? <LocationInput messageCreated={this.props.messageCreated} disableGeoInput={this.disableGeoInput.bind(this)} />
 					: ( <div className='mky-chat-area'>
-							<TimelineChat loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageSelected={this.handleMessageSelected}/>
+							<TimelineChat loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageSelected={this.handleMessageSelected} onClickMessage={this.props.onClickMessage}/>
 							{ this.state.messageSelected
 								? (() => { 
 										const Modal_ = Modal(this.context.bubblePreviews[this.state.messageSelected.bubbleType]);

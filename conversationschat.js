@@ -43,7 +43,7 @@ class MonkeyChat extends Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage}/>
 		)
 	}
 	
@@ -61,8 +61,8 @@ class MonkeyChat extends Component {
 		monkey.sendOpenToUser(conversation.id);
 	}
 	
-	handleLoadMessages(conversation, firstMessageId) {	
-		monkey.getConversationMessages(conversation.id, 10, firstMessageId, function(err, res){
+	handleLoadMessages(conversationId, firstMessageId) {	
+		monkey.getConversationMessages(conversationId, 10, firstMessageId, function(err, res){
 			if(err){
 	            console.log(err);
 	        }else if(res){
@@ -71,6 +71,10 @@ class MonkeyChat extends Component {
 				});
 			}
 		});
+	}
+	
+	handleOnClickMessage(message) {
+		
 	}
 /*
 	conversationToSet() {
@@ -284,9 +288,8 @@ function prepareMessage(message) {
 function defineMessage(mokMessage) {
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
 
-	if(!store.getState().conversations[conversationId]){
-		let conversation = defineConversationByMessage(mokMessage);
-		store.dispatch(actions.addConversation(conversation));
+	if(!store.getState().conversations[conversationId]){ // handle does not exits conversations
+		defineConversationByMessage(mokMessage);
 		return;
 	}
 	
@@ -325,7 +328,6 @@ function defineMessage(mokMessage) {
 					store.dispatch(actions.updateMessageData(message, conversationId));
 				});
 			}else if(mokMessage.props.file_type == 4){ // file
-				console.log('FIIIIIIIILE');
 				monkey.downloadFile(mokMessage, function(err, data){
 					console.log('App - file downloaded');
 					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;

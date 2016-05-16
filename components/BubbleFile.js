@@ -3,13 +3,15 @@ import React, { Component } from 'react'
 class BubbleFile extends Component {
 	constructor(props) {
 		super(props);
+		
+		this.downloadData = this.downloadData.bind(this);
 	}
 	
 	render() {
 		return (
 			<div>
-			{	this.props.message.data ? 
-				(
+			{ this.props.message.data 
+				? (
 					<div className='mky-content-file'>
 						<a className='mky-file-link' href={this.props.message.data} download={this.props.message.filename}>
 							<div className='mky-file-icon mky-icon-pdf'></div>
@@ -23,7 +25,8 @@ class BubbleFile extends Component {
 							</div>
 						</a>
 					</div>
-				):(
+				)
+				: (
 					<div className='mky-content-audio-loading'>
                         <div className='mky-double-bounce1'></div>
                         <div className='mky-double-bounce2'></div>
@@ -33,6 +36,10 @@ class BubbleFile extends Component {
 			}
 			</div>
 		)
+	}
+	
+	downloadData() {
+		this.props.onClickMessage(this.props.message);
 	}
 }
 

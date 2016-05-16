@@ -52,7 +52,7 @@ class TimelineChat extends Component {
 				? this.orderedConversations.map( item => {
 					const message = this.props.conversationSelected.messages[item.key];
 					const Bubble_ = Bubble(this.context.bubbles[message.bubbleType]);
-					return <Bubble_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={message.bubbleType} messageSelected={this.props.messageSelected}/>
+					return <Bubble_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={message.bubbleType} messageSelected={this.props.messageSelected} onClickMessage={this.props.onClickMessage}/>
 				})
 				: null}
 		</div>)
@@ -89,7 +89,7 @@ class TimelineChat extends Component {
 			
 		}else if(this.domNode.scrollTop === 0 && this.scrollTop != 0){
 			this.scrollHeight = this.domNode.scrollHeight;
-			this.props.loadMessages(this.props.conversationSelected, this.props.conversationSelected.messages[this.orderedConversations[0].key].datetimeCreation/1000);
+			this.props.loadMessages(this.props.conversationSelected.id, this.props.conversationSelected.messages[this.orderedConversations[0].key].datetimeCreation/1000);
 		}	
 		this.scrollTop = this.domNode.scrollTop;
 	}
