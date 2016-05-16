@@ -175,7 +175,6 @@ class MonkeyUI extends Component {
 	handleLoginSession(user) {
 		this.setLoading(true);
 		this.props.userSessionToSet(user);
-		
 	}
 
 	setLoading(value) {
