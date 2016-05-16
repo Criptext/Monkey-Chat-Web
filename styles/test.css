@@ -278,6 +278,7 @@ body, html {
   height: 45%;
   overflow: hidden;
   border-radius: 10px;
+  cursor: pointer;
 }
 
 .menu-bubble-item:hover{
@@ -459,6 +460,13 @@ body, html {
   margin-top: 11px;
   cursor: pointer;
 }
+.mky-viewer-toolbar button{
+  font-size: 13px;
+}
+.mky-button-download[title="Download"]{
+  margin-right: 50px;
+}
+
 @media screen and (-webkit-min-device-pixel-ratio: 1) and (max-device-width: 640px) and (min-device-width: 320px){
   .mky-wrapper-out aside{
     display: block !important;
