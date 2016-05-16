@@ -67,7 +67,7 @@ class ConversationList extends Component {
 		}
 
 		conversationarray.sort(function(a, b) {
-	        if(a.messages.length == 0)
+	        if(a.messages==null || a.messages.length == 0)
 	        	return 1;
 	        return b.messages[b.lastMessage].datetimeCreation - a.messages[a.lastMessage].datetimeCreation;
 	    });
