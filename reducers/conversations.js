@@ -1,4 +1,4 @@
-import { ADD_CONVERSATIONS, ADD_CONVERSATION, UPDATE_CONVERSATION_STATUS, ADD_MESSAGE, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
+import { ADD_CONVERSATION, ADD_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
@@ -26,6 +26,14 @@ const conversations = (state = {}, action) => {
 		}
 		
 		case ADD_MESSAGE: {
+			const conversationId = action.conversationId;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+		
+		case ADD_MESSAGES: {
 			const conversationId = action.conversationId;
 			return {
 				...state,
@@ -95,6 +103,13 @@ const conversation = (state, action) => {
 			}
 		}
 		
+		case ADD_MESSAGES: {
+			return {
+				...state,
+				messages: messages(state.messages, action)
+			}
+		}
+		
 		case UPDATE_MESSAGE_DATA: {
 			return {
 				...state,
@@ -130,6 +145,13 @@ const messages = (state, action) => {
 			return {
 				...state,
 				[action.message.id]: action.message
+			}
+		}
+		
+		case ADD_MESSAGES: {
+			return {
+				...state,
+				...action.messages
 			}
 		}
 		
