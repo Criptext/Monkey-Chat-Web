@@ -21,7 +21,7 @@ class TimelineChat extends Component {
 
 	componentWillReceiveProps(nextProps) {
 		if(nextProps.conversationSelected.lastMessage) {
-			if(nextProps.conversationSelected.messages[nextProps.conversationSelected.lastMessage].senderId === this.context.userSession.id){
+			if(nextProps.conversationSelected.messages[nextProps.conversationSelected.lastMessage] && nextProps.conversationSelected.messages[nextProps.conversationSelected.lastMessage].senderId === this.context.userSession.id){
 				this.goBottom = true;
 			}
 		}
@@ -60,7 +60,7 @@ class TimelineChat extends Component {
 
 	componentDidMount() {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		this.domNode.lastChild.scrollIntoView();
+		//this.domNode.lastChild.scrollIntoView();
 	    this.domNode.addEventListener('scroll', this.handleScroll);
 	}
 

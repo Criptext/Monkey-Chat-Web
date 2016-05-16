@@ -91,7 +91,9 @@ const conversation = (state, action) => {
 		
 		case ADD_MESSAGE: {
 			var lastMessage;
-			if(action.message.datetimeCreation < state.messages[state.lastMessage].datetimeCreation){
+			if(!state.lastMessage){
+				lastMessage = action.message.id
+			}else if(action.message.datetimeCreation < state.messages[state.lastMessage].datetimeCreation){
 				lastMessage = state.lastMessage;
 			}else{
 				lastMessage = action.message.id
