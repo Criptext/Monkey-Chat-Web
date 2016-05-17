@@ -194,34 +194,6 @@ monkey.on('onAcknowledge', function(mokMessage){
 // MonkeyChat
 
 function addConversation(user) {
-/*
-	let conversationId = 'G:1';
-		if(isConversationGroup(conversationId)) { // group conversation
-			monkey.getInfoById(conversationId, function(error, data){
-		        if(data != undefined){
-			        var _members = data.members;
-			        var _info = {name: 'Support: '+user.name}
-			        monkey.createGroup(_members, _info, null, null, function(error, data){ // create new group
-				        if(data != undefined){
-				        	let newConversation = {
-					        	id: data.group_id,
-					        	name: data.group_info.name,
-					        	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
-					        	unreadMessageCount: 0,
-					        	members: data.members_info,
-					        	messages: {}
-				        	};
-				        	store.dispatch(actions.addConversation(newConversation));
-				        }else{
-					        console.log(error);
-				        }
-			        });
-		        }else{
-			        console.log(error);
-		        }
-	        });
-		}
-*/
 		
 	if(monkey.getUser() != null){
 		monkey.getAllConversations(function(err, res){
@@ -292,12 +264,6 @@ function addConversation(user) {
 				        }
 			        });
 			        
-			        monkey.getUsersInfo(_members, function(error, data){
-				        if(data != undefined){
-					        console.log(data);
-				        }
-			        });
-			        
 		        }else{
 			        console.log(error);
 		        }
@@ -319,7 +285,7 @@ function prepareMessage(message) {
 			break;
 		}
 		case 'image': { // bubble image
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, false, null, null);
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
@@ -328,7 +294,7 @@ function prepareMessage(message) {
 			break;
 		}
 		case 'file': { // bubble file
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, false, null, null);
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
@@ -337,7 +303,7 @@ function prepareMessage(message) {
 			break;
 		}
 		case 'audio': { // bubble audio
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, false, null, null);
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
@@ -427,12 +393,15 @@ function defineBubbleMessage(mokMessage){
 		senderId: mokMessage.senderId,
 		status: 50
     }
-    message.name = 'Soporte';
-/*
+    
+    let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
     if(isConversationGroup(conversationId)) { // group conversation
-		message.name = store.getState().conversations[conversationId].members[message.sender];
+	    store.getState().conversations[conversationId].members.map( member => {
+		    if(member.monkey_id === message.senderId){
+			    message.name = member.name;
+		    }
+	    });
 	}
-*/
     
     switch (mokMessage.protocolType){
     	case 1:{
