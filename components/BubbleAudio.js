@@ -18,8 +18,11 @@ class BubbleAudio extends Component {
 		this.updateAnimationBuble = this.updateAnimationBuble.bind(this);
 	}
 	
-	componentWillMount() {
-		
+	componentWillMount() {		
+        if(this.props.message.data == null && !this.props.message.isDownloading){
+            this.props.dataDownloadRequest(this.props.message.mokMessage);
+            this.props.message.isDownloading = true;
+        }
 	}
 	
 	render() {

@@ -6,6 +6,13 @@ class BubbleFile extends Component {
 		
 		this.downloadData = this.downloadData.bind(this);
 	}
+
+	componentWillMount() {		
+        if(this.props.message.data == null && !this.props.message.isDownloading){
+            this.props.dataDownloadRequest(this.props.message.mokMessage);
+            this.props.message.isDownloading = true;
+        }
+	}
 	
 	render() {
 		return (
@@ -27,7 +34,7 @@ class BubbleFile extends Component {
 					</div>
 				)
 				: (
-					<div className='mky-content-audio-loading'>
+					<div className='mky-content-file-loading'>
                         <div className='mky-double-bounce1'></div>
                         <div className='mky-double-bounce2'></div>
                     </div>

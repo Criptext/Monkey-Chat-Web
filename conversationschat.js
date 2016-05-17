@@ -41,7 +41,7 @@ class MonkeyChat extends Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData}/>
 		)
 	}
 	
@@ -75,8 +75,59 @@ class MonkeyChat extends Component {
 		});
 	}
 	
-	handleOnClickMessage(message) {
-		
+	handleOnClickMessage(mokMessage) {
+
+	}
+
+	handleDownloadData(mokMessage){
+
+		let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
+
+		switch(parseInt(mokMessage.props.file_type)){
+			
+			case 1: // audio
+				monkey.downloadFile(mokMessage, function(err, data){
+					console.log('App - audio downloaded');
+					let src = 'data:audio/mpeg;base64,'+data;
+					let message = {
+						id: mokMessage.id,
+						data: src
+					}
+					console.log('App - '+mokMessage.id);
+					console.log('App - '+mokMessage.oldId);
+					console.log('App - '+conversationId);
+					store.dispatch(actions.updateMessageData(message, conversationId));
+				});
+				break;
+			case 3: // image
+				monkey.downloadFile(mokMessage, function(err, data){
+					console.log('App - image downloaded');
+					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
+					let message = {
+						id: mokMessage.id,
+						data: src
+					}
+					console.log('App - '+mokMessage.id);
+					console.log('App - '+mokMessage.oldId);
+					console.log('App - '+conversationId);
+					store.dispatch(actions.updateMessageData(message, conversationId));
+				});
+				break;
+			case 4: // file
+				monkey.downloadFile(mokMessage, function(err, data){
+					console.log('App - file downloaded');
+					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
+					let message = {
+						id: mokMessage.id,
+						data: src
+					}
+					console.log('App - '+mokMessage.id);
+					console.log('App - '+mokMessage.oldId);
+					console.log('App - '+conversationId);
+					store.dispatch(actions.updateMessageData(message, conversationId));
+				});
+				break;
+		}
 	}
 /*
 	conversationToSet() {
@@ -335,6 +386,7 @@ function defineMessage(mokMessage) {
 					console.log('App - '+conversationId);
 					store.dispatch(actions.updateMessageData(message, conversationId));
 				});
+				
 			}else if(mokMessage.props.file_type == 4){ // file
 				monkey.downloadFile(mokMessage, function(err, data){
 					console.log('App - file downloaded');
@@ -357,6 +409,7 @@ function defineMessage(mokMessage) {
 		}
 	}
 	if(message){
+		message.isDownloading = true;
 		if(conversationSelectedId != conversationId){
 			store.dispatch(actions.addMessage(message, conversationId, true));
 		}else{
@@ -373,7 +426,9 @@ function defineBubbleMessage(mokMessage){
 		datetimeOrder: mokMessage.datetimeOrder,
 		recipientId: mokMessage.recipientId,
 		senderId: mokMessage.senderId,
-		status: 50
+		status: 50,
+		mokMessage: mokMessage,
+		isDownloading: false
     }
     switch (mokMessage.protocolType){
     	case 1:{

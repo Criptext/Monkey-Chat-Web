@@ -8,6 +8,13 @@ class BubbleImage extends Component {
 		this.downloadData = this.downloadData.bind(this);
 	}
 
+	componentWillMount() {		
+        if(this.props.message.data == null && !this.props.message.isDownloading){
+            this.props.dataDownloadRequest(this.props.message.mokMessage);
+            this.props.message.isDownloading = true;
+        }
+	}
+
 	render() {
 		// console.log(this.props.message);
 		return (
@@ -18,7 +25,7 @@ class BubbleImage extends Component {
 							<img src={this.props.message.data} onClick={this.openImage}></img>
 						</div>
 					):(
-                        <div className='mky-content-audio-loading'>
+                        <div className='mky-content-image-loading'>
                             <div className='mky-double-bounce1'></div>
                             <div className='mky-double-bounce2'></div>
                         </div>
@@ -33,7 +40,7 @@ class BubbleImage extends Component {
 	}
 
 	downloadData() {
-		this.props.onClickMessage(this.props.message);
+		this.props.onClickMessage(this.props.message.mokMessage);
 	}
 }
 
