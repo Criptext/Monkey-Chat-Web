@@ -3,9 +3,6 @@ import React, { Component } from 'react'
 class ConversationItem extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			unreadMessageCount: this.props.conversation.unreadMessageCount
-		}
 		this.openConversation = this.openConversation.bind(this);
 	}
 
@@ -24,14 +21,13 @@ class ConversationItem extends Component {
 						
 					</div>
 				</div>
-				<Badge value={this.state.unreadMessageCount}/>
+				<Badge value={this.props.conversation.unreadMessageCounter}/>
 			</li>
 		);
 	}
 	
 	openConversation(){
 		this.props.conversationIdSelected(this.props.conversation.id);
-		this.setState({unreadMessageCount: 0});
 	}
 }
 

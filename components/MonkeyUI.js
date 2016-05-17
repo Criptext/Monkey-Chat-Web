@@ -44,7 +44,7 @@ class MonkeyUI extends Component {
 			idTabButton: 'mky-w-max',
 			isMobile: isMobile.any() ? true : false,
 			showConversations: true,
-			isLoading: false
+			isLoading: false,
 		}
 		this.openTab = this.openTab.bind(this);
 		this.handleLoginSession = this.handleLoginSession.bind(this);
@@ -95,6 +95,15 @@ class MonkeyUI extends Component {
 			this.setState({showConversations:false});
 			this.expandWindow = true;
 		}
+	}
+
+	shouldComponentUpdate(nextProps, nextState) {
+		if(nextState.conversation && this.state.conversation && this.state.conversation.id != nextState.conversation.id){
+			this.props.conversationOpened(nextState.conversation);
+		}else if(!this.state.conversation && nextState.conversation){
+			this.props.conversationOpened(nextState.conversation);
+		}
+		return true;
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -186,8 +195,11 @@ class MonkeyUI extends Component {
 	}
 
 	handleConversationSelected(conversation) {
-		this.setState({conversation: conversation});
-		this.props.conversationOpened(conversation);
+		
+		this.setState({
+			conversation: conversation,
+		});
+		
 		if (this.state.isMobile) {
 			this.setState({showConversations:false}); //escondiendo el aside solo cuando esta en mobile
 		}
