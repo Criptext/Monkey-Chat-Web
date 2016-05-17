@@ -29,6 +29,7 @@ class MonkeyChat extends React.Component {
 		}
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
+		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -46,7 +47,7 @@ class MonkeyChat extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage}/>
 		)
 	}
 	
@@ -57,6 +58,10 @@ class MonkeyChat extends React.Component {
 	
 	handleMessageToSet(message) {
 		prepareMessage(message);
+	}
+	
+	handleConversationOpened(conversation) {
+		monkey.sendOpenToUser(conversation.id);
 	}
 	
 	handleLoadMessages(conversationId, firstMessageId) {	
@@ -175,6 +180,9 @@ monkey.on('onAcknowledge', function(mokMessage){
         }
         break;
         case 203:{ // open conversation
+	        if(!store.getState().conversations[conversationId])
+	        	return;
+	        	
             let conversation = {
 	            id: conversationId,
 	            lastOpenMe: Number(mokMessage.props.last_open_me)*1000,
@@ -241,7 +249,7 @@ function addConversation(user) {
 	        }
 	    });
 	}else{
-		let conversationId = 'G:1';
+		let conversationId = 'G:idkgwf6ghcmyfvvrxqiwwmi-3';
 		if(isConversationGroup(conversationId)) { // group conversation
 			monkey.getInfoById(conversationId, function(error, data){
 		        if(data != undefined){

@@ -13,7 +13,6 @@ class ContentViewer extends Component {
 					<a href={this.props.message.data} download="file" >
 						<button className="mky-button-download" title="Download">Download</button>
 					</a>
-					<button className="mky-button-download" title="Print" >Print</button>
 				</div>
 				<div id="file_viewer_image" className="mky-viewer-image" >
 					<img id="viewer-img" src={this.props.message.data} onLoad={this.handleImageLoaded} />
