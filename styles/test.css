@@ -489,3 +489,15 @@ body, html {
 
 
 }
+.mky-content-image-loading{
+  width: 40px;
+  height: 40px;
+  margin: 42%;
+  position: relative;
+}
+.mky-content-file-loading{
+  width: 40px;
+  height: 40px;
+  margin: 5px auto;
+  position: relative;
+}
