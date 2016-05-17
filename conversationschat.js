@@ -13,6 +13,7 @@ import MyForm from './components/MyForm.js'
 
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
+var conversationSelectedId = 0;
 
 class MonkeyChat extends Component {
 	constructor(props){
@@ -56,6 +57,10 @@ class MonkeyChat extends Component {
 	
 	handleConversationOpened(conversation) {
 		monkey.sendOpenToUser(conversation.id);
+		if(conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
+			store.dispatch(actions.updateConversationUnreadCounter(conversation, 0));
+		}
+		conversationSelectedId = conversation.id;
 	}
 	
 	handleLoadMessages(conversationId, firstMessageId) {	
@@ -220,7 +225,8 @@ function getConversations() {
 			    	name: conversation.info.name,
 			    	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
 			    	messages: messages,
-			    	lastMessage: messageId
+			    	lastMessage: messageId,
+			    	unreadMessageCounter: 0,
 		    	}
 		    	
 		        if(isConversationGroup(conversation.id)){
@@ -239,7 +245,7 @@ function getConversations() {
 		        conversations[conversationTmp.id] = conversationTmp;
 	        })
 	        store.dispatch(actions.addConversations(conversations));
-	        if(Object.keys(users).length	){
+	        if(Object.keys(users).length){
 		        store.dispatch(actions.addUsersContact(users));
 	        }
 	        monkey.getPendingMessages();
@@ -255,7 +261,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message, message.recipientId));
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
 		case 'image': { // bubble image
@@ -264,7 +270,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message, message.recipientId));
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
 		case 'file': { // bubble file
@@ -273,7 +279,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message, message.recipientId));
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
 		case 'audio': { // bubble audio
@@ -282,7 +288,7 @@ function prepareMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
 			message.datetimeOrder = mokMessage.datetimeOrder;
-			store.dispatch(actions.addMessage(message, message.recipientId));
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
 	}
@@ -351,7 +357,11 @@ function defineMessage(mokMessage) {
 		}
 	}
 	if(message){
-		store.dispatch(actions.addMessage(message, conversationId));
+		if(conversationSelectedId != conversationId){
+			store.dispatch(actions.addMessage(message, conversationId, true));
+		}else{
+			store.dispatch(actions.addMessage(message, conversationId, false));
+		}
 	}
 }
 

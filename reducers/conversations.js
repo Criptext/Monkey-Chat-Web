@@ -1,4 +1,4 @@
-import { ADD_CONVERSATION, ADD_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
+import { ADD_CONVERSATION, ADD_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, UPDATE_CONVERSATION_UNREAD_COUNTER, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
@@ -18,6 +18,14 @@ const conversations = (state = {}, action) => {
 		}
 		
 		case UPDATE_CONVERSATION_STATUS: {
+			const conversationId = action.conversation.id;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+
+		case UPDATE_CONVERSATION_UNREAD_COUNTER: {
 			const conversationId = action.conversation.id;
 			return {
 				...state,
@@ -88,6 +96,13 @@ const conversation = (state, action) => {
 				}
 			}
 		}
+
+		case UPDATE_CONVERSATION_UNREAD_COUNTER: {
+			return {
+				...state,
+				unreadMessageCounter: action.unreadCounter
+			}
+		}
 		
 		case ADD_MESSAGE: {
 			var lastMessage;
@@ -98,10 +113,16 @@ const conversation = (state, action) => {
 			}else{
 				lastMessage = action.message.id
 			}
+
+			var counter = state.unreadMessageCounter;
+			if(action.unread){
+				counter++;
+			}
 			return {
 				...state,
 				messages: messages(state.messages, action),
-				lastMessage: lastMessage
+				lastMessage: lastMessage,
+				unreadMessageCounter : counter
 			}
 		}
 		
