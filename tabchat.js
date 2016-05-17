@@ -30,6 +30,7 @@ class MonkeyChat extends React.Component {
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
+		this.init = this.handleInit.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -49,6 +50,10 @@ class MonkeyChat extends React.Component {
 		return (
 			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage}/>
 		)
+	}
+
+	componentDidMount() {
+	  window.monkeychat = this;
 	}
 	
 	handleUserSessionToSet(user) {
@@ -78,6 +83,11 @@ class MonkeyChat extends React.Component {
 	
 	handleOnClickMessage(message) {
 		
+	}
+
+	handleInit(){
+		console.log("iniciando...");
+		render();
 	}
 	
 /*
