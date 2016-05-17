@@ -407,22 +407,34 @@ function defineBubbleMessage(mokMessage){
 
 function defineConversationByMessage(mokMessage){
 
-	//TODO: VALIDAR QUE EL CONTACTO EXISTE PARA NO PEDIR SU INFO OTRA VEZ
-	monkey.getInfoById(mokMessage.senderId, function(err, resp){
-		let message = defineBubbleMessage(mokMessage);
-		let conversation = {
-	    	id: mokMessage.senderId,
-	    	name: resp.name,
-	    	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
-	    	messages: {
-	    		[message.id]: message
-	    	},
-	    	lastMessage: message.id,
-	    	unreadMessageCount: 1,
-	    	lastOpenMe: undefined,
-	    	lastOpenApp: undefined,
-	    	onlineStatus: undefined
-		}
-		store.dispatch(actions.addConversation(conversation));
-	});
+	if(store.getState().users[mokMessage.senderId]==null){
+		monkey.getInfoById(mokMessage.senderId, function(err, resp){
+			if(err != null){
+				store.dispatch(actions.addConversation(createConversation(mokMessage, resp.name)));
+			}		
+		});
+	}
+	else{
+		store.dispatch(actions.addConversation(createConversation(mokMessage, store.getState().users[mokMessage.senderId].name)));
+	}
 }
+
+function createConversation(mokMessage, name){
+	let message = defineBubbleMessage(mokMessage);
+	let conversation = {
+    	id: mokMessage.senderId,
+    	name: name,
+    	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
+    	messages: {
+    		[message.id]: message
+    	},
+    	lastMessage: message.id,
+    	unreadMessageCount: 1,
+    	lastOpenMe: undefined,
+    	lastOpenApp: undefined,
+    	onlineStatus: undefined
+	}
+	return conversation;
+}
+
+//ENDFILE
