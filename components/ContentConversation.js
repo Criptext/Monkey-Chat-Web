@@ -80,14 +80,11 @@ class ContentConversation extends Component {
 	}
 
 	listMembers(members){
-/*
 		var list = [];
 			this.props.conversationSelected.members.map(function(member) {
 				list.push(member.name);
             })
 		return list.join(', ');
-*/
-		return 'group conversation';
 	}
 
 	showAside(){
