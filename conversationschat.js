@@ -352,7 +352,7 @@ function defineMessage(mokMessage) {
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
 
 	if(!store.getState().conversations[conversationId]){ // handle does not exits conversations
-		defineConversationByMessage(mokMessage);
+		toDefineConversation(conversationId, mokMessage);
 		return;
 	}
 	let message = defineBubbleMessage(mokMessage);
@@ -463,21 +463,26 @@ function defineBubbleMessage(mokMessage){
     return message;
 }
 
-function defineConversationByMessage(mokMessage){
+function toDefineConversation(conversationId, mokMessage){
 
-	if(store.getState().users[mokMessage.senderId]==null){
-		monkey.getInfoById(mokMessage.senderId, function(err, resp){
-			if(err != null){
-				store.dispatch(actions.addConversation(createConversation(mokMessage, resp.name)));
+	if(store.getState().users[conversationId]==null){
+		monkey.getInfoById(conversationId, function(err, resp){
+			if(err){
+	            console.log(err);
+	        }else if(resp){
+				if(isConversationGroup(conversationId)){
+					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.info.name, resp.members_info)));
+				}else{
+					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.name)));
+				}
 			}		
 		});
-	}
-	else{
-		store.dispatch(actions.addConversation(createConversation(mokMessage, store.getState().users[mokMessage.senderId].name)));
+	}else{
+		store.dispatch(actions.addConversation(defineConversation(mokMessage, store.getState().users[mokMessage.senderId].name)));
 	}
 }
 
-function createConversation(mokMessage, name){
+function defineConversation(mokMessage, name, members){
 	let message = defineBubbleMessage(mokMessage);
 	let conversation = {
     	id: mokMessage.senderId,
@@ -487,7 +492,7 @@ function createConversation(mokMessage, name){
     		[message.id]: message
     	},
     	lastMessage: message.id,
-    	unreadMessageCount: 1,
+    	unreadMessageCounter: 1,
     	lastOpenMe: undefined,
     	lastOpenApp: undefined,
     	onlineStatus: undefined
