@@ -235,6 +235,9 @@ monkey.on('onAcknowledge', function(mokMessage){
         }
         break;
         case 203:{ // open conversation
+	        if(!store.getState().conversations[conversationId])
+	        	return;
+	        
             let conversation = {
 	            id: conversationId,
 	            lastOpenMe: Number(mokMessage.props.last_open_me)*1000,
