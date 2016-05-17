@@ -6,6 +6,13 @@ class BubbleFile extends Component {
 		
 		this.downloadData = this.downloadData.bind(this);
 	}
+
+	componentWillMount() {		
+        if(this.props.message.data == null && !this.props.message.isDownloading){
+            this.props.dataDownloadRequest(this.props.message.mokMessage);
+            this.props.message.isDownloading = true;
+        }
+	}
 	
 	render() {
 		return (
