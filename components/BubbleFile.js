@@ -27,7 +27,7 @@ class BubbleFile extends Component {
 					</div>
 				)
 				: (
-					<div className='mky-content-audio-loading'>
+					<div className='mky-content-file-loading'>
                         <div className='mky-double-bounce1'></div>
                         <div className='mky-double-bounce2'></div>
                     </div>

@@ -70,8 +70,27 @@ class MonkeyChat extends Component {
 		});
 	}
 	
-	handleOnClickMessage(message) {
-		
+	handleOnClickMessage(mokMessage) {
+
+		let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
+
+		switch(mokMessage.props.file_type){
+			case 3:
+				monkey.downloadFile(mokMessage, function(err, data){
+					console.log('App - image downloaded');
+					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
+					let message = {
+						id: mokMessage.id,
+						data: src
+					}
+					console.log('App - '+mokMessage.id);
+					console.log('App - '+mokMessage.oldId);
+					console.log('App - '+conversationId);
+					store.dispatch(actions.updateMessageData(message, conversationId));
+				});	
+				break;
+		}
+
 	}
 /*
 	conversationToSet() {
@@ -329,6 +348,7 @@ function defineMessage(mokMessage) {
 					console.log('App - '+conversationId);
 					store.dispatch(actions.updateMessageData(message, conversationId));
 				});
+				
 			}else if(mokMessage.props.file_type == 4){ // file
 				monkey.downloadFile(mokMessage, function(err, data){
 					console.log('App - file downloaded');
@@ -363,7 +383,8 @@ function defineBubbleMessage(mokMessage){
 		datetimeOrder: mokMessage.datetimeOrder,
 		recipientId: mokMessage.recipientId,
 		senderId: mokMessage.senderId,
-		status: 50
+		status: 50,
+		mokMessage: mokMessage
     }
     switch (mokMessage.protocolType){
     	case 1:{
