@@ -420,6 +420,10 @@ function defineBubbleMessage(mokMessage){
 	    	}
     	}
     		break;
+		case 207:{
+			return "";
+		}
+			break;
     	default:
     		break;
     }
