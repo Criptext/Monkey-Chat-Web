@@ -33,6 +33,7 @@ class MonkeyChat extends React.Component {
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 		this.init = this.handleInit.bind(this);
+		this.handleGetUserName = this.handleGetUserName.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -72,9 +73,16 @@ class MonkeyChat extends React.Component {
 			if(err){
 	            console.log(err);
 	        }else if(res){
-				res.map( message => {
-					defineMessage(message);
-				});
+		        if(res.length){
+			     	let messages = {};
+					res.map( mokMessage => {
+						let message = defineBubbleMessage(mokMessage);
+						if(message){
+							messages[message.id] = message;	
+						}
+					});
+					store.dispatch(actions.addMessages(messages, conversationId, false));
+		        }
 			}
 		});
 	}
@@ -95,6 +103,14 @@ class MonkeyChat extends React.Component {
 		else if(monkey.getUser() != null){
 			monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), false, vars.MONKEY_DEBUG_MODE, false);
 		}
+	}
+	
+	handleDownloadData(mokMessage){
+		toDownloadMessageData(mokMessage);
+	}
+	
+	handleGetUserName(userId){
+		return store.getState().users[userId].name;
 	}
 	
 /*
@@ -218,8 +234,7 @@ monkey.on('onAcknowledge', function(mokMessage){
 
 // MonkeyChat
 
-function addConversation(user) {
-		
+function addConversation(user) {	
 	if(monkey.getUser() != null){
 		monkey.getAllConversations(function(err, res){
 
@@ -248,6 +263,7 @@ function addConversation(user) {
 			    	
 			        if(isConversationGroup(conversation.id)){
 				        conversationTmp.members = conversation.members;
+				        conversationTmp.description = '';
 			        }else{
 				        conversationTmp.lastOpenMe = undefined,
 				    	conversationTmp.lastOpenApp = undefined,
@@ -358,68 +374,17 @@ function defineMessage(mokMessage) {
 	}
 	
 	let message = defineBubbleMessage(mokMessage);
-	switch (mokMessage.protocolType){
-		case 1:{
-			console.log('App - Case 1')
-			break;
-		}
-		case 2:{
-			if(mokMessage.props.file_type == 1){ // audio
-				monkey.downloadFile(mokMessage, function(err, data){
-					console.log('App - audio downloaded');
-					let src = 'data:audio/mpeg;base64,'+data;
-					let message = {
-						id: mokMessage.id,
-						data: src
-					}
-					console.log('App - '+mokMessage.id);
-					console.log('App - '+mokMessage.oldId);
-					console.log('App - '+conversationId);
-					store.dispatch(actions.updateMessageData(message, conversationId));
-				});
-				
-			}else if(mokMessage.props.file_type == 3){ // image
-				monkey.downloadFile(mokMessage, function(err, data){
-					console.log('App - image downloaded');
-					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
-					let message = {
-						id: mokMessage.id,
-						data: src
-					}
-					console.log('App - '+mokMessage.id);
-					console.log('App - '+mokMessage.oldId);
-					console.log('App - '+conversationId);
-					store.dispatch(actions.updateMessageData(message, conversationId));
-				});
-			}else if(mokMessage.props.file_type == 4){ // file
-				monkey.downloadFile(mokMessage, function(err, data){
-					console.log('App - file downloaded');
-					console.log(data);
-					let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
-					let message = {
-						id: mokMessage.id,
-						data: src
-					}
-					console.log('App - '+mokMessage.id);
-					console.log('App - '+mokMessage.oldId);
-					console.log('App - '+conversationId);
-					store.dispatch(actions.updateMessageData(message, conversationId));
-				});
-			}
-			break;
-		}
-		case 207:{
-			store.dispatch(actions.deleteMessage(message, conversationId));
-			return;
-		}
-	}
+	
 	if(message){
-		store.dispatch(actions.addMessage(message, conversationId));
+		if(conversationSelectedId != conversationId){
+			store.dispatch(actions.addMessage(message, conversationId, true));
+		}else{
+			store.dispatch(actions.addMessage(message, conversationId, false));
+		}
 	}
 }
 
 function defineBubbleMessage(mokMessage){
-		
 	let message = {
     	id: mokMessage.id.toString(),
     	oldId: mokMessage.oldId,
@@ -427,18 +392,11 @@ function defineBubbleMessage(mokMessage){
 		datetimeOrder: mokMessage.datetimeOrder,
 		recipientId: mokMessage.recipientId,
 		senderId: mokMessage.senderId,
-		status: 50
+		status: 50,
+		mokMessage: mokMessage,
+		isDownloading: false
     }
-    
- //    let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
- //    if(isConversationGroup(conversationId)) { // group conversation
-	//     store.getState().conversations[conversationId].members.map( member => {
-	// 	    if(member.monkey_id === message.senderId){
-	// 		    message.name = member.name;
-	// 	    }
-	//     });
-	// }
-    
+	
     switch (mokMessage.protocolType){
     	case 1:{
 	    	message.bubbleType = 'text';
@@ -467,4 +425,54 @@ function defineBubbleMessage(mokMessage){
     		break;
     }
     return message;
+}
+
+function toDownloadMessageData(mokMessage){
+	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
+
+	switch(parseInt(mokMessage.props.file_type)){
+			
+	case 1: // audio
+		monkey.downloadFile(mokMessage, function(err, data){
+			console.log('App - audio downloaded');
+			let src = 'data:audio/mpeg;base64,'+data;
+			let message = {
+				id: mokMessage.id,
+				data: src
+			}
+			console.log('App - '+mokMessage.id);
+			console.log('App - '+mokMessage.oldId);
+			console.log('App - '+conversationId);
+			store.dispatch(actions.updateMessageData(message, conversationId));
+		});
+		break;
+	case 3: // image
+		monkey.downloadFile(mokMessage, function(err, data){
+			console.log('App - image downloaded');
+			let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
+			let message = {
+				id: mokMessage.id,
+				data: src
+			}
+			console.log('App - '+mokMessage.id);
+			console.log('App - '+mokMessage.oldId);
+			console.log('App - '+conversationId);
+			store.dispatch(actions.updateMessageData(message, conversationId));
+		});
+		break;
+	case 4: // file
+		monkey.downloadFile(mokMessage, function(err, data){
+			console.log('App - file downloaded');
+			let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
+			let message = {
+				id: mokMessage.id,
+				data: src
+			}
+			console.log('App - '+mokMessage.id);
+			console.log('App - '+mokMessage.oldId);
+			console.log('App - '+conversationId);
+			store.dispatch(actions.updateMessageData(message, conversationId));
+		});
+		break;
+	}
 }

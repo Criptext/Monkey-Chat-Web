@@ -5,10 +5,14 @@ const Bubble = Component => class extends Component {
 	constructor(props){
 		super(props);
 		this.styleName;
+		this.username;
 	}
-  
+	
+	componentWillMount() {		
+        this.username = this.props.getUserName(this.props.message.senderId);
+	}
+	
 	render() {
-		this.context.userSession;
 		let classBubble = this.defineClass();
 		if(this.props.message.nameColor){
 			this.styleName = { color: this.props.message.nameColor };
@@ -19,9 +23,8 @@ const Bubble = Component => class extends Component {
 					<div className="mky-message-detail">
 					{ this.props.userSessionId === this.props.message.senderId
 						? <Status value={this.props.message.status} classStatus={this.defineStatusClass(this.props.message.status)}/>
-						: (
-							this.props.message.name
-							? <span className="mky-message-user-name">{this.props.message.name}</span>
+						: ( this.username
+							? <span className="mky-message-user-name">{this.username}</span>
 							: null
 						)
 					}
