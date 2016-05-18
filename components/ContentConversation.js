@@ -16,7 +16,6 @@ class ContentConversation extends Component {
 		}
 		this.handleMessageSelected = this.handleMessageSelected.bind(this);
 		this.handleCloseModal = this.handleCloseModal.bind(this);
-		this.listMembers = this.listMembers.bind(this);
 		this.showAside = this.showAside.bind(this);
 	}
 
@@ -46,7 +45,7 @@ class ContentConversation extends Component {
 								? <span id='mky-conversation-selected-status'> {'Last seen ' + defineTime(this.props.conversationSelected.lastOpenApp)}</span>
 								: <span id='mky-conversation-selected-status'> Online </span>
 							)
-							: <span id='mky-conversation-selected-status'> {this.listMembers(this.props.conversationSelected.members)}</span>
+							: <span id='mky-conversation-selected-status'> {this.props.conversationSelected.description}</span>
 						}
 					</div>
 					<div className='mky-signature'>Powered by <a className='mky-signature-link' target='_blank' href='http://criptext.com/'>Criptext</a></div>
@@ -54,7 +53,7 @@ class ContentConversation extends Component {
 				{ this.state.showLocationInput
 					? <LocationInput messageCreated={this.props.messageCreated} disableGeoInput={this.disableGeoInput.bind(this)} />
 					: ( <div className='mky-chat-area'>
-							<TimelineChat loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageSelected={this.handleMessageSelected} onClickMessage={this.props.onClickMessage} dataDownloadRequest={this.props.dataDownloadRequest}/>
+							<TimelineChat loadMessages={this.props.loadMessages} conversationSelected={this.props.conversationSelected} messageSelected={this.handleMessageSelected} onClickMessage={this.props.onClickMessage} dataDownloadRequest={this.props.dataDownloadRequest} getUserName={this.props.getUserName}/>
 							{ this.state.messageSelected
 								? (() => { 
 										const Modal_ = Modal(this.context.bubblePreviews[this.state.messageSelected.bubbleType]);
@@ -77,14 +76,6 @@ class ContentConversation extends Component {
 
 	handleCloseModal(){
 		this.setState({messageSelected: undefined});
-	}
-
-	listMembers(members){
-		var list = [];
-			this.props.conversationSelected.members.map(function(member) {
-				list.push(member.name);
-            })
-		return list.join(', ');
 	}
 
 	showAside(){
