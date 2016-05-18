@@ -13,6 +13,7 @@ class TimelineChat extends Component {
 		this.loadingMessages = 0;
 		this.handleScroll = this.handleScroll.bind(this);
 		this.updateScrollTop = this.updateScrollTop.bind(this);
+		this.getMoreMessages = this.getMoreMessages.bind(this); 
 		this.state = {
 			update: 0
 		}
@@ -33,6 +34,7 @@ class TimelineChat extends Component {
 		if(Object.keys(nextProps.conversationSelected.messages).length != Object.keys(this.props.conversationSelected.messages).length && nextProps.conversationSelected.lastMessage == this.props.conversationSelected.lastMessage && this.props.conversationSelected.id == nextProps.conversationSelected.id){
 			this.loadingMessages = 1;
 		}
+
 	}
 	
 	componentWillMount() {
@@ -40,6 +42,9 @@ class TimelineChat extends Component {
 			this.goBottom = true;
 		}
 		this.orderedConversations = this.sortObject(this.props.conversationSelected.messages);
+		if(Object.keys(this.props.conversationSelected.messages).length === 1){
+			this.getMoreMessages();
+		}
 	}
 	
 	componentWillUpdate() {
@@ -91,7 +96,7 @@ class TimelineChat extends Component {
 			
 		}else if(this.domNode.scrollTop === 0 && this.scrollTop != 0){
 			this.scrollHeight = this.domNode.scrollHeight;
-			this.props.loadMessages(this.props.conversationSelected.id, this.props.conversationSelected.messages[this.orderedConversations[0].key].datetimeCreation/1000);
+			this.getMoreMessages();
 		}	
 		this.scrollTop = this.domNode.scrollTop;
 	}
@@ -113,6 +118,10 @@ class TimelineChat extends Component {
 	        return a.date - b.date;
 	    });
 	    return arr;
+	}
+	
+	getMoreMessages() {
+		this.props.loadMessages(this.props.conversationSelected.id, this.props.conversationSelected.messages[this.orderedConversations[0].key].datetimeCreation/1000);
 	}
 }
 
