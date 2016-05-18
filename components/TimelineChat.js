@@ -66,7 +66,7 @@ class TimelineChat extends Component {
 
 	componentDidUpdate() {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		if(!this.loadingMessages){
+		if(!this.loadingMessages && this.domNode.lastChild!=null){
  			this.domNode.lastChild.scrollIntoView();
  		}
  		this.updateScrollTop();
