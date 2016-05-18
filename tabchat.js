@@ -14,6 +14,8 @@ import MyForm from './components/MyForm.js'
 var monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 
+var MONKEY_APP_ID, MONKEY_APP_KEY, CONVERSATION_ID;
+
 class MonkeyChat extends React.Component {
 	constructor(props){
 		super(props);
@@ -30,6 +32,7 @@ class MonkeyChat extends React.Component {
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
+		this.init = this.handleInit.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -39,10 +42,6 @@ class MonkeyChat extends React.Component {
 	}
 	
 	componentWillMount() {
-		if(monkey.getUser() != null){
-			var user = monkey.getUser();
-			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
-		}
 	}
 	
 	render() {
@@ -50,10 +49,14 @@ class MonkeyChat extends React.Component {
 			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage}/>
 		)
 	}
+
+	componentDidMount() {
+	  window.monkeychat = this;
+	}
 	
 	handleUserSessionToSet(user) {
 		store.dispatch(actions.addUserSession(user));
-		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, true, vars.MONKEY_DEBUG_MODE);
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, true, vars.MONKEY_DEBUG_MODE);
 	}
 	
 	handleMessageToSet(message) {
@@ -78,6 +81,20 @@ class MonkeyChat extends React.Component {
 	
 	handleOnClickMessage(message) {
 		
+	}
+
+	handleInit(appid, appkey, conversationId, initalUser){
+		
+		MONKEY_APP_ID = appid;
+		MONKEY_APP_KEY = appkey;
+		CONVERSATION_ID = conversationId;
+		
+		if(initalUser!=null){
+			monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, false, vars.MONKEY_DEBUG_MODE, false);
+		}
+		else if(monkey.getUser() != null){
+			monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), false, vars.MONKEY_DEBUG_MODE, false);
+		}
 	}
 	
 /*
@@ -205,9 +222,13 @@ function addConversation(user) {
 		
 	if(monkey.getUser() != null){
 		monkey.getAllConversations(function(err, res){
+
+			//SI CONVERSATION ARRAY LLEGA VACIO HACER LO DEL ELSE
+
 	        if(err){
 	            console.log(err);
-	        }else if(res){
+	        }
+	        else if(res && res.data.conversations.length > 0){
 		        let conversations = {};
 		        let users = {};
 		        res.data.conversations.map (conversation => {
@@ -247,37 +268,44 @@ function addConversation(user) {
 		        }
 		        monkey.getPendingMessages();
 	        }
+	        else{
+	        	prepareConversation(user);
+	        }
 	    });
 	}else{
-		let conversationId = 'G:idkgwf6ghcmyfvvrxqiwwmi-3';
-		if(isConversationGroup(conversationId)) { // group conversation
-			monkey.getInfoById(conversationId, function(error, data){
-		        if(data != undefined){
-			        var _members = data.members;
-			        var _info = {name: 'Support: '+user.name}
-			        monkey.createGroup(_members, _info, null, null, function(error, data){ // create new group
-				        
-				        if(data != undefined){
-				        	let newConversation = {
-					        	id: data.group_id,
-					        	name: data.group_info.name,
-					        	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
-					        	unreadMessageCount: 0,
-					        	members: data.members_info,
-					        	messages: {}
-				        	};
-				        	store.dispatch(actions.addConversation(newConversation));
-				        }else{
-					        console.log(error);
-				        }
-			        });
-			        
-		        }else{
-			        console.log(error);
-		        }
-	        });
-		}
+		prepareConversation(user);
 	}	
+}
+
+function prepareConversation(user){
+	let conversationId = CONVERSATION_ID;
+	if(isConversationGroup(conversationId)) { // group conversation
+		monkey.getInfoById(conversationId, function(error, data){
+	        if(data != undefined){
+		        var _members = data.members;
+		        var _info = {name: 'Support: '+user.name}
+		        monkey.createGroup(_members, _info, null, null, function(error, data){ // create new group
+			        
+			        if(data != undefined){
+			        	let newConversation = {
+				        	id: data.group_id,
+				        	name: data.group_info.name,
+				        	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
+				        	unreadMessageCount: 0,
+				        	members: data.members_info,
+				        	messages: {}
+			        	};
+			        	store.dispatch(actions.addConversation(newConversation));
+			        }else{
+				        console.log(error);
+			        }
+		        });
+		        
+	        }else{
+		        console.log(error);
+	        }
+        });
+	}
 }
 
 function prepareMessage(message) {
@@ -402,14 +430,14 @@ function defineBubbleMessage(mokMessage){
 		status: 50
     }
     
-    let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
-    if(isConversationGroup(conversationId)) { // group conversation
-	    store.getState().conversations[conversationId].members.map( member => {
-		    if(member.monkey_id === message.senderId){
-			    message.name = member.name;
-		    }
-	    });
-	}
+ //    let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
+ //    if(isConversationGroup(conversationId)) { // group conversation
+	//     store.getState().conversations[conversationId].members.map( member => {
+	// 	    if(member.monkey_id === message.senderId){
+	// 		    message.name = member.name;
+	// 	    }
+	//     });
+	// }
     
     switch (mokMessage.protocolType){
     	case 1:{
