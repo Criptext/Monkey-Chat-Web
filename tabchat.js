@@ -32,8 +32,8 @@ class MonkeyChat extends React.Component {
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
-		this.init = this.handleInit.bind(this);
 		this.handleGetUserName = this.handleGetUserName.bind(this);
+		this.init = this.handleInit.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -47,7 +47,7 @@ class MonkeyChat extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} getUserName={this.handleGetUserName}/>
 		)
 	}
 
@@ -110,7 +110,7 @@ class MonkeyChat extends React.Component {
 	}
 	
 	handleGetUserName(userId){
-		return store.getState().users[userId].name;
+		return store.getState().users[userId].name ? store.getState().users[userId].name : 'Unknown';
 	}
 	
 /*
@@ -237,52 +237,100 @@ monkey.on('onAcknowledge', function(mokMessage){
 function addConversation(user) {	
 	if(monkey.getUser() != null){
 		monkey.getAllConversations(function(err, res){
-
-			//SI CONVERSATION ARRAY LLEGA VACIO HACER LO DEL ELSE
-
 	        if(err){
 	            console.log(err);
 	        }
 	        else if(res && res.data.conversations.length > 0){
 		        let conversations = {};
 		        let users = {};
+		        let usersToGetInfo = {};
 		        res.data.conversations.map (conversation => {
 			        if(!Object.keys(conversation.info).length)
 			        	return;
 			        
-			        let message = defineBubbleMessage(conversation.last_message);
+			        // define message
+			        let messages = {};
+			        let messageId = null;
+			        if (conversation.last_message.protocolType != 207){
+			        	let message = defineBubbleMessage(conversation.last_message);
+			        	messages[message.id] = message;
+			        	messageId = message.id;
+			        }
+		        
+					// define conversation
 			        let conversationTmp = {
 				    	id: conversation.id,
-				    	name: conversation.info.name,
+				    	name: conversation.info.name == undefined ? 'Unknown' : conversation.info.name,
 				    	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
-				    	messages: {
-				    		[message.id]: message
-				    	},
-				    	lastMessage: message.id
+				    	messages: messages,
+				    	lastMessage: messageId,
+						unreadMessageCounter: 0
 			    	}
 			    	
+			    	// define group conversation
 			        if(isConversationGroup(conversation.id)){
 				        conversationTmp.members = conversation.members;
 				        conversationTmp.description = '';
-			        }else{
+				        // add users into usersToGetInfo
+				        conversation.members.map( id => {
+					        if(!users[id]){
+						        usersToGetInfo[id] = id;
+					        }
+				        });
+			        }else{ // define personal conversation 
 				        conversationTmp.lastOpenMe = undefined,
 				    	conversationTmp.lastOpenApp = undefined,
 				    	conversationTmp.online = undefined
-				    	
+				    	// add user into users
 				    	let userTmp = {
 					    	id: conversation.id,
-					    	name: conversation.info.name
+					    	name: conversation.info.name == undefined ? 'Unknown' : conversation.info.name,
 				    	}
 				    	users[userTmp.id] = userTmp;
+				    	// delete user from usersToGetInfo
+				    	delete usersToGetInfo[userTmp.id];
 			        }
 			        conversations[conversationTmp.id] = conversationTmp;
 		        })
 		        
-		        store.dispatch(actions.addConversations(conversations));
-		        if(Object.keys(users).length){
-			        store.dispatch(actions.addUsersContact(users));
-		        }
-		        monkey.getPendingMessages();
+		        if(Object.keys(usersToGetInfo).length){
+			        // define usersToGetInfo to array
+			        let ids = [];
+			        Object.keys(usersToGetInfo).map(id => {
+				        ids.push(id);
+			        })
+			        
+			        // get user info
+			        monkey.getInfoByIds(ids, function(err, res){
+				        if(err){
+				            console.log(err);
+				        }else if(res){
+					        if(res.length){
+						        let userTmp;
+						        // add user into users
+						        res.map(user => {
+							    	userTmp = {
+								    	id: user.monkey_id,
+								    	name: user.name == undefined ? 'Unknown' : user.name,
+								    }
+								    users[userTmp.id] = userTmp;
+						        });
+					        }
+				        }
+				        
+				        if(Object.keys(users).length){
+					        store.dispatch(actions.addUsersContact(users));
+				        }
+				        store.dispatch(actions.addConversations(conversations));
+				        monkey.getPendingMessages();
+			        });
+		        }else{
+			        if(Object.keys(users).length){
+				        store.dispatch(actions.addUsersContact(users));
+			        }
+			        store.dispatch(actions.addConversations(conversations));
+			        monkey.getPendingMessages();
+				}
 	        }
 	        else{
 	        	prepareConversation(user);
@@ -303,15 +351,40 @@ function prepareConversation(user){
 		        monkey.createGroup(_members, _info, null, null, function(error, data){ // create new group
 			        
 			        if(data != undefined){
+				        // define group conversation
 			        	let newConversation = {
 				        	id: data.group_id,
 				        	name: data.group_info.name,
 				        	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
 				        	unreadMessageCount: 0,
-				        	members: data.members_info,
-				        	messages: {}
-			        	};
-			        	store.dispatch(actions.addConversation(newConversation));
+				        	members: data.members,
+				        	messages: {},
+				        	description: ''
+			        	}
+			        	
+			        	// get user info
+			        	let users = {};
+				        monkey.getInfoByIds(data.members, function(err, res){
+					        if(err){
+					            console.log(err);
+					        }else if(res){
+						        if(res.length){
+							        let userTmp;
+							        // add user into users
+							        res.map(user => {
+								    	userTmp = {
+									    	id: user.monkey_id,
+									    	name: user.name == undefined ? 'Unknown' : user.name,
+									    }
+									    users[userTmp.id] = userTmp;
+							        });
+						        }
+					        }
+					        if(Object.keys(users).length){
+						        store.dispatch(actions.addUsersContact(users));
+					        }
+					        store.dispatch(actions.addConversation(newConversation));
+				        });
 			        }else{
 				        console.log(error);
 			        }

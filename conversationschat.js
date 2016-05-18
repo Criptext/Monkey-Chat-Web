@@ -243,8 +243,8 @@ function getConversations() {
 		        let messageId = null;
 		        if (conversation.last_message.protocolType != 207){
 		        	let message = defineBubbleMessage(conversation.last_message);
-		        	messageId = message.id;
 		        	messages[message.id] = message;
+		        	messageId = message.id;
 		        }
 		        
 		        // define conversation
@@ -254,7 +254,7 @@ function getConversations() {
 			    	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
 			    	messages: messages,
 			    	lastMessage: messageId,
-			    	unreadMessageCounter: 0,
+			    	unreadMessageCounter: 0
 		    	}
 		    	
 		    	// define group conversation
@@ -295,7 +295,6 @@ function getConversations() {
 			        if(err){
 			            console.log(err);
 			        }else if(res){
-				        console.log(res);
 				        if(res.length){
 					        let userTmp;
 					        // add user into users
@@ -308,22 +307,19 @@ function getConversations() {
 					        });
 				        }
 			        }
-			        
 			        if(Object.keys(users).length){
 				        store.dispatch(actions.addUsersContact(users));
 			        }
-			        
+			        store.dispatch(actions.addConversations(conversations));
+			        monkey.getPendingMessages();
 		        });
 	        }else{
-		        
 		        if(Object.keys(users).length){
 			        store.dispatch(actions.addUsersContact(users));
 		        }
-		        
+		        store.dispatch(actions.addConversations(conversations));
+		        monkey.getPendingMessages();
 	        }
-	        
-	        store.dispatch(actions.addConversations(conversations));
-	        monkey.getPendingMessages();
         }
     });
 }
@@ -400,17 +396,6 @@ function defineBubbleMessage(mokMessage){
 		isDownloading: false
     }
     
-    /*
-let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
-    if(isConversationGroup(conversationId)) { // group conversation
-	    store.getState().conversations[conversationId].members.map( member => {
-		    if(member.monkey_id === message.senderId){
-			    message.name = member.name;
-		    }
-	    });
-	}
-*/
-    
     switch (mokMessage.protocolType){
     	case 1:{
 	    	message.bubbleType = 'text';
@@ -449,7 +434,7 @@ function toDefineConversation(conversationId, mokMessage){
 	            console.log(err);
 	        }else if(resp){
 				if(isConversationGroup(conversationId)){
-					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.info.name, resp.members_info)));
+					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.info.name, resp.members_info, resp.members)));
 				}else{
 					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.name)));
 				}
@@ -460,8 +445,10 @@ function toDefineConversation(conversationId, mokMessage){
 	}
 }
 
-function defineConversation(mokMessage, name, members){
+function defineConversation(mokMessage, name, members_info, members){
 	let message = defineBubbleMessage(mokMessage);
+	
+	// define conversation
 	let conversation = {
     	id: mokMessage.senderId,
     	name: name,
@@ -471,11 +458,30 @@ function defineConversation(mokMessage, name, members){
     	},
     	lastMessage: message.id,
     	unreadMessageCounter: 1,
-    	lastOpenMe: undefined,
-    	lastOpenApp: undefined,
-    	onlineStatus: undefined,
-    	description: ''
 	}
+	
+	// define group conversation
+	if(members_info){
+		conversation.description = '';
+		conversation.members = members;
+		
+		// get user info
+		let users = {};
+		let userTmp;
+		members_info.map(user => {
+			userTmp = {
+		    	id: user.monkey_id,
+		    	name: user.name == undefined ? 'Unknown' : user.name,
+		    }
+		    users[userTmp.id] = userTmp;
+		});
+		store.dispatch(actions.addUsersContact(users));
+	}else{ // define personal conversation
+		conversation.lastOpenMe = undefined;
+    	conversation.lastOpenApp = undefined;
+    	conversation.onlineStatus = undefined;
+	}
+	
 	return conversation;
 }
 
