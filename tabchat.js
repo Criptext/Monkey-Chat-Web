@@ -142,6 +142,7 @@ monkey.addListener('onConnect', function(event){
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('onMessage', function(mokMessage){
+	console.log('App - onMessage');
 	defineMessage(mokMessage);
 });
 
@@ -444,11 +445,7 @@ function defineMessage(mokMessage) {
 	let message = defineBubbleMessage(mokMessage);
 	
 	if(message){
-		if(conversationSelectedId != conversationId){
-			store.dispatch(actions.addMessage(message, conversationId, true));
-		}else{
-			store.dispatch(actions.addMessage(message, conversationId, false));
-		}
+		store.dispatch(actions.addMessage(message, conversationId, false));
 	}
 }
 
@@ -508,9 +505,6 @@ function toDownloadMessageData(mokMessage){
 				id: mokMessage.id,
 				data: src
 			}
-			console.log('App - '+mokMessage.id);
-			console.log('App - '+mokMessage.oldId);
-			console.log('App - '+conversationId);
 			store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
@@ -522,9 +516,6 @@ function toDownloadMessageData(mokMessage){
 				id: mokMessage.id,
 				data: src
 			}
-			console.log('App - '+mokMessage.id);
-			console.log('App - '+mokMessage.oldId);
-			console.log('App - '+conversationId);
 			store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
@@ -536,9 +527,6 @@ function toDownloadMessageData(mokMessage){
 				id: mokMessage.id,
 				data: src
 			}
-			console.log('App - '+mokMessage.id);
-			console.log('App - '+mokMessage.oldId);
-			console.log('App - '+conversationId);
 			store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
