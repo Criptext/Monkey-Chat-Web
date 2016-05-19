@@ -14,12 +14,13 @@ const Bubble = Component => class extends Component {
 	
 	render() {
 		let classBubble = this.defineClass();
+		let styleBubble = this.defineStyles();
 		if(this.props.message.nameColor){
 			this.styleName = { color: this.props.message.nameColor };
 		}
     	return (
 			<div className='mky-message-line'>
-				<div id={this.props.message.id} className={classBubble}>
+				<div id={this.props.message.id} className={classBubble} style={styleBubble}>
 					<div className="mky-message-detail">
 					{ this.props.userSessionId === this.props.message.senderId
 						? <Status value={this.props.message.status} classStatus={this.defineStatusClass(this.props.message.status)}/>
@@ -68,6 +69,20 @@ const Bubble = Component => class extends Component {
 		}
 		
 		return prefix+baseClass+' '+prefix+baseClass+'-'+side+' '+prefix+baseClass+'-'+layerClass+' '+prefix+baseClass+'-'+layerClass+'-'+side
+	}
+
+	defineStyles() {
+		if(this.props.layerClass == 'text' && this.props.styles != null){
+			if(this.props.userSessionId === this.props.message.senderId && this.props.styles.colorOut != null){
+				return {background: this.props.styles.colorOut, borderColor: this.props.styles.colorOut};
+			}
+			else if(this.props.userSessionId != this.props.message.senderId && this.props.styles.colorIn != null){
+				return {background: this.props.styles.colorIn, borderColor: this.props.styles.colorIn};
+			}
+		}
+		else{
+			return {};
+		}
 	}
 }
 	

@@ -124,6 +124,7 @@ monkey.on('onConnect', function(event){
 		store.dispatch(actions.addUserSession(user));
 	}else if(!store.getState().users.userSession.id){
 		user.id = event.monkeyId;
+		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		store.dispatch(actions.addUserSession(user));
 	}
 	if(!Object.keys(store.getState().conversations).length){
