@@ -10,7 +10,6 @@ const users = (state = {}, action) => {
 		
 		case DELETE_USER_SESSION:
 			return {
-				...state,
 				userSession: null,
 			}
 

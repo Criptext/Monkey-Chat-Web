@@ -14,7 +14,6 @@ import MyForm from './components/MyForm.js'
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 var conversationSelectedId = 0;
-var logged = false;
 
 class MonkeyChat extends Component {
 	constructor(props){
@@ -51,14 +50,13 @@ class MonkeyChat extends Component {
 	handleUserSessionToSet(user) {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
-		console.log(user);
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
 
 	handleUserSessionLogout() {	
-		logged = false;
 		monkey.logout();
 		store.dispatch(actions.deleteUserSession());
+		store.dispatch(actions.removeConversations());
 	}
 	
 	handleMessageToSet(message) {
@@ -139,7 +137,6 @@ monkey.on('onConnect', function(event){
 	if(!Object.keys(store.getState().conversations).length){
 		getConversations();
 	}
-	logged = true;
 });
 
 // -------------- ON DISCONNECT --------------- //

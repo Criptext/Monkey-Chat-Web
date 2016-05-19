@@ -5,6 +5,7 @@ export const ADD_USERS_CONTACT = 'ADD_USERS_CONTACT'
 
 export const ADD_CONVERSATION = 'ADD_CONVERSATION'
 export const ADD_CONVERSATIONS = 'ADD_CONVERSATIONS'
+export const REMOVE_CONVERSATIONS = 'REMOVE_CONVERSATIONS'
 export const UPDATE_CONVERSATION_STATUS = 'UPDATE_CONVERSATION_STATUS'
 export const UPDATE_CONVERSATION_UNREAD_COUNTER = 'UPDATE_CONVERSATION_UNREAD_COUNTER'
 
@@ -50,6 +51,12 @@ export const addConversations = (conversations) => {
 	return {
 		type: ADD_CONVERSATIONS,
 		conversations: conversations
+	}
+}
+
+export const removeConversations = (conversations) => {
+	return {
+		type: REMOVE_CONVERSATIONS,
 	}
 }
 

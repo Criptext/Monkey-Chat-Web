@@ -87,7 +87,7 @@ class TimelineChat extends Component {
  		}
  		this.updateScrollTop();
  		if(this.scrollHeight != this.domNode.scrollHeight && this.loadingMessages){
- 			console.log('SCROLLIIIIING : ' + (this.domNode.scrollHeight - this.scrollHeight));
+ 			
  			this.domNode.scrollTop += this.domNode.scrollHeight - this.scrollHeight;
  			this.scrollHeight = this.domNode.scrollHeight;
  			this.loadingMessages = 0;
