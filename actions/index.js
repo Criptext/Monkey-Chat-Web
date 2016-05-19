@@ -1,3 +1,4 @@
+export const DELETE_USER_SESSION = 'DELETE_USER_SESSION'
 export const ADD_USER_SESSION = 'ADD_USER_SESSION'
 export const ADD_USER_CONTACT = 'ADD_USER_CONTACT'
 export const ADD_USERS_CONTACT = 'ADD_USERS_CONTACT'
@@ -20,6 +21,12 @@ export const addUserSession = (user) => {
 	return {
 		type: ADD_USER_SESSION,
 		user: user
+	}
+}
+
+export const deleteUserSession = () => {
+	return {
+		type: DELETE_USER_SESSION,
 	}
 }
 

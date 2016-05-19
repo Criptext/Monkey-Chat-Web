@@ -14,6 +14,7 @@ import MyForm from './components/MyForm.js'
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 var conversationSelectedId = 0;
+var logged = false;
 
 class MonkeyChat extends Component {
 	constructor(props){
@@ -28,6 +29,7 @@ class MonkeyChat extends Component {
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 		this.handleGetUserName = this.handleGetUserName.bind(this);
+		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -42,14 +44,21 @@ class MonkeyChat extends Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionLogout={this.handleUserSessionLogout} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
 		)
 	}
 	
 	handleUserSessionToSet(user) {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
+		console.log(user);
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
+	}
+
+	handleUserSessionLogout() {	
+		logged = false;
+		monkey.logout();
+		store.dispatch(actions.deleteUserSession());
 	}
 	
 	handleMessageToSet(message) {
@@ -130,6 +139,7 @@ monkey.on('onConnect', function(event){
 	if(!Object.keys(store.getState().conversations).length){
 		getConversations();
 	}
+	logged = true;
 });
 
 // -------------- ON DISCONNECT --------------- //
