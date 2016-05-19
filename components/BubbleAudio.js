@@ -27,25 +27,26 @@ class BubbleAudio extends Component {
 	
 	render() {
 		return (
-            <div>
-                { this.props.message.data ? (
-                    <div className={'mky-content-audio'}>
-                        <img id={'mky-bubble-audio-play-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-play-button'} onClick={this.playAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/playAudioButton.png'></img>
-                        <img id={'mky-bubble-audio-pause-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-pause-button'} onClick={this.pauseAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/pauseAudioButton.png'></img>
-                        <input id={'bubble-audio-player-'+this.messageId} className='knob second'></input>
-                        <div className='mky-bubble-audio-timer'>
-                            <span>{this.state.minutes}</span><span>:</span><span>{this.state.seconds}</span>
-                        </div>
-                        <audio id={'audio_'+this.messageId} preload='auto' controls='' src={this.props.message.data}></audio>
-                    </div>
-                    ):(
+            <div className={'mky-content-audio'}>
+                { this.props.message.data
+	                ? (
+                    	<div className={'mky-content-audio-data'}>
+	                        <img id={'mky-bubble-audio-play-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-play-button'} onClick={this.playAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/playAudioButton.png'></img>
+	                        <img id={'mky-bubble-audio-pause-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-pause-button'} onClick={this.pauseAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/pauseAudioButton.png'></img>
+	                        <input id={'bubble-audio-player-'+this.messageId} className='knob second'></input>
+	                        <div className='mky-bubble-audio-timer'>
+	                            <span>{this.state.minutes}</span><span>:</span><span>{this.state.seconds}</span>
+	                        </div>
+	                        <audio id={'audio_'+this.messageId} preload='auto' controls='' src={this.props.message.data}></audio>
+						</div>
+                    )
+                    : (
                         <div className='mky-content-audio-loading'>
                             <div className='mky-double-bounce1'></div>
                             <div className='mky-double-bounce2'></div>
                         </div>
                     )
                 }
-    			
             </div>
 		)
 	}

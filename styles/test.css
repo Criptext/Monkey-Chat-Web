@@ -501,3 +501,28 @@ body, html {
   margin: 5px auto;
   position: relative;
 }
+
+.mky-content-audio{
+	width: 100px;
+	height: 112px;
+}
+
+.mky-content-image{
+	height: 200px;
+}
+
+.mky-content-image-data {
+    height: 100%;
+    align-items: center;
+    display: flex;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+    overflow: hidden;
+    justify-content: center;
+}
+
+.mky-content-image-data img{
+	height: 100%;
+	    width: auto;
+  }
