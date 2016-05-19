@@ -14,7 +14,7 @@ import MyForm from './components/MyForm.js'
 var monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 
-var MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, CONVERSATION_ID, VIEW, STYLES;
+var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, CONVERSATION_ID, VIEW, STYLES;
 
 class MonkeyChat extends React.Component {
 	constructor(props){
@@ -98,14 +98,15 @@ class MonkeyChat extends React.Component {
 }
 
 function render() {
-	ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementsByTagName('body')[0]);
+	ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementById(IDDIV));
 }
 
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(appid, appkey, conversationId, initalUser, debugmode, viewchat, customStyles){
+window.monkeychat.init = function(divIDTag, appid, appkey, conversationId, initalUser, debugmode, viewchat, customStyles){
 	
+	IDDIV = divIDTag;
 	MONKEY_APP_ID = appid;
 	MONKEY_APP_KEY = appkey;
 	MONKEY_DEBUG_MODE = debugmode;

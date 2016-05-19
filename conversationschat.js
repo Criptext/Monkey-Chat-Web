@@ -108,7 +108,7 @@ class MonkeyChat extends Component {
 }
 
 function render() {
-	ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementsByTagName('body')[0]);
+	ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementById('my-chat'));
 }
 
 render();

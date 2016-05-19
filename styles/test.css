@@ -1,7 +1,9 @@
 body, html {
-    height: 100%;
-    overflow: hidden;
     margin: 0;
+}
+
+#my-chat{
+  height: 100vh;
 }
 
 .search-input {
@@ -534,3 +536,11 @@ body, html {
   .mky-bubble-image {
     width: auto;
   }
+
+.mky-tab{
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.mky-wrapper-in{
+  background: white;
+}
