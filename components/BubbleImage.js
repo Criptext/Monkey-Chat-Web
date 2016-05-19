@@ -18,13 +18,14 @@ class BubbleImage extends Component {
 	render() {
 		// console.log(this.props.message);
 		return (
-			<div>
+			<div className="mky-content-image">
 				{ this.props.message.data
 					? (
-						<div className="mky-content-image">
+						<div className="mky-content-image-data">
 							<img src={this.props.message.data} onClick={this.openImage}></img>
 						</div>
-					):(
+					)
+					: (
                         <div className='mky-content-image-loading'>
                             <div className='mky-double-bounce1'></div>
                             <div className='mky-double-bounce2'></div>
