@@ -47,7 +47,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'ife4c0qdb0dopbg538lg14i';
+		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
@@ -189,7 +189,8 @@ monkey.on('onAcknowledge', function(mokMessage){
             let message = {
 				id: mokMessage.id,
 				oldId: mokMessage.oldId,
-				status: Number(mokMessage.props.status),
+// 				status: Number(mokMessage.props.status),
+				status: 50,
 				recipientId: mokMessage.recipientId
 			}
 			store.dispatch(actions.updateMessageStatus(message, conversationId));
@@ -199,7 +200,8 @@ monkey.on('onAcknowledge', function(mokMessage){
             let message = {
 				id: mokMessage.id,
 				oldId: mokMessage.oldId,
-				status: Number(mokMessage.props.status),
+// 				status: Number(mokMessage.props.status),
+				status: 50,
 				recipientId: mokMessage.recipientId
 			}
 			store.dispatch(actions.updateMessageStatus(message, conversationId));
@@ -355,7 +357,7 @@ function prepareMessage(message) {
 			break;
 		}
 		case 'audio': { // bubble audio
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, null);
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;

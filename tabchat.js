@@ -142,6 +142,7 @@ monkey.addListener('onConnect', function(event){
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('onMessage', function(mokMessage){
+	console.log('App - onMessage');
 	defineMessage(mokMessage);
 });
 
@@ -444,11 +445,7 @@ function defineMessage(mokMessage) {
 	let message = defineBubbleMessage(mokMessage);
 	
 	if(message){
-		if(conversationSelectedId != conversationId){
-			store.dispatch(actions.addMessage(message, conversationId, true));
-		}else{
-			store.dispatch(actions.addMessage(message, conversationId, false));
-		}
+		store.dispatch(actions.addMessage(message, conversationId, false));
 	}
 }
 
