@@ -14,7 +14,7 @@ class MyForm extends React.Component {
 	render() {
 		return (
 			<div className='monkey-login'>
-				<img className='monkey-logo' src='https://cdn.criptext.com/MonkeyUI/images/monkey_widget_logo.png'></img>
+				<img className='monkey-logo' src={this.defineLogo()}></img>
 					<form className='chat-login-container'>
 						<div className='field-login-text'>
 							
@@ -48,6 +48,13 @@ class MyForm extends React.Component {
 			this.props.handleLoginSession(user);
 		}
 		this.setState({text: ''});
+	}
+
+	defineLogo(){
+		if(this.props.styles != null && this.props.styles.logo != null){
+			return this.props.styles.logo
+		}
+		return 'https://cdn.criptext.com/MonkeyUI/images/monkey_widget_logo.png';
 	}
 }
 

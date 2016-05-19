@@ -14,7 +14,7 @@ import MyForm from './components/MyForm.js'
 var monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 
-var MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, CONVERSATION_ID, VIEW;
+var MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, CONVERSATION_ID, VIEW, STYLES;
 
 class MonkeyChat extends React.Component {
 	constructor(props){
@@ -39,7 +39,7 @@ class MonkeyChat extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={VIEW} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
+			<MonkeyUI view={VIEW} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName} styles={STYLES}/>
 		)
 	}
 
@@ -104,13 +104,14 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(appid, appkey, conversationId, initalUser, debugmode, viewchat){
+window.monkeychat.init = function(appid, appkey, conversationId, initalUser, debugmode, viewchat, customStyles){
 	
 	MONKEY_APP_ID = appid;
 	MONKEY_APP_KEY = appkey;
 	MONKEY_DEBUG_MODE = debugmode;
 	CONVERSATION_ID = conversationId;
 	VIEW = viewchat;
+	STYLES = customStyles != null ? customStyles : {};
 	
 	if(initalUser!=null){
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, false, MONKEY_DEBUG_MODE, false);

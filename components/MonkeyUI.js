@@ -70,7 +70,8 @@ class MonkeyUI extends Component {
 		    bubblePreviews: {
 			    image: ContentViewer,
 			    location: ReceivedLocation
-		    }
+		    },
+		    styles: this.props.styles != null ? this.props.styles : {}
 		}
 	}
 
@@ -126,8 +127,8 @@ class MonkeyUI extends Component {
 			<div className={'mky-wrapper-out '+this.classContent} style={this.state.tabStyle}>
 				{ this.props.view.type === 'classic'
 					? (
-						<div className='mky-tab'>
-                            <span className='mky-tablabel'> Want to know more? </span>
+						<div className='mky-tab' style={this.defineTabStyle()}>
+                            <span className='mky-tablabel' style={this.defineTabTextColor()}> {this.defineTabText()} </span>
                             <div id={this.state.idTabButton} onClick={this.openTab}></div>
                         </div>
 					)
@@ -156,7 +157,7 @@ class MonkeyUI extends Component {
 								<ContentWindow loadMessages={this.props.loadMessages} conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow} expandAside={this.handleShowAside} isMobile={this.state.isMobile} onClickMessage={this.props.onClickMessage} dataDownloadRequest={this.props.dataDownloadRequest} getUserName={this.props.getUserName}/>
 							</div>
 						)
-						: <Form_ handleLoginSession={this.handleLoginSession} />
+						: <Form_ handleLoginSession={this.handleLoginSession} styles={this.props.styles}/>
 					}
 				</div>
 			</div>
@@ -218,6 +219,30 @@ class MonkeyUI extends Component {
 		message.status = 0;
 		this.props.messageToSet(message);
 	}
+
+	defineTabStyle(){
+		if(this.props.styles != null && this.props.styles.tabColor != null){
+			return {background: this.props.styles.tabColor};
+		}
+		else
+			return {};
+	}
+
+	defineTabTextColor(){
+		if(this.props.styles != null && this.props.styles.tabTextColor != null){
+			return {color: this.props.styles.tabTextColor};
+		}
+		else
+			return {};	
+	}
+
+	defineTabText(){
+		if(this.props.styles != null && this.props.styles.tabText != null){
+			return this.props.styles.tabText;
+		}
+		else
+			return 'Want to know more?';
+	}
 }
 
 MonkeyUI.propTypes = {
@@ -236,7 +261,8 @@ MonkeyUI.defaultProps = {
 MonkeyUI.childContextTypes = {
 	userSession: React.PropTypes.object,
 	bubbles: React.PropTypes.object,
-	bubblePreviews: React.PropTypes.object
+	bubblePreviews: React.PropTypes.object,
+	styles: React.PropTypes.object
 }
 
 export default MonkeyUI;

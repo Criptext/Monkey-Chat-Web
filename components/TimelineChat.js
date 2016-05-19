@@ -62,7 +62,7 @@ class TimelineChat extends Component {
 				? this.orderedConversations.map( item => {
 					const message = this.props.conversationSelected.messages[item.key];
 					const Bubble_ = Bubble(this.context.bubbles[message.bubbleType]);
-					return <Bubble_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={message.bubbleType} messageSelected={this.props.messageSelected} onClickMessage={this.props.onClickMessage} dataDownloadRequest={this.props.dataDownloadRequest} getUserName={this.props.getUserName}/>
+					return <Bubble_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={message.bubbleType} messageSelected={this.props.messageSelected} onClickMessage={this.props.onClickMessage} dataDownloadRequest={this.props.dataDownloadRequest} getUserName={this.props.getUserName} styles={this.context.styles}/>
 				})
 				: null}
 		</div>)
@@ -140,6 +140,7 @@ class TimelineChat extends Component {
 TimelineChat.contextTypes = {
     userSession: React.PropTypes.object.isRequired,
     bubbles: React.PropTypes.object.isRequired,
+    styles: React.PropTypes.object.isRequired
 }
 
 export default TimelineChat;
