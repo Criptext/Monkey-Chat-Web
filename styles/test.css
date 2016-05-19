@@ -237,8 +237,8 @@ body, html {
 .menu-bubble {
   position: absolute;
   width: 200px;
-  height: 90px;
-  top: -250%;
+  height: 45px;
+  top: -140%;
   left: -15px;
   text-align: center;
   background-color: #292929;
@@ -259,7 +259,7 @@ body, html {
   width: 0;
   height: 0;
   left: 30px;
-  top: 97px;
+  top: 50px;
   border: 10px solid;
   border-color: #292929 transparent transparent #292929;
 }
@@ -275,7 +275,7 @@ body, html {
 }
 
 .menu-bubble-item{
-  height: 45%;
+  height: 100%;
   overflow: hidden;
   border-radius: 10px;
   cursor: pointer;

@@ -29,6 +29,7 @@ class TimelineChat extends Component {
 		}
 		if(this.props.conversationSelected.id != nextProps.conversationSelected.id){
 			this.scrollTop = 0;
+			this.scrollHeight = 0;
 			this.loadingMessages = 0;
 		}
 
@@ -86,6 +87,7 @@ class TimelineChat extends Component {
  		}
  		this.updateScrollTop();
  		if(this.scrollHeight != this.domNode.scrollHeight && this.loadingMessages){
+ 			console.log('SCROLLIIIIING : ' + (this.domNode.scrollHeight - this.scrollHeight));
  			this.domNode.scrollTop += this.domNode.scrollHeight - this.scrollHeight;
  			this.scrollHeight = this.domNode.scrollHeight;
  			this.loadingMessages = 0;
