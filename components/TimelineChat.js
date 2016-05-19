@@ -11,6 +11,7 @@ class TimelineChat extends Component {
 		this.scrollTop = 0;
 		this.scrollHeight = 0;
 		this.loadingMessages = 0;
+		this.noNewMessage = false;
 		this.handleScroll = this.handleScroll.bind(this);
 		this.updateScrollTop = this.updateScrollTop.bind(this);
 		this.getMoreMessages = this.getMoreMessages.bind(this); 
@@ -28,13 +29,20 @@ class TimelineChat extends Component {
 		}
 		if(this.props.conversationSelected.id != nextProps.conversationSelected.id){
 			this.scrollTop = 0;
+			this.scrollHeight = 0;
 			this.loadingMessages = 0;
 		}
+
+		if(this.props.conversationSelected.id == nextProps.conversationSelected.id && nextProps.conversationSelected.lastMessage == this.props.conversationSelected.lastMessage){
+			this.noNewMessage = true;
+		}else{
+			this.noNewMessage = false;
+		}
+
 		this.orderedConversations = this.sortObject(nextProps.conversationSelected.messages);
 		if(Object.keys(nextProps.conversationSelected.messages).length != Object.keys(this.props.conversationSelected.messages).length && nextProps.conversationSelected.lastMessage == this.props.conversationSelected.lastMessage && this.props.conversationSelected.id == nextProps.conversationSelected.id){
 			this.loadingMessages = 1;
 		}
-
 	}
 	
 	componentWillMount() {
@@ -42,9 +50,6 @@ class TimelineChat extends Component {
 			this.goBottom = true;
 		}
 		this.orderedConversations = this.sortObject(this.props.conversationSelected.messages);
-		if(Object.keys(this.props.conversationSelected.messages).length === 1){
-			this.getMoreMessages();
-		}
 	}
 	
 	componentWillUpdate() {
@@ -67,15 +72,22 @@ class TimelineChat extends Component {
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
 		//this.domNode.lastChild.scrollIntoView();
 	    this.domNode.addEventListener('scroll', this.handleScroll);
+	    if(Object.keys(this.props.conversationSelected.messages).length === 1){
+			this.getMoreMessages();
+		}
 	}
 
 	componentDidUpdate() {
+		if(Object.keys(this.props.conversationSelected.messages).length === 1){
+			this.getMoreMessages();
+		}
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
-		if(!this.loadingMessages && this.domNode.lastChild!=null){
+		if(!this.loadingMessages && this.domNode.lastChild!=null && !this.noNewMessage){
  			this.domNode.lastChild.scrollIntoView();
  		}
  		this.updateScrollTop();
  		if(this.scrollHeight != this.domNode.scrollHeight && this.loadingMessages){
+ 			console.log('SCROLLIIIIING : ' + (this.domNode.scrollHeight - this.scrollHeight));
  			this.domNode.scrollTop += this.domNode.scrollHeight - this.scrollHeight;
  			this.scrollHeight = this.domNode.scrollHeight;
  			this.loadingMessages = 0;
