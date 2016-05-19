@@ -457,7 +457,6 @@ function defineConversation(mokMessage, name, members_info, members){
 	
 	// define conversation
 	let conversation = {
-    	id: mokMessage.senderId,
     	name: name,
     	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
     	messages: {
@@ -469,6 +468,7 @@ function defineConversation(mokMessage, name, members_info, members){
 	
 	// define group conversation
 	if(members_info){
+		conversation.id = mokMessage.recipientId;
 		conversation.description = '';
 		conversation.members = members;
 		
@@ -484,6 +484,7 @@ function defineConversation(mokMessage, name, members_info, members){
 		});
 		store.dispatch(actions.addUsersContact(users));
 	}else{ // define personal conversation
+		conversation.id = mokMessage.senderId;
 		conversation.lastOpenMe = undefined;
     	conversation.lastOpenApp = undefined;
     	conversation.onlineStatus = undefined;
