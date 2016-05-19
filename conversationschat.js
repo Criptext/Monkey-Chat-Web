@@ -154,7 +154,6 @@ monkey.on('onMessage', function(mokMessage){
 monkey.on('onNotification', function(mokMessage){
 
 	console.log('App - onNotification');
-
 	let notType = mokMessage.protocolCommand;
 	let conversationId = mokMessage.senderId;
 	switch (notType){
@@ -178,7 +177,13 @@ monkey.on('onNotification', function(mokMessage){
         }
             break;
         case 207:{ // open arrived
-        	defineMessage(mokMessage);
+        	let message = {
+				id: mokMessage.id,
+			}
+        	if(mokMessage.protocolType == 207){
+				store.dispatch(actions.deleteMessage(message, mokMessage.recipientId));
+				return;
+			}
         }
             break;
         default:
