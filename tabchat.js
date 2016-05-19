@@ -505,9 +505,6 @@ function toDownloadMessageData(mokMessage){
 				id: mokMessage.id,
 				data: src
 			}
-			console.log('App - '+mokMessage.id);
-			console.log('App - '+mokMessage.oldId);
-			console.log('App - '+conversationId);
 			store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
@@ -519,9 +516,6 @@ function toDownloadMessageData(mokMessage){
 				id: mokMessage.id,
 				data: src
 			}
-			console.log('App - '+mokMessage.id);
-			console.log('App - '+mokMessage.oldId);
-			console.log('App - '+conversationId);
 			store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
@@ -533,9 +527,6 @@ function toDownloadMessageData(mokMessage){
 				id: mokMessage.id,
 				data: src
 			}
-			console.log('App - '+mokMessage.id);
-			console.log('App - '+mokMessage.oldId);
-			console.log('App - '+conversationId);
 			store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
