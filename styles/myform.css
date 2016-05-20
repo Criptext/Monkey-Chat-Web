@@ -169,7 +169,7 @@
 }
 
 #user_name{
-    background: url('/images/input_icon_name.png');
+    background: none;
     background-position: left;
     background-repeat: no-repeat;
     background-size: 20px;

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.criptext.com/MonkeyUI/styles/chat.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.criptext.com/MonkeyUI/styles/chatreact.css">
     <link rel="stylesheet" type="text/css" href="styles/test.css">
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/animation.css"><!--[if IE 7]><link rel="stylesheet" href="css/mky-ie7.css"><![endif]-->
@@ -14,23 +14,35 @@
 
   </head>
   <body>
-  	<script type="text/javascript" src="dist/tabChat.js"></script>
+    <div id="myDivForMonkey" class="monkey-tab"></div>
+    <script type="text/javascript" src="dist/tabChat.js"></script>
     <script type="text/javascript">
       (function() {
-        monkeychat.init(( "YOUR_API_ID", 
-                          "YOUR_API_KEY", 
-                          "YOUR_CONVERSATION_ID",
-                          null,
-                          false,
-                          {
-                            type: 'classic',
-                            data: {
-                                    width: '380px',
-                                    height: '500px'
-                                }
-                          },
-                          null);
+        monkeychat.init("",
+                        "", 
+                        "", 
+                        "",
+                        null,
+                        true,
+                        {
+                          type: 'classic',
+                          data: {
+                                  width: '380px',
+                                  height: '500px'
+                              }
+                        },
+                        null);
       })();
+      /*
+      {
+        colorIn: '#E9F8FF',
+        colorOut: '#42a5f5',
+        tabColor: 'red',
+        tabTextColor: 'white',
+        tabText: 'Do you need help?',
+        logo: 'http://cdn.shippify.co/web/images/shippify_logo.png',
+      }
+      */
     </script>
   </body>
 </html>
