@@ -4,6 +4,20 @@ class ContentViewer extends Component {
 	constructor(props){
 		super(props);
 		this.handleImageLoaded=this.handleImageLoaded.bind(this);
+		this.handleResize=this.handleResize.bind(this);
+	}
+	componentDidMount() {
+    window.addEventListener('resize', this.handleResize);
+  }
+	handleResize(){
+
+		var height_ = $('#file_viewer_image').parent().height();
+		var width_ = $('#file_viewer_image').parent().width();
+		$('#viewer-img').css({
+				'max-height': height_+'px',
+				'max-width': width_+'px'
+		});
+		console.log('resizing.....', height_ ,' fff ',width_);
 	}
 
 	render() {
