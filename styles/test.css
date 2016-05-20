@@ -528,6 +528,7 @@ body, html {
 	height: 100%;
 	    width: auto;
   }
+
   
   #user_name{
 	  background: none !important;
@@ -535,6 +536,7 @@ body, html {
   
   .mky-bubble-image {
     width: auto;
+<<<<<<< HEAD
   }
 
 .mky-tab{
@@ -544,3 +546,25 @@ body, html {
 .mky-wrapper-in{
   background: white;
 }
+||||||| merged common ancestors
+  }
+=======
+  }
+
+
+/*HEADER ASIDE*/
+.mky-header-exit{
+  float: right;
+  margin-top: 25px;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+#mky-session-name2 {
+  text-align: left;
+  font-size: 14px;
+  display: block;
+  margin-top: 25px;
+  float: left;
+}
+>>>>>>> upstream/master
