@@ -24,7 +24,7 @@ class ConversationItem extends Component {
 						</div>
 					</div>
 				</div>
-				<div className="delete-conv" onClick={this.deleteConversation}></div>
+				<div className="mky-delete-conv" onClick={this.deleteConversation}></div>
 				<Badge value={this.props.conversation.unreadMessageCounter}/>
 			</li>
 		);

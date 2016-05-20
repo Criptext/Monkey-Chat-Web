@@ -81,7 +81,7 @@ body, html {
 .mky-conversation-selected {
     background-color: #eaf0f9;
 }
-.mky-conversation-unselected:hover .delete-conv{
+.mky-conversation-unselected:hover .mky-delete-conv{
     min-width: 13px;
     position: absolute;
     background-image: url(https://cdn.criptext.com/MonkeyUI/images/w-close-gray.png);
@@ -95,7 +95,7 @@ body, html {
     cursor: pointer;
 }
 
-.mky-conversation-selected:hover .delete-conv{
+.mky-conversation-selected:hover .mky-delete-conv{
     min-width: 13px;
     position: absolute;
     background-image: url(https://cdn.criptext.com/MonkeyUI/images/w-close-gray.png);
