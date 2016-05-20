@@ -4,6 +4,7 @@ export const ADD_USER_CONTACT = 'ADD_USER_CONTACT'
 export const ADD_USERS_CONTACT = 'ADD_USERS_CONTACT'
 
 export const ADD_CONVERSATION = 'ADD_CONVERSATION'
+export const DELETE_CONVERSATION = 'DELETE_CONVERSATION'
 export const ADD_CONVERSATIONS = 'ADD_CONVERSATIONS'
 export const REMOVE_CONVERSATIONS = 'REMOVE_CONVERSATIONS'
 export const UPDATE_CONVERSATION_STATUS = 'UPDATE_CONVERSATION_STATUS'
@@ -63,6 +64,13 @@ export const removeConversations = (conversations) => {
 export const addConversation = (conversation) => {
 	return {
 		type: ADD_CONVERSATION,
+		conversation: conversation
+	}
+}
+
+export const deleteConversation = (conversation) => {
+	return {
+		type: DELETE_CONVERSATION,
 		conversation: conversation
 	}
 }
