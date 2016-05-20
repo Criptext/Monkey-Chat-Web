@@ -29,6 +29,7 @@ class MonkeyChat extends Component {
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 		this.handleGetUserName = this.handleGetUserName.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
+		this.handleDeleteConversation = this.handleDeleteConversation.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -43,12 +44,12 @@ class MonkeyChat extends Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionLogout={this.handleUserSessionLogout} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
+			<MonkeyUI view={this.view} deleteConversation={this.handleDeleteConversation} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionLogout={this.handleUserSessionLogout} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
 		)
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
+		user.monkeyId = 'ife4c0qdb0dopbg538lg14i';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
@@ -62,10 +63,14 @@ class MonkeyChat extends Component {
 	handleMessageToSet(message) {
 		prepareMessage(message);
 	}
+
+	handleDeleteConversation(conversation) {
+		store.dispatch(actions.deleteConversation(conversation));
+	}
 	
 	handleConversationOpened(conversation) {
 		monkey.sendOpenToUser(conversation.id);
-		if(conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
+		if(store.getState().conversations[conversation.id] && conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
 			store.dispatch(actions.updateConversationUnreadCounter(conversation, 0));
 		}
 		conversationSelectedId = conversation.id;

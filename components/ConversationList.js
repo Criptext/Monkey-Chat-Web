@@ -35,7 +35,7 @@ class ConversationList extends Component {
 	    		<ul ref='conversationList' id='mky-conversation-list'>
 				{conversationNameFiltered.map(conversation => {
 	    			return (
-						<ConversationItem key={conversation.id} conversation={conversation} conversationIdSelected={this.conversationIdSelected} selected={this.state.conversation.id === conversation.id}/>
+						<ConversationItem deleteConversation={this.props.deleteConversation} key={conversation.id} conversation={conversation} conversationIdSelected={this.conversationIdSelected} selected={this.state.conversation.id === conversation.id}/>
 					)
 				})}
 				</ul>
