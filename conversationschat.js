@@ -369,7 +369,7 @@ function prepareMessage(message) {
 			break;
 		}
 		case 'audio': { // bubble audio
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, null, null);
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
@@ -425,6 +425,7 @@ function defineBubbleMessage(mokMessage){
 	    	if(mokMessage.props.file_type == 1){
 		    	message.bubbleType = 'audio';
 		    	message.preview = 'Audio';
+		    	message.length = mokMessage.params ? mokMessage.params.length : 1;
 	    	}else if(mokMessage.props.file_type == 3){
 		    	message.bubbleType = 'image';
 		    	message.preview = 'Image';

@@ -73,9 +73,11 @@ class Input extends Component {
 	}
 
     componentWillReceiveProps(nextProps){
+/*
         this.setState({
             option: 0
         });
+*/
     }
 
 	render() {
@@ -180,7 +182,7 @@ class Input extends Component {
         this.mediaRecorder.audioChannels = 1;
         var that = this;
         this.mediaRecorder.ondataavailable = function (blob) {
-            that.clearAudioRecordTimer();
+//             that.clearAudioRecordTimer();
             var timestamp = new Date().getTime();
             that.audioCaptured.blob = blob; //need to save the raw data
             that.audioCaptured.src = URL.createObjectURL(blob); // need to save de URLdata
@@ -225,6 +227,7 @@ class Input extends Component {
                     this.mediaRecorder.stop(); //detiene la grabacion del audio
                 }
                 this.audioCaptured.duration = this.secondsRecording;
+                this.clearAudioRecordTimer();
 	               //      monkeyUI.showChatInput();
 	            this.buildAudio();
 	               //      mediaRecorder = null;
@@ -352,7 +355,7 @@ class Input extends Component {
                 that.audioCaptured.oldId = that.audioMessageOldId;
                 that.audioCaptured.type = 'audio/mpeg';
 
-                let message = {data: that.audioCaptured.src, bubbleType: 'audio', preview: 'Audio'};
+                let message = {data: that.audioCaptured.src, bubbleType: 'audio', preview: 'Audio', length:that.audioCaptured.duration};
                 that.props.messageCreated(message);
 
             } else if (evt.type == 'progress') {
