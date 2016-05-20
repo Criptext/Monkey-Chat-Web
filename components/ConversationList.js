@@ -31,7 +31,7 @@ class ConversationList extends Component {
 		const conversationNameFiltered = this.state.conversationArray.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
     	return (
     		<div className='mky-session-conversations'>
-	    		<SearchInput className='search-input' onChange={this.searchUpdated} />
+	    		<SearchInput className='mky-search-input' onChange={this.searchUpdated} />
 	    		<ul ref='conversationList' id='mky-conversation-list'>
 				{conversationNameFiltered.map(conversation => {
 	    			return (

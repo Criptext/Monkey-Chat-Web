@@ -9,8 +9,8 @@ class BubbleAudio extends Component {
 		this.messageId = (this.props.message.id[0] == '-' ? (this.props.message.datetimeCreation) : this.props.message.id);
 		this.state = {
 			disabledClass: 'mky-disabled',
-			minutes: '00',
-			seconds: '00'
+			minutes: ("0" + parseInt(this.props.message.length/60)).slice(-2),
+			seconds: ("0" + this.props.message.length%60).slice(-2)
 		}
 		this.playAudioBubble = this.playAudioBubble.bind(this);
 		this.pauseAudioBubble = this.pauseAudioBubble.bind(this);
@@ -55,7 +55,7 @@ class BubbleAudio extends Component {
 		$('#mky-bubble-audio-play-button-'+this.messageId).show();
 		$('#mky-bubble-audio-pause-button-'+this.messageId).hide();
 		
-		//this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.length));
+		this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.length ? this.props.message.length : 1));
 		//this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.duration));
 
         let mkyAudioBubble = document.getElementById("audio_"+this.messageId);
