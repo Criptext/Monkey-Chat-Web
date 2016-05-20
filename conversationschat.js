@@ -28,6 +28,7 @@ class MonkeyChat extends Component {
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 		this.handleGetUserName = this.handleGetUserName.bind(this);
+		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -42,7 +43,7 @@ class MonkeyChat extends Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionLogout={this.handleUserSessionLogout} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
 		)
 	}
 	
@@ -50,6 +51,12 @@ class MonkeyChat extends Component {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
+	}
+
+	handleUserSessionLogout() {	
+		monkey.logout();
+		store.dispatch(actions.deleteUserSession());
+		store.dispatch(actions.removeConversations());
 	}
 	
 	handleMessageToSet(message) {
@@ -147,7 +154,6 @@ monkey.on('onMessage', function(mokMessage){
 monkey.on('onNotification', function(mokMessage){
 
 	console.log('App - onNotification');
-
 	let notType = mokMessage.protocolCommand;
 	let conversationId = mokMessage.senderId;
 	switch (notType){
@@ -171,7 +177,13 @@ monkey.on('onNotification', function(mokMessage){
         }
             break;
         case 207:{ // open arrived
-        	defineMessage(mokMessage);
+        	let message = {
+				id: mokMessage.id,
+			}
+        	if(mokMessage.protocolType == 207){
+				store.dispatch(actions.deleteMessage(message, mokMessage.recipientId));
+				return;
+			}
         }
             break;
         default:

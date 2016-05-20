@@ -1,4 +1,4 @@
-import { ADD_CONVERSATION, ADD_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, UPDATE_CONVERSATION_UNREAD_COUNTER, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
+import { ADD_CONVERSATION, ADD_CONVERSATIONS, REMOVE_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, UPDATE_CONVERSATION_UNREAD_COUNTER, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
@@ -7,6 +7,10 @@ const conversations = (state = {}, action) => {
 				...state,
 				...action.conversations
 			}
+		}
+
+		case REMOVE_CONVERSATIONS: {
+			return {}
 		}
 		
 		case ADD_CONVERSATION: {
