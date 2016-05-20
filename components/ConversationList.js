@@ -16,6 +16,7 @@ class ConversationList extends Component {
 		}
 	    this.searchUpdated = this.searchUpdated.bind(this);
 	    this.conversationIdSelected = this.conversationIdSelected.bind(this);
+	    this.handleDeleteConversation = this.handleDeleteConversation.bind(this);
 	    this.domNode;
 	}
 	
@@ -33,14 +34,23 @@ class ConversationList extends Component {
     		<div className='mky-session-conversations'>
 	    		<SearchInput className='mky-search-input' onChange={this.searchUpdated} />
 	    		<ul ref='conversationList' id='mky-conversation-list'>
-				{conversationNameFiltered.map(conversation => {
+				{conversationNameFiltered.map( (conversation, index) => {
 	    			return (
-						<ConversationItem deleteConversation={this.props.deleteConversation} key={conversation.id} conversation={conversation} conversationIdSelected={this.conversationIdSelected} selected={this.state.conversation.id === conversation.id}/>
+						<ConversationItem index={index} deleteConversation={this.handleDeleteConversation} key={conversation.id} conversation={conversation} conversationIdSelected={this.conversationIdSelected} selected={this.state.conversation.id === conversation.id}/>
 					)
 				})}
 				</ul>
 			</div>
 		)
+	}
+
+	handleDeleteConversation(conversation, index){
+		var conversationNameFiltered = this.state.conversationArray.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
+		var nextConversation = conversationNameFiltered[index + 1];
+		if(!nextConversation){
+			nextConversation = conversationNameFiltered[index - 1];
+		}
+		this.props.deleteConversation(conversation, nextConversation);
 	}
 
 	componentDidUpdate() {

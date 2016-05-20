@@ -19,7 +19,8 @@ class MonkeyChat extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			conversation: {}
+			conversation: {},
+			conversationId: undefined
 		}
 		this.view = {
 			type: 'fullscreen'
@@ -44,7 +45,7 @@ class MonkeyChat extends Component {
 
 	render() {
 		return (
-			<MonkeyUI view={this.view} deleteConversation={this.handleDeleteConversation} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionLogout={this.handleUserSessionLogout} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
+			<MonkeyUI conversation={this.props.store.conversations[this.state.conversationId]} view={this.view} deleteConversation={this.handleDeleteConversation} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionLogout={this.handleUserSessionLogout} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
 		)
 	}
 
@@ -66,7 +67,11 @@ class MonkeyChat extends Component {
 		prepareMessage(message);
 	}
 
-	handleDeleteConversation(conversation) {
+	handleDeleteConversation(conversation, nextConversation) {
+		monkey.sendOpenToUser(nextConversation.id);
+		this.setState({
+			conversationId : nextConversation.id
+		})
 		store.dispatch(actions.deleteConversation(conversation));
 	}
 
@@ -75,7 +80,9 @@ class MonkeyChat extends Component {
 		if(store.getState().conversations[conversation.id] && conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
 			store.dispatch(actions.updateConversationUnreadCounter(conversation, 0));
 		}
-		conversationSelectedId = conversation.id;
+		this.setState({
+			conversationId : conversation.id
+		})
 	}
 
 	handleLoadMessages(conversationId, firstMessageId) {

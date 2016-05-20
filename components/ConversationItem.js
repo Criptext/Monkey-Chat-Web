@@ -53,7 +53,7 @@ class ConversationItem extends Component {
 	}
 
 	deleteConversation(){
-		this.props.deleteConversation(this.props.conversation)
+		this.props.deleteConversation(this.props.conversation, this.props.index)
 	}
 }
 
