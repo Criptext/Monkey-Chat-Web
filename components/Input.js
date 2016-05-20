@@ -31,9 +31,10 @@ class Input extends Component {
 			classTextArea: '',
 			minutes: '00',
 			seconds: '00',
-			files: null,
+// 			files: null,
 			text: '',
-            menuVisibility: 0
+            menuVisibility: 0,
+            creatingAudio: false
 		}
 		this.handleOnKeyDownTextArea = this.handleOnKeyDownTextArea.bind(this);
 		this.textMessageInput = this.textMessageInput.bind(this);
@@ -107,7 +108,18 @@ class Input extends Component {
 					<i id='mky-button-send-message'  className="demo-icon mky-send-empty" onClick={this.handleSendMessage}>&#xe811;</i>
 				</div>
 				<div className={'mky-button-input mky-disabledd '+this.state.classAudioButton}>
-					<i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe801;</i>
+				{ this.state.creatingAudio
+					? (
+						<div className="mky-spinner-input-audio">
+							<div className="mky-rect1"></div>
+							<div className="mky-rect2"></div>
+							<div className="mky-rect3"></div>
+							<div className="mky-rect4"></div>
+						</div>
+					)
+					: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe801;</i>
+					
+				}
 				</div>
 				<Dropzone ref="dropzone" className='mky-disappear' onDrop={this.onDrop} >
 	            	<div>Try dropping some files here, or click to select files to upload.</div>
@@ -227,6 +239,7 @@ class Input extends Component {
                     this.mediaRecorder.stop(); //detiene la grabacion del audio
                 }
                 this.audioCaptured.duration = this.secondsRecording;
+                this.setState({creatingAudio: true});
                 this.clearAudioRecordTimer();
 	               //      monkeyUI.showChatInput();
 	            this.buildAudio();
@@ -357,6 +370,7 @@ class Input extends Component {
 
                 let message = {data: that.audioCaptured.src, bubbleType: 'audio', preview: 'Audio', length:that.audioCaptured.duration};
                 that.props.messageCreated(message);
+                that.setState({creatingAudio: false});
 
             } else if (evt.type == 'progress') {
                 var pr = evt.loaded / evt.total * 100;

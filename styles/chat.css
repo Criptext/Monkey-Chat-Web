@@ -915,13 +915,6 @@ TABLE OF CONTENTS
 
 /*content image bubble */
 
-.mky-content-image-loading{
-  width: 40px;
-  height: 40px;
-  margin: 42%;
-  position: relative;
-}
-
 .mky-content-image{
   height: auto;
   max-height: 250px;
@@ -939,13 +932,6 @@ TABLE OF CONTENTS
 }
 
 /*content file bubble */
-
-.mky-content-file-loading{
-  width: 40px;
-  height: 40px;
-  margin: 5px auto;
-  position: relative;
-}
 
 .mky-content-file{
     text-align: left;

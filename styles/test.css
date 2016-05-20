@@ -562,3 +562,51 @@ body, html {
   float: left;
 }
 
+.mky-spinner-input-audio {
+  margin: 0 auto;
+  width: 16px;
+  height: 25px;
+  text-align: center;
+  font-size: 10px;
+}
+
+.mky-spinner-input-audio > div {
+  background-color: #2979ff;
+  height: 100%;
+  width: 3px;
+  display: inline-block;
+  margin: 0 1px 0 0;
+  
+  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+.mky-spinner-input-audio .mky-rect2 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+
+.mky-spinner-input-audio .mky-rect3 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+.mky-spinner-input-audio .mky-rect4 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+
+@-webkit-keyframes sk-stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+  20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes sk-stretchdelay {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% { 
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+  }
+}
