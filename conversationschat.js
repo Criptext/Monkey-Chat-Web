@@ -15,6 +15,9 @@ const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 var conversationSelectedId = 0;
 
+
+
+
 class MonkeyChat extends Component {
 	constructor(props){
 		super(props);
