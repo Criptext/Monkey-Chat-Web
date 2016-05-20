@@ -536,7 +536,6 @@ body, html {
   
   .mky-bubble-image {
     width: auto;
-<<<<<<< HEAD
   }
 
 .mky-tab{
@@ -546,11 +545,6 @@ body, html {
 .mky-wrapper-in{
   background: white;
 }
-||||||| merged common ancestors
-  }
-=======
-  }
-
 
 /*HEADER ASIDE*/
 .mky-header-exit{
@@ -567,4 +561,4 @@ body, html {
   margin-top: 25px;
   float: left;
 }
->>>>>>> upstream/master
+
