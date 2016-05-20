@@ -11,8 +11,8 @@ class ContentViewer extends Component {
 
 	handleResize(){
 
-		var height_ = $('#file_viewer_image').parent().height();
-		var width_ = $('#file_viewer_image').parent().width();
+		var height_ = $('#file_viewer_image').parent().height() - 40;
+		var width_ = $('#file_viewer_image').parent().width() - 40;
 		$('#viewer-img').css({
 				'max-height': height_+'px',
 				'max-width': width_+'px'
