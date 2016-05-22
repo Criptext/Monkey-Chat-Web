@@ -110,11 +110,9 @@ class MonkeyUI extends Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		if(nextProps.conversation){ // conversation selected sent by props
-			this.setState({conversation: nextProps.conversation});
-		}else if(this.state.conversation){
-			//this.setState({conversation: nextProps.conversations[this.state.conversation.id]});
-		}
+
+		this.setState({conversation: nextProps.conversation});
+
 		this.setState({conversations: nextProps.conversations});
 
 		if(nextProps.userSession && (nextProps.userSession.id && this.state.isLoading)){

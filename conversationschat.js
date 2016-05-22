@@ -68,10 +68,16 @@ class MonkeyChat extends Component {
 	}
 
 	handleDeleteConversation(conversation, nextConversation) {
-		monkey.sendOpenToUser(nextConversation.id);
-		this.setState({
-			conversationId : nextConversation.id
-		})
+		if(nextConversation){
+			monkey.sendOpenToUser(nextConversation.id);
+			this.setState({
+				conversationId : nextConversation.id
+			})
+		}else{
+			this.setState({
+				conversationId : undefined
+			})
+		}
 		store.dispatch(actions.deleteConversation(conversation));
 	}
 
