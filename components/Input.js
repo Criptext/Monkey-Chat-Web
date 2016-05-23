@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Dropzone from 'react-dropzone';
 import InputMenu from './InputMenu.js';
+import { getExtention } from '../utils/monkey-utils.js'
 
 var ReactToastr = require("react-toastr");
 var {ToastContainer} = ReactToastr; // This is a React Element.
@@ -53,7 +54,6 @@ class Input extends Component {
 		this.handleAttach = this.handleAttach.bind(this);
 		this.onDrop = this.onDrop.bind(this);
 		this.catchUpFile = this.catchUpFile.bind(this);
-		this.getExtention = this.getExtention.bind(this);
 		this.generateDataFile = this.generateDataFile.bind(this);
 		this.handleSendMessage = this.handleSendMessage.bind(this);
 		this.buildAudio = this.buildAudio.bind(this);
@@ -452,20 +452,14 @@ class Input extends Component {
         }
     }
 
-    getExtention(file) {
-        let arr = file.name.split('.');
-        let extension= arr[arr.length-1];
-        return extension;
-    }
-
     checkExtention(files) {
         var ft=0;  //fileType by extention
-
+		
         var file=["doc","docx","pdf","xls", "xlsx","ppt","pptx"];
         var img=["jpe","jpeg","jpg","png","gif"]; //1
-
-        var extension = this.getExtention(files);
-
+		
+        var extension = getExtention(files.name);
+		
         if(img.indexOf(extension)>-1){
             ft=1;
         }else if(file.indexOf(extension)>-1){

@@ -1157,20 +1157,20 @@ TABLE OF CONTENTS
     float: left;
 }
 
-.mky-icon-word{
+.mky-file-pdf-icon{
+  background-image: url(../images/pdf-icon.png);
+}
+
+.mky-file-word-icon{
   background-image: url(../images/word-icon.png);
 }
 
-.mky-icon-pdf{
-  background-image: url(../images/pdf-icon.png);
+.mky-file-exel-icon{
+  background-image: url(../images/xls-icon.png);
 }
 
 .mky-img-icon{
   background-image: url(../images/img-icon.png);
-}
-
-.mky-xls-icon{
-  background-image: url(../images/xls-icon.png);
 }
 
 .mky-file-detail{

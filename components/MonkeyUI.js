@@ -279,4 +279,4 @@ var ed = document.createElement('link');
 ed.href = 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', ed.type = 'text/css', ed.rel = 'stylesheet', document.getElementsByTagName('head')[0].appendChild(ed)
 
 var ef = document.createElement('link');
-ef.href = 'https://cdn.criptext.com/MonkeyUI/styles/chatx.css', ef.type = 'text/css', ef.rel = 'stylesheet', document.getElementsByTagName('head')[0].appendChild(ef)
+ef.href = 'https://cdn.criptext.com/MonkeyUI/styles/chatq.css', ef.type = 'text/css', ef.rel = 'stylesheet', document.getElementsByTagName('head')[0].appendChild(ef)

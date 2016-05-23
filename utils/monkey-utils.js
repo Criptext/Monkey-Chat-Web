@@ -24,3 +24,9 @@ export const defineTime = (time) => {
     let result = ("0" + nhour).slice(-2) + ":" + ("0" + nmin).slice(-2) + ap + "";
     return result;
 }
+
+export const getExtention = (filename) => {
+    let arr = filename.split('.');
+    let extension = arr[arr.length-1];
+    return extension;
+}
