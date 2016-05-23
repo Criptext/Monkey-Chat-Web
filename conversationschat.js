@@ -15,9 +15,6 @@ const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 var conversationSelectedId = 0;
 
-
-
-
 class MonkeyChat extends Component {
 	constructor(props){
 		super(props);
@@ -52,7 +49,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'ife4c0qdb0dopbg538lg14i';
+		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}

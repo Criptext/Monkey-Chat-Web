@@ -85,7 +85,7 @@ const Bubble = Component => class extends Component {
 		}
 	}
 }
-	
+
 const Status = ({value, classStatus}) => (
 	<div className={"mky-message-status "+classStatus}>
 		{value !== 0 ? <i className="fa fa-check"></i> : null}
