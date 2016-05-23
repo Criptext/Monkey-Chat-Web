@@ -281,3 +281,4 @@ ef.href = 'https://cdn.criptext.com/MonkeyUI/styles/chatq.css', ef.type = 'text/
 
 var ef = document.createElement('link');
 ef.href = 'styles/test.css', ef.type = 'text/css', ef.rel = 'stylesheet', document.getElementsByTagName('head')[0].appendChild(ef)
+

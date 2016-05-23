@@ -42,7 +42,7 @@ class ConversationItem extends Component {
 						</div>
 					</div>
 				</div>
-				<div className="mky-delete-convv" onClick={this.deleteConversation}></div>
+				<div className="mky-delete-conv" onClick={this.deleteConversation}></div>
 				<Badge value={this.props.conversation.unreadMessageCounter}/>
 			</li>
 		);
@@ -53,7 +53,12 @@ class ConversationItem extends Component {
 	}
 
 	deleteConversation(){
-		this.props.deleteConversation(this.props.conversation, this.props.index)
+		if(this.props.selected){
+			console.log('SELECTED');
+			this.props.deleteConversation(this.props.conversation, this.props.index, true)
+		}else{
+			this.props.deleteConversation(this.props.conversation, this.props.index, false)
+		}
 	}
 }
 

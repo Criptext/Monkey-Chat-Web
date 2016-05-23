@@ -44,13 +44,16 @@ class ConversationList extends Component {
 		)
 	}
 
-	handleDeleteConversation(conversation, index){
+	handleDeleteConversation(conversation, index, active){
 		var conversationNameFiltered = this.state.conversationArray.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
 		var nextConversation = conversationNameFiltered[index + 1];
 		if(!nextConversation){
 			nextConversation = conversationNameFiltered[index - 1];
 		}
-		this.props.deleteConversation(conversation, nextConversation);
+		if(active && nextConversation){
+			this.setState({conversation: this.props.conversations[nextConversation.id]});
+		}
+		this.props.deleteConversation(conversation, nextConversation, active);
 	}
 
 	componentDidUpdate() {
