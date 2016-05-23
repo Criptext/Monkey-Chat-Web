@@ -4,21 +4,21 @@ import { getExtention } from '../utils/monkey-utils.js'
 class BubbleFile extends Component {
 	constructor(props) {
 		super(props);
-		
+
 		this.downloadData = this.downloadData.bind(this);
 	}
 
-	componentWillMount() {		
+	componentWillMount() {
         if(this.props.message.data == null && !this.props.message.isDownloading){
             this.props.dataDownloadRequest(this.props.message.mokMessage);
             this.props.message.isDownloading = true;
         }
 	}
-	
+
 	render() {
 		return (
 			<div>
-			{ this.props.message.data 
+			{ this.props.message.data
 				? (
 					<div className='mky-content-file'>
 						<a className='mky-file-link' href={this.props.message.data} download={this.props.message.filename}>
@@ -44,7 +44,7 @@ class BubbleFile extends Component {
 			</div>
 		)
 	}
-	
+
 	downloadData() {
 		this.props.onClickMessage(this.props.message);
 	}
@@ -64,7 +64,7 @@ class BubbleFile extends Component {
 	    } while(Math.abs(bytes) >= thresh && u < units.length - 1);
 	    return bytes.toFixed(1)+' '+units[u];
 	}
-	
+
 	defineFileType(filename) {
         let ft;  //fileType by extention
 		let pdf = ['pdf'];
@@ -78,13 +78,15 @@ class BubbleFile extends Component {
 		if (pdf.indexOf(extension)>-1){
 			ft = 'pdf'
 		}else if (doc.indexOf(extension)>-1){
-            ft = 'word';
-        }else if(xls.indexOf(extension)>-1){
-	        ft = 'exel';
-        }else {
-	     	ft = 'file';   
-        }
-		
+        ft = 'word';
+    }else if(xls.indexOf(extension)>-1){
+      ft = 'exel';
+    }else if(ppt.indexOf(extension)>-1){
+      ft = 'ppt';
+    }else {
+   	   ft = 'file';
+    }
+
         return 'mky-file-'+ft+'-icon';
     }
 }

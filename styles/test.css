@@ -1,3 +1,133 @@
 body, html {
     margin: 0;
 }
+
+.mky-header-exit{
+  margin-top: 22px;
+  margin-right: 9px;
+}
+
+.mky-content-audio-loading{
+	top: 30px;
+	float: none;
+}
+
+.mky-notification-amount {
+    min-width: 10px;
+    border-radius: 50%;
+    background: #42a5f5;
+    color: #fff;
+    font-size: 8px;
+    padding: 4px;
+    text-align: center;
+}
+
+.mky-conversation-image {
+    width: 45px;
+    height: 45px;
+    margin: 10px 18px;
+}
+
+#mky-session-image {
+    width: 40px;
+    height: 40px;
+    margin: 10px 20px;
+    display: inline-table;
+    vertical-align: top;
+    float: left;
+}
+
+#mky-session-description {
+    width: calc(100% - 80px);
+    height: 100%;
+    display: inline-table;
+    vertical-align: top;
+    float: left;
+}
+@media only screen and (max-width: 600px){
+
+  /* Disappear description user session */
+  #mky-session-name2{
+	  display: none;
+  }
+}
+
+.mky-logout{
+	color: #6e8191;
+}
+
+.mky-conversation-state {
+    color: #8a8a8a;
+}
+
+#mky-conversation-list {
+    width: 100%;
+    height: calc(100% - 50px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: auto;
+    background: #f6f7f9;
+}
+
+.mky-conversation-selected {
+    background-color: #eaf0f9;
+}
+
+.mky-viewer-toolbar button{
+  margin-top: 5px;
+}
+#mky-button-exit{
+  margin-right: 7px;
+}
+#user_name{
+  border: 1px solid #ddd;
+  padding: 10px 15px;
+  border-radius: 5px;
+  min-width: 200px;
+  font-size: 14px;
+}
+.mky-conversation-burger{
+  width: 40px;
+}
+
+#mky-message-text-input{
+  width: calc(100% - 100px);
+  margin: 8px 10px;
+}
+#mnk-menu-attach-icon{
+  margin-left: 15px;
+}
+
+#mky-content-connection{
+  /*display: block;*/
+}
+
+.mky-spinner{
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 1) and (max-device-width: 640px) and (min-device-width: 320px){
+  .mky-message-line{
+    max-width: 100%;
+  }
+
+}
+
+
+/*OVERWRITING ANIMATION TIMES*/
+.animated.zoomIn,
+.animated.slideInLeft {
+  animation-duration: 0.3s;
+  animation-delay: 0s;
+}
+.animated.pulse{
+  animation-duration: 0.5s;
+}
+/*END ANIMATION TIMES*/
+
+.mky-file-ppt-icon{
+  background-image: url(https://cdn.criptext.com/MonkeyUI/images/ppt-icon.png);
+}

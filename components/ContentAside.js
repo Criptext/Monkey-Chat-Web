@@ -16,7 +16,7 @@ class ContentAside extends Component {
 					</div>
 					<div id='mky-session-description'>
 						<span id='mky-session-name2'>{this.context.userSession.name}</span>
-						<div className="mky-header-exit" onClick={this.logout}><i className="demo-icon mky-logout">&#xe807;</i></div>
+						<div className="mky-header-exit" onClick={this.logout}><i className="demo-icon mky-logout">&#xe808;</i></div>
 
 					</div>
 				</header>

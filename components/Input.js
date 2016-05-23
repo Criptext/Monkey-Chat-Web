@@ -90,7 +90,7 @@ class Input extends Component {
 			<div id='mky-chat-input'>
 				<div id='mky-divider-chat-input'></div>
 				<div className={'mky-button-input '+this.state.classAttachButton}>
-					<i id="mky-button-attach" className="mky-button-icon demo-icon mky-attach" onClick={this.handleMenuVisibility}>&#xe80a;</i>
+					<i id="mky-button-attach" className="mky-button-icon demo-icon mky-attach" onClick={this.handleMenuVisibility}>&#xe816;</i>
 				</div>
                 <InputMenu toggleVisibility={this.handleMenuVisibility} visible={this.state.menuVisibility} enableGeoInput={this.props.enableGeoInput} handleAttach={this.handleAttach}/>
 				<div className={'mky-button-input '+this.state.classCancelAudioButton}>
@@ -121,8 +121,8 @@ class Input extends Component {
 							<div className="mky-rect4"></div>
 						</div>
 					)
-					: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe801;</i>
-					
+					: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe802;</i>
+
 				}
 				</div>
 				<Dropzone ref="dropzone" className='mky-disappear' onDrop={this.onDrop} >
@@ -418,7 +418,7 @@ class Input extends Component {
     generateDataFile(file) {
         if(file.size <= 5000000){
             FileAPI.readAsDataURL(file, (evt) => {
-                if( evt.type == 'load' ){                
+                if( evt.type == 'load' ){
     	            let message = {
     	                filename: file.name,
     	                filesize: file.size,
@@ -438,7 +438,7 @@ class Input extends Component {
     			            break;
     		            }
     	            }
-    				this.props.messageCreated(message);                
+    				this.props.messageCreated(message);
                 }
             });
         }
@@ -454,12 +454,12 @@ class Input extends Component {
 
     checkExtention(files) {
         var ft=0;  //fileType by extention
-		
+
         var file=["doc","docx","pdf","xls", "xlsx","ppt","pptx"];
         var img=["jpe","jpeg","jpg","png","gif"]; //1
-		
+
         var extension = getExtention(files.name);
-		
+
         if(img.indexOf(extension)>-1){
             ft=1;
         }else if(file.indexOf(extension)>-1){

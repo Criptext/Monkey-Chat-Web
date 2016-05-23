@@ -116,7 +116,7 @@ class MonkeyUI extends Component {
 			this.setState({conversation: nextProps.conversations[this.state.conversation.id]});
 		}
 		this.setState({conversations: nextProps.conversations});
-		
+
 		if(nextProps.userSession && (nextProps.userSession.id && this.state.isLoading)){
 			this.setState({isLoading: false});
 			console.log('App - login ok');
@@ -126,7 +126,7 @@ class MonkeyUI extends Component {
 	render() {
 		const Form_ = ContentLogin(this.props.form);
     	return (
-			<div className={'mky-wrapper-out '+this.classContent} style={this.state.tabStyle}>
+			<div className={'mky-wrapper-out '+this.classContent + ' animated pulse'} style={this.state.tabStyle}>
 				{ this.props.view.type === 'classic'
 					? (
 						<div className='mky-tab' style={this.defineTabStyle()}>
@@ -198,11 +198,11 @@ class MonkeyUI extends Component {
 	}
 
 	handleConversationSelected(conversation) {
-		
+
 		this.setState({
 			conversation: conversation,
 		});
-		
+
 		if (this.state.isMobile) {
 			this.setState({showConversations:false}); //escondiendo el aside solo cuando esta en mobile
 		}
@@ -235,7 +235,7 @@ class MonkeyUI extends Component {
 			return {color: this.props.styles.tabTextColor};
 		}
 		else
-			return {};	
+			return {};
 	}
 
 	defineTabText(){
@@ -280,3 +280,6 @@ ed.href = 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.m
 
 var ef = document.createElement('link');
 ef.href = 'https://cdn.criptext.com/MonkeyUI/styles/chatq.css', ef.type = 'text/css', ef.rel = 'stylesheet', document.getElementsByTagName('head')[0].appendChild(ef)
+
+var ef = document.createElement('link');
+ef.href = 'styles/test.css', ef.type = 'text/css', ef.rel = 'stylesheet', document.getElementsByTagName('head')[0].appendChild(ef)
