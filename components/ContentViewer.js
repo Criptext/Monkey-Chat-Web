@@ -21,7 +21,7 @@ class ContentViewer extends Component {
 
 	render() {
 		return(
-			<div className="mky-viewer-image-container">
+			<div className="mky-viewer-image-container animated pulse">
 				<div className="mky-viewer-toolbar">
 					<a href={this.props.message.data} download="file" >
 						<button className="mky-button-download" title="Download">Download</button>

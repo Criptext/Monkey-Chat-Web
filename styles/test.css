@@ -81,3 +81,27 @@ body, html {
 .mky-conversation-selected {
     background-color: #eaf0f9;
 }
+
+.mky-viewer-toolbar button{
+  margin-top: 5px;
+}
+#mky-button-exit{
+  margin-right: 7px;
+}
+#user_name{
+  border: 1px solid #ddd;
+  padding: 10px 15px;
+  border-radius: 5px;
+  min-width: 200px;
+  font-size: 14px;
+}
+.mky-conversation-burger{
+  width: 40px;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 1) and (max-device-width: 640px) and (min-device-width: 320px){
+  .mky-message-line{
+    max-width: 100%;
+  }
+
+}
