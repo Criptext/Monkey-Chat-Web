@@ -51,8 +51,9 @@ class MonkeyChat extends Component {
 
 	// user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 	// user.monkeyId = 'imvie0trlgpl8ug5a9oirudi';
+	// user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
 	handleUserSessionToSet(user) {
-		user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
+		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
