@@ -78,9 +78,13 @@ class MonkeyChat extends Component {
 							conversationId : nextConversation.id
 						});
 						setConversationSelected(nextConversation.id);
+					}else{
+						setConversationSelected(-1);
 					}
 					store.dispatch(actions.deleteConversation(conversation));
-				}	
+				}else{
+					setConversationSelected(-1);
+				}
 			});	
 		}else{
 			monkey.deleteConversation(conversation.id, (err, data) => {
@@ -91,7 +95,10 @@ class MonkeyChat extends Component {
 						})
 					}
 					store.dispatch(actions.deleteConversation(conversation));
-				}	
+					setConversationSelected(-1);
+				}else{
+					setConversationSelected(-1);
+				}
 			});
 		}
 	}

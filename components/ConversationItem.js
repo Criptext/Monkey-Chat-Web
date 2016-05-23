@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import ModalGeneric from './ModalGeneric.js'
 
 class ConversationItem extends Component {
 	constructor(props) {

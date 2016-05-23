@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import ConversationItem from './ConversationItem.js';
 import SearchInput, {createFilter} from 'react-search-input';
 import ReactDOM from 'react-dom';
+import ModalGeneric from './ModalGeneric.js'
+import DeleteConversation from './DeleteConversation.js'
 
 const KEYS_TO_FILTERS = ['name']
 
@@ -12,12 +14,18 @@ class ConversationList extends Component {
 	    this.state = {
 		    searchTerm: '',
 			conversation: {id: -1},
-			conversationArray: undefined
+			conversationArray: undefined,
+			isDeleting : false,
+			deletingConversation : undefined,
+			deletingIndex : undefined,
+			deletingActive : undefined
 		}
 	    this.searchUpdated = this.searchUpdated.bind(this);
 	    this.conversationIdSelected = this.conversationIdSelected.bind(this);
 	    this.handleDeleteConversation = this.handleDeleteConversation.bind(this);
+	    this.handleAskDeleteConversation = this.handleAskDeleteConversation.bind(this);
 	    this.setConversationSelected = this.setConversationSelected.bind(this);
+	    this.handleCloseModal = this.handleCloseModal.bind(this);
 	    this.domNode;
 	}
 	
@@ -31,13 +39,15 @@ class ConversationList extends Component {
 	
 	render() {
 		const conversationNameFiltered = this.state.conversationArray.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
+		console.log(this.state.isDeleting);
     	return (
     		<div className='mky-session-conversations'>
+    			{ this.state.isDeleting	? <ModalGeneric closeModal={this.handleCloseModal}><DeleteConversation delete={this.handleDeleteConversation} closeModal={this.handleCloseModal} /> </ModalGeneric> : null }
 	    		<SearchInput className='mky-search-input' onChange={this.searchUpdated} />
 	    		<ul ref='conversationList' id='mky-conversation-list'>
 				{conversationNameFiltered.map( (conversation, index) => {
 	    			return (
-						<ConversationItem index={index} deleteConversation={this.handleDeleteConversation} key={conversation.id} conversation={conversation} conversationIdSelected={this.conversationIdSelected} selected={this.state.conversation.id === conversation.id}/>
+						<ConversationItem index={index} deleteConversation={this.handleAskDeleteConversation} key={conversation.id} conversation={conversation} conversationIdSelected={this.conversationIdSelected} selected={this.state.conversation.id === conversation.id}/>
 					)
 				})}
 				</ul>
@@ -45,13 +55,28 @@ class ConversationList extends Component {
 		)
 	}
 
-	handleDeleteConversation(conversation, index, active){
+	handleCloseModal(){
+		this.setState({
+			isDeleting : false
+		});
+	}
+
+	handleAskDeleteConversation(conversation, index, active){
+		this.setState({
+			deletingConversation : conversation,
+			deletingIndex : index,
+			deletingActive : active,
+			isDeleting : true
+		});
+	}
+
+	handleDeleteConversation(){
 		var conversationNameFiltered = this.state.conversationArray.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
-		var nextConversation = conversationNameFiltered[index + 1];
+		var nextConversation = conversationNameFiltered[this.state.deletingIndex + 1];
 		if(!nextConversation){
-			nextConversation = conversationNameFiltered[index - 1];
+			nextConversation = conversationNameFiltered[this.state.deletingIndex - 1];
 		}
-		this.props.deleteConversation(conversation, nextConversation, active, this.setConversationSelected);
+		this.props.deleteConversation(this.state.deletingConversation, nextConversation, this.state.deletingActive, this.setConversationSelected);
 	}
 
 	componentDidUpdate() {
@@ -68,7 +93,17 @@ class ConversationList extends Component {
 	}
 
 	setConversationSelected(conversationId) {
-		this.setState({conversation: this.props.conversations[conversationId]});
+		console.log('Deleting');
+		if(conversationId < 0){
+			this.setState({
+				isDeleting: false
+			});
+		}else{
+			this.setState({
+				conversation: this.props.conversations[conversationId],
+				isDeleting: false
+			});
+		}
 	}
 
 	searchUpdated(term) {
