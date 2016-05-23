@@ -67,24 +67,33 @@ class MonkeyChat extends Component {
 		prepareMessage(message);
 	}
 
-	handleDeleteConversation(conversation, nextConversation, active) {
+	handleDeleteConversation(conversation, nextConversation, active, setConversationSelected) {
 		if(nextConversation){
-			monkey.sendOpenToUser(nextConversation.id);
-			monkey.deleteConversation(conversation.id);
-			if(active){
-				this.setState({
-					conversationId : nextConversation.id
-				})
-			}
+			monkey.deleteConversation(conversation.id, (err, data) => {
+				if(!err){
+					console.log('GOOD');
+					monkey.sendOpenToUser(nextConversation.id);
+					if(active){
+						this.setState({
+							conversationId : nextConversation.id
+						});
+						setConversationSelected(nextConversation.id);
+					}
+					store.dispatch(actions.deleteConversation(conversation));
+				}	
+			});	
 		}else{
-			monkey.deleteConversation(conversation.id);
-			if(active){
-				this.setState({
-					conversationId : undefined
-				})
-			}
+			monkey.deleteConversation(conversation.id, (err, data) => {
+				if(!err){
+					if(active){
+						this.setState({
+							conversationId : undefined
+						})
+					}
+					store.dispatch(actions.deleteConversation(conversation));
+				}	
+			});
 		}
-		store.dispatch(actions.deleteConversation(conversation));
 	}
 
 	handleConversationOpened(conversation) {

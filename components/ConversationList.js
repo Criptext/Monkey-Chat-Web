@@ -17,6 +17,7 @@ class ConversationList extends Component {
 	    this.searchUpdated = this.searchUpdated.bind(this);
 	    this.conversationIdSelected = this.conversationIdSelected.bind(this);
 	    this.handleDeleteConversation = this.handleDeleteConversation.bind(this);
+	    this.setConversationSelected = this.setConversationSelected.bind(this);
 	    this.domNode;
 	}
 	
@@ -50,10 +51,7 @@ class ConversationList extends Component {
 		if(!nextConversation){
 			nextConversation = conversationNameFiltered[index - 1];
 		}
-		if(active && nextConversation){
-			this.setState({conversation: this.props.conversations[nextConversation.id]});
-		}
-		this.props.deleteConversation(conversation, nextConversation, active);
+		this.props.deleteConversation(conversation, nextConversation, active, this.setConversationSelected);
 	}
 
 	componentDidUpdate() {
@@ -67,6 +65,10 @@ class ConversationList extends Component {
 	conversationIdSelected(conversationId) {
 		this.setState({conversation: this.props.conversations[conversationId]});
 		this.props.conversationSelected(this.props.conversations[conversationId]);
+	}
+
+	setConversationSelected(conversationId) {
+		this.setState({conversation: this.props.conversations[conversationId]});
 	}
 
 	searchUpdated(term) {
