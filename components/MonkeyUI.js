@@ -14,6 +14,8 @@ import BubbleLocation from './BubbleLocation.js'
 import ContentViewer from './ContentViewer.js'
 import ReceivedLocation from './ReceivedLocation.js'
 
+import styles from '../styles/animate.css';
+
 const isMobile = {
     Android: function() {
         return navigator.userAgent.match(/Android/i);
@@ -151,7 +153,7 @@ class MonkeyUI extends Component {
 						? (
 							<div id='mky-content-app' className=''>
 								{ this.state.showConversations
-									? <ContentAside userSessionLogout={this.props.userSessionLogout} conversations={this.state.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
+									? <ContentAside deleteConversation={this.props.deleteConversation} userSessionLogout={this.props.userSessionLogout} conversations={this.state.conversations} conversationSelected={this.handleConversationSelected} show={this.showListConversation}/>
 									: null
 								}
 								<ContentWindow loadMessages={this.props.loadMessages} conversationSelected={this.state.conversation} messageCreated={this.handleMessageCreated} expandWindow={this.expandWindow} expandAside={this.handleShowAside} isMobile={this.state.isMobile} onClickMessage={this.props.onClickMessage} dataDownloadRequest={this.props.dataDownloadRequest} getUserName={this.props.getUserName}/>
@@ -266,3 +268,15 @@ MonkeyUI.childContextTypes = {
 }
 
 export default MonkeyUI;
+
+var e = document.createElement('link');
+e.href = 'https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css', e.type = 'text/css', e.rel = 'stylesheet', document.getElementsByTagName('head')[0].appendChild(e)
+
+var ec = document.createElement('script');
+ec.src = 'https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js', ec.type = 'text/javascript', document.getElementsByTagName('head')[0].appendChild(ec)
+
+var ed = document.createElement('link');
+ed.href = 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', ed.type = 'text/css', ed.rel = 'stylesheet', document.getElementsByTagName('head')[0].appendChild(ed)
+
+var ef = document.createElement('link');
+ef.href = 'https://cdn.criptext.com/MonkeyUI/styles/chatx.css', ef.type = 'text/css', ef.rel = 'stylesheet', document.getElementsByTagName('head')[0].appendChild(ef)

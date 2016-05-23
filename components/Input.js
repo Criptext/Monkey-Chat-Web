@@ -2,6 +2,10 @@ import React, { Component } from 'react'
 import Dropzone from 'react-dropzone';
 import InputMenu from './InputMenu.js';
 
+var ReactToastr = require("react-toastr");
+var {ToastContainer} = ReactToastr; // This is a React Element.
+var ToastMessageFactory = React.createFactory(ReactToastr.ToastMessage.animation);
+
 // ======================
 // MediaStreamRecorder.js
 var MediaStreamRecorder = require('../src/MediaStreamRecorder.js').MediaStreamRecorder;
@@ -86,7 +90,7 @@ class Input extends Component {
 			<div id='mky-chat-input'>
 				<div id='mky-divider-chat-input'></div>
 				<div className={'mky-button-input '+this.state.classAttachButton}>
-					<i id="mky-button-attach" className="mky-button-icon demo-icon mky-attach" onClick={this.handleMenuVisibility}>&#xe80a;</i>
+					<i id="mky-button-attach" className="mky-button-icon demo-icon mky-attach" onClick={this.handleMenuVisibility}>&#xe816;</i>
 				</div>
                 <InputMenu toggleVisibility={this.handleMenuVisibility} visible={this.state.menuVisibility} enableGeoInput={this.props.enableGeoInput} handleAttach={this.handleAttach}/>
 				<div className={'mky-button-input '+this.state.classCancelAudioButton}>
@@ -118,12 +122,15 @@ class Input extends Component {
 						</div>
 					)
 					: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe801;</i>
-					
+
 				}
 				</div>
 				<Dropzone ref="dropzone" className='mky-disappear' onDrop={this.onDrop} >
 	            	<div>Try dropping some files here, or click to select files to upload.</div>
 	            </Dropzone>
+                <ToastContainer ref="container"
+                        toastMessageFactory={ToastMessageFactory}
+                        className="toast-bottom-center" />
 			</div>
 		);
 	}
@@ -409,30 +416,40 @@ class Input extends Component {
     }
 
     generateDataFile(file) {
-        FileAPI.readAsDataURL(file, (evt) => {
-            if( evt.type == 'load' ){
-	            let message = {
-	                filename: file.name,
-	                filesize: file.size,
-	                mimetype: file.type
-            	}
-				message.data = evt.result;
-	            let type = this.checkExtention(file);
-	            switch(type){
-		            case 1:{
-			            message.bubbleType = 'image';
-			            message.preview = 'Image';
-			            break;
-		            }
-		            case 2:{
-			            message.bubbleType = 'file';
-			            message.preview = 'File';
-			            break;
-		            }
-	            }
-				this.props.messageCreated(message);
-            }
-        });
+        if(file.size <= 5000000){
+            FileAPI.readAsDataURL(file, (evt) => {
+                if( evt.type == 'load' ){
+    	            let message = {
+    	                filename: file.name,
+    	                filesize: file.size,
+    	                mimetype: file.type
+                	}
+    				message.data = evt.result;
+    	            let type = this.checkExtention(file);
+    	            switch(type){
+    		            case 1:{
+    			            message.bubbleType = 'image';
+    			            message.preview = 'Image';
+    			            break;
+    		            }
+    		            case 2:{
+    			            message.bubbleType = 'file';
+    			            message.preview = 'File';
+    			            break;
+    		            }
+    	            }
+    				this.props.messageCreated(message);
+                }
+            });
+        }
+        else{
+            this.refs.container.warning(
+              "",
+              "File size limit is 5MB", {
+              timeOut: 5000,
+              extendedTimeOut: 0
+            });
+        }
     }
 
     getExtention(file) {

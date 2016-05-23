@@ -27,7 +27,7 @@ class BubbleFile extends Component {
 									<span className='mky-ellipsify'>{this.props.message.filename}</span>
 								</div>
 								<div className='mky-file-size'>
-									<span className='mky-ellipsify'>{this.props.message.filesize+' bytes'}</span>
+									<span className='mky-ellipsify'>{this.humanFileSize(this.props.message.filesize, true)}</span>
 								</div>
 							</div>
 						</a>
@@ -47,6 +47,22 @@ class BubbleFile extends Component {
 	
 	downloadData() {
 		this.props.onClickMessage(this.props.message);
+	}
+
+	humanFileSize(bytes, si) {
+	    var thresh = si ? 1000 : 1024;
+	    if(Math.abs(bytes) < thresh) {
+	        return bytes + ' B';
+	    }
+	    var units = si
+	        ? ['KB','MB','GB','TB','PB','EB','ZB','YB']
+	        : ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+	    var u = -1;
+	    do {
+	        bytes /= thresh;
+	        ++u;
+	    } while(Math.abs(bytes) >= thresh && u < units.length - 1);
+	    return bytes.toFixed(1)+' '+units[u];
 	}
 }
 

@@ -23,13 +23,14 @@
     "fileapi": "^2.0.20",
     "jquery": "^2.2.3",
     "jquery-knob": "^1.2.11",
-    "monkey-sdk": "0.0.79",
+    "monkey-sdk": "0.0.82",
     "react": "^15.0.2",
     "react-dom": "^15.0.2",
     "react-dropzone": "^3.4.0",
     "react-google-maps": "^4.10.1",
     "react-motion": "^0.4.3",
     "react-search-input": "^0.8.0",
+    "react-toastr": "^2.6.1",
     "redux": "^3.4.0"
   }
 }
