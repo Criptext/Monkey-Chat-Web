@@ -7,10 +7,6 @@ body, html {
   margin-right: 9px;
 }
 
-.mky-notification-amount {
-    padding: 4px;
-}
-
 .mky-content-audio-loading{
 	top: 30px;
 	float: none;
@@ -50,7 +46,7 @@ body, html {
 }
 @media only screen and (max-width: 600px){
 
-/* Disappear description user session */
+  /* Disappear description user session */
   #mky-session-name2{
 	  display: none;
   }
@@ -97,7 +93,20 @@ body, html {
 
 #mky-message-text-input{
   width: calc(100% - 100px);
-      margin: 8px 10px;
+  margin: 8px 10px;
+}
+#mnk-menu-attach-icon{
+  margin-left: 15px;
+}
+
+#mky-content-connection{
+  /*display: block;*/
+}
+
+.mky-spinner{
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 1) and (max-device-width: 640px) and (min-device-width: 320px){
@@ -105,4 +114,20 @@ body, html {
     max-width: 100%;
   }
 
+}
+
+
+/*OVERWRITING ANIMATION TIMES*/
+.animated.zoomIn,
+.animated.slideInLeft {
+  animation-duration: 0.3s;
+  animation-delay: 0s;
+}
+.animated.pulse{
+  animation-duration: 0.5s;
+}
+/*END ANIMATION TIMES*/
+
+.mky-file-ppt-icon{
+  background-image: url(https://cdn.criptext.com/MonkeyUI/images/ppt-icon.png);
 }

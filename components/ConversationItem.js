@@ -9,7 +9,7 @@ class ConversationItem extends Component {
 		this.openConversation = this.openConversation.bind(this);
 		this.deleteConversation = this.deleteConversation.bind(this);
 	}
-	
+
 	componentWillReceiveProps(nextProps) {
 		if(nextProps.conversation.unreadMessageCounter > 0){
 			this.setState({unreadMessages: true});
@@ -17,11 +17,11 @@ class ConversationItem extends Component {
 			this.setState({unreadMessages: false});
 		}
 	}
-	
+
 	render() {
 		let classContent = this.props.selected ? 'mky-conversation-selected' : 'mky-conversation-unselected';
     	return (
-			<li className={classContent}>
+			<li className={classContent + ' animated slideInLeft'}>
 				<div className="mky-full" onClick={this.openConversation}>
 					<div className='mky-conversation-image'><img src={this.props.conversation.urlAvatar} onerror='imgError(this);'/></div>
 					<div className='mky-conversation-description'>
@@ -47,7 +47,7 @@ class ConversationItem extends Component {
 			</li>
 		);
 	}
-	
+
 	openConversation(){
 		this.props.conversationIdSelected(this.props.conversation.id);
 	}
@@ -60,8 +60,8 @@ class ConversationItem extends Component {
 const Badge = (props) => (
 	<div className="mky-conversation-notification">
 	{
-		props.value > 0 
-		? <div className="mky-notification-amount">{props.value}</div>
+		props.value > 0
+		? <div className="mky-notification-amount animated pulse">{props.value}</div>
 		: null
 	}
 	</div>

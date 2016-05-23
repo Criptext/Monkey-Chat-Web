@@ -9,7 +9,7 @@ class ContentAside extends Component {
 	}
 	render() {
     	return (
-			<aside className="animated slideInLeft">
+			<aside>
 				<header id='mky-session-header'>
 					<div id='mky-session-image'>
 						<img src={this.context.userSession.urlAvatar}/>

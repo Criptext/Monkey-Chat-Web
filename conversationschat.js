@@ -31,35 +31,37 @@ class MonkeyChat extends Component {
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleDeleteConversation = this.handleDeleteConversation.bind(this);
 	}
-	
+
 	componentWillReceiveProps(nextProps) {
 	}
-	
+
 	componentWillMount() {
 		if(monkey.getUser() != null){
 			var user = monkey.getUser();
 			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 		}
 	}
-	
+
 	render() {
 		return (
 			<MonkeyUI view={this.view} deleteConversation={this.handleDeleteConversation} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionLogout={this.handleUserSessionLogout} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
 		)
 	}
-	
+
+	// user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
+	// user.monkeyId = 'imvie0trlgpl8ug5a9oirudi';
 	handleUserSessionToSet(user) {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
 
-	handleUserSessionLogout() {	
+	handleUserSessionLogout() {
 		monkey.logout();
 		store.dispatch(actions.deleteUserSession());
 		store.dispatch(actions.removeConversations());
 	}
-	
+
 	handleMessageToSet(message) {
 		prepareMessage(message);
 	}
@@ -67,7 +69,7 @@ class MonkeyChat extends Component {
 	handleDeleteConversation(conversation) {
 		store.dispatch(actions.deleteConversation(conversation));
 	}
-	
+
 	handleConversationOpened(conversation) {
 		monkey.sendOpenToUser(conversation.id);
 		if(store.getState().conversations[conversation.id] && conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
@@ -75,8 +77,8 @@ class MonkeyChat extends Component {
 		}
 		conversationSelectedId = conversation.id;
 	}
-	
-	handleLoadMessages(conversationId, firstMessageId) {	
+
+	handleLoadMessages(conversationId, firstMessageId) {
 		monkey.getConversationMessages(conversationId, 10, firstMessageId, function(err, res){
 			if(err){
 	            console.log(err);
@@ -86,19 +88,19 @@ class MonkeyChat extends Component {
 					res.map( mokMessage => {
 						let message = defineBubbleMessage(mokMessage);
 						if(message){
-							messages[message.id] = message;	
+							messages[message.id] = message;
 						}
 					});
 					if(conversationSelectedId != conversationId){
 						store.dispatch(actions.addMessages(messages, conversationId, true));
 					}else{
 						store.dispatch(actions.addMessages(messages, conversationId, false));
-					}   
+					}
 		        }
 			}
 		});
 	}
-	
+
 	handleOnClickMessage(mokMessage) {
 
 	}
@@ -106,11 +108,11 @@ class MonkeyChat extends Component {
 	handleDownloadData(mokMessage){
 		toDownloadMessageData(mokMessage);
 	}
-	
+
 	handleGetUserName(userId){
 		return store.getState().users[userId].name;
 	}
-	
+
 /*
 	conversationToSet() {
 		let newConversation = dataConversation;
@@ -198,7 +200,7 @@ monkey.on('onNotification', function(mokMessage){
 
 // -------------- ON ACKNOWLEDGE --------------- //
 monkey.on('onAcknowledge', function(mokMessage){
-	
+
 	let ackType = mokMessage.protocolType;
 	let conversationId = mokMessage.senderId;
 	switch (ackType){
@@ -227,7 +229,7 @@ monkey.on('onAcknowledge', function(mokMessage){
         case 203:{ // open conversation
 	        if(!store.getState().conversations[conversationId])
 	        	return;
-	        
+
             let conversation = {
 	            id: conversationId,
 	            lastOpenMe: Number(mokMessage.props.last_open_me)*1000,
@@ -257,8 +259,8 @@ function getConversations() {
 	        res.data.conversations.map (conversation => {
 		        if(!Object.keys(conversation.info).length)
 		        	return;
-		        
-		        // define message	
+
+		        // define message
 		        let messages = {};
 		        let messageId = null;
 		        if (conversation.last_message.protocolType != 207){
@@ -266,7 +268,7 @@ function getConversations() {
 		        	messages[message.id] = message;
 		        	messageId = message.id;
 		        }
-		        
+
 		        // define conversation
 		        let conversationTmp = {
 			    	id: conversation.id,
@@ -276,7 +278,7 @@ function getConversations() {
 			    	lastMessage: messageId,
 			    	unreadMessageCounter: 0
 		    	}
-		    	
+
 		    	// define group conversation
 		        if(isConversationGroup(conversation.id)){
 			        conversationTmp.members = undefined;
@@ -287,7 +289,7 @@ function getConversations() {
 					        usersToGetInfo[id] = id;
 				        }
 			        });
-		        }else{ // define personal conversation 
+		        }else{ // define personal conversation
 			        conversationTmp.lastOpenMe = undefined,
 			    	conversationTmp.lastOpenApp = undefined,
 			    	conversationTmp.online = undefined
@@ -302,14 +304,14 @@ function getConversations() {
 		        }
 		        conversations[conversationTmp.id] = conversationTmp;
 	        })
-	        
+
 	        if(Object.keys(usersToGetInfo).length){
 		        // define usersToGetInfo to array
 		        let ids = [];
 		        Object.keys(usersToGetInfo).map(id => {
 			        ids.push(id);
 		        })
-		        
+
 		        // get user info
 		        monkey.getInfoByIds(ids, function(err, res){
 			        if(err){
@@ -415,7 +417,7 @@ function defineBubbleMessage(mokMessage){
 		mokMessage: mokMessage,
 		isDownloading: false
     }
-    
+
     switch (mokMessage.protocolType){
     	case 1:{
 	    	message.bubbleType = 'text';
@@ -426,7 +428,7 @@ function defineBubbleMessage(mokMessage){
     	case 2:{
 	    	message.filename = mokMessage.props.filename;
 			message.mimetype = mokMessage.props.mime_type;
-			
+
 	    	if(mokMessage.props.file_type == 1){
 		    	message.bubbleType = 'audio';
 		    	message.preview = 'Audio';
@@ -463,7 +465,7 @@ function toDefineConversation(conversationId, mokMessage){
 				}else{
 					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.name)));
 				}
-			}		
+			}
 		});
 	}else{
 		store.dispatch(actions.addConversation(defineConversation(mokMessage, store.getState().users[mokMessage.senderId].name)));
@@ -472,7 +474,7 @@ function toDefineConversation(conversationId, mokMessage){
 
 function defineConversation(mokMessage, name, members_info, members){
 	let message = defineBubbleMessage(mokMessage);
-	
+
 	// define conversation
 	let conversation = {
     	name: name,
@@ -483,13 +485,13 @@ function defineConversation(mokMessage, name, members_info, members){
     	lastMessage: message.id,
     	unreadMessageCounter: 1,
 	}
-	
+
 	// define group conversation
 	if(members_info){
 		conversation.id = mokMessage.recipientId;
 		conversation.description = '';
 		conversation.members = members;
-		
+
 		// get user info
 		let users = {};
 		let userTmp;
@@ -507,7 +509,7 @@ function defineConversation(mokMessage, name, members_info, members){
     	conversation.lastOpenApp = undefined;
     	conversation.onlineStatus = undefined;
 	}
-	
+
 	return conversation;
 }
 
@@ -515,7 +517,7 @@ function toDownloadMessageData(mokMessage){
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
 
 	switch(parseInt(mokMessage.props.file_type)){
-			
+
 	case 1: // audio
 		monkey.downloadFile(mokMessage, function(err, data){
 			console.log('App - audio downloaded');
@@ -559,5 +561,5 @@ function listMembers(members){
         })
 	return list.join(', ');
 }
-	
+
 //ENDFILE

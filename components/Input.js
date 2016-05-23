@@ -121,7 +121,7 @@ class Input extends Component {
 							<div className="mky-rect4"></div>
 						</div>
 					)
-					: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe801;</i>
+					: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe802;</i>
 
 				}
 				</div>
@@ -454,12 +454,12 @@ class Input extends Component {
 
     checkExtention(files) {
         var ft=0;  //fileType by extention
-		
+
         var file=["doc","docx","pdf","xls", "xlsx","ppt","pptx"];
         var img=["jpe","jpeg","jpg","png","gif"]; //1
-		
+
         var extension = getExtention(files.name);
-		
+
         if(img.indexOf(extension)>-1){
             ft=1;
         }else if(file.indexOf(extension)>-1){
