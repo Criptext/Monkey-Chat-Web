@@ -39,7 +39,6 @@ class ConversationList extends Component {
 	
 	render() {
 		const conversationNameFiltered = this.state.conversationArray.filter(createFilter(this.state.searchTerm, KEYS_TO_FILTERS));
-		console.log(this.state.isDeleting);
     	return (
     		<div className='mky-session-conversations'>
     			{ this.state.isDeleting	? <ModalGeneric closeModal={this.handleCloseModal}><DeleteConversation delete={this.handleDeleteConversation} closeModal={this.handleCloseModal} /> </ModalGeneric> : null }
@@ -92,8 +91,7 @@ class ConversationList extends Component {
 		this.props.conversationSelected(this.props.conversations[conversationId]);
 	}
 
-	setConversationSelected(conversationId) {
-		console.log('Deleting');
+	setConversationSelected(conversationId){
 		if(conversationId < 0){
 			this.setState({
 				isDeleting: false

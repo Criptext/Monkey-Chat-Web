@@ -55,7 +55,6 @@ class ConversationItem extends Component {
 
 	deleteConversation(){
 		if(this.props.selected){
-			console.log('SELECTED');
 			this.props.deleteConversation(this.props.conversation, this.props.index, true)
 		}else{
 			this.props.deleteConversation(this.props.conversation, this.props.index, false)
