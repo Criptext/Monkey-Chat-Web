@@ -70,12 +70,14 @@ class MonkeyChat extends Component {
 	handleDeleteConversation(conversation, nextConversation, active) {
 		if(nextConversation){
 			monkey.sendOpenToUser(nextConversation.id);
+			monkey.deleteConversation(conversation.id);
 			if(active){
 				this.setState({
 					conversationId : nextConversation.id
 				})
 			}
 		}else{
+			monkey.deleteConversation(conversation.id);
 			if(active){
 				this.setState({
 					conversationId : undefined
