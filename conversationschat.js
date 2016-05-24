@@ -317,7 +317,7 @@ function getConversations() {
 
 		    	// define group conversation
 		        if(isConversationGroup(conversation.id)){
-			        conversationTmp.members = undefined;
+			        conversationTmp.members = conversation.members;
 			        conversationTmp.description = '';
 			        // add users into usersToGetInfo
 			        conversation.members.map( id => {

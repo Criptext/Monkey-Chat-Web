@@ -182,3 +182,29 @@ body, html {
     margin-right: 15%;
 }
 
+
+.mky-conversatio-description{
+	font-size: none;
+    text-align: none;
+    white-space: none;
+}
+.mky-conversation-title{
+	width: 100%;
+	display: flex;
+}
+.mky-conversation-name{
+	width: calc(100% - 70px);
+	float: left;
+	font-size: 14px;
+    text-align: left;
+    white-space: nowrap;
+}
+.mky-conversation-time{
+	width: 65px;
+	float: right;
+	margin-left: 5px;
+	text-align: right;
+}
+.mky-conversation-time span{
+	font-size: 10px;
+}
