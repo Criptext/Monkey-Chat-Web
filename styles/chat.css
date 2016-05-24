@@ -1169,6 +1169,10 @@ TABLE OF CONTENTS
   background-image: url(../images/xls-icon.png);
 }
 
+.mky-file-ppt-icon{
+  background-image: url(../images/ppt-icon.png);
+}
+
 .mky-img-icon{
   background-image: url(../images/img-icon.png);
 }
