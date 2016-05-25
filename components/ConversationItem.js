@@ -10,6 +10,7 @@ class ConversationItem extends Component {
 		}
 		this.openConversation = this.openConversation.bind(this);
 		this.deleteConversation = this.deleteConversation.bind(this);
+		this.showNotification = this.showNotification.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -21,7 +22,7 @@ class ConversationItem extends Component {
 	}
 
 	render() {
-		let classContent = this.props.selected ? 'mky-conversation-selected' : 'mky-conversation-unselected';
+			let classContent = this.props.selected ? 'mky-conversation-selected' : 'mky-conversation-unselected';
     	return (
 			<li className={classContent + ' animated slideInLeft'}>
 				<div className="mky-full" onClick={this.openConversation}>
@@ -49,8 +50,13 @@ class ConversationItem extends Component {
 						</div>
 					</div>
 				</div>
-				<div className="mky-delete-conv" onClick={this.deleteConversation}></div>
-				<Badge value={this.props.conversation.unreadMessageCounter}/>
+				<div className="mky-delete-convv" onClick={this.deleteConversation}></div>
+				<Badge value={this.props.conversation.unreadMessageCounter} />
+				{
+					this.props.conversation.unreadMessageCounter > 0 ?
+						this.showNotification(this.props.conversation.name , this.props.conversation.messages[this.props.conversation.lastMessage].preview, this.props.conversation.urlAvatar )
+					:null
+				}
 			</li>
 		);
 	}
@@ -66,9 +72,47 @@ class ConversationItem extends Component {
 			this.props.deleteConversation(this.props.conversation, this.props.index, false)
 		}
 	}
+
+	showNotification(name, message, user_image ) {
+			console.log('has to show a new notification');
+			console.log(name);
+			console.log(message);
+			console.log(user_image);
+      var title = name;
+      var desc = message;
+      var url = 'http://criptext.com/';
+      var imageURL = user_image;
+      if (imageURL == '') {
+          imageURL = "http://cdn.criptext.com/MonkeyUI/images/userdefault.png";
+      }
+      // NOTIFICATION
+      if (!Notification) {
+          console.log('Desktop notifications not available in your browser..');
+          return;
+      }
+      if (Notification.permission !== "granted") {
+					console.log('requestPermission');
+          Notification.requestPermission();
+      } else {
+					console.log('crear notification');
+          // Create Notification
+          var notification = new Notification(title, {
+              icon: imageURL,
+              body: desc,
+          });
+          // Remove the notification from Notification Center when clicked.
+          notification.onclick = function() {
+              window.open(url);
+          };
+          // Callback function when the notification is closed.
+          notification.onclose = function() {
+              console.log('Notification closed');
+          };
+      }
+  }
 }
 
-const Badge = (props) => (
+const Badge = (props , showNotification) => (
 	<div className="mky-conversation-notification">
 	{
 		props.value > 0
