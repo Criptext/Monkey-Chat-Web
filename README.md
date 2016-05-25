@@ -2,6 +2,8 @@
 
 MonkeyChat help you set up your own chat in your site.
 
+***
+
 * If you need to add your chat the fast way to do it:
 
 ## MonkeyChat CDN
@@ -14,7 +16,7 @@ To start setup chat.
 ```
 monkeychat.init(IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, CONVERSATION_ID, MONKEY_DEBUG_MODE, VIEW, STYLES);
 ```
-IDDIV: Id of <div> tag where you will add the chat in your html.
+IDDIV: Id of 'div' tag where you will add the chat in your html.
 
 MONKEY_APP_ID: Monkey ID from your app.
 
@@ -28,9 +30,7 @@ VIEW: To define the type chat view.
 
 STYLES: To define the styles of the chat view.
 
-
-
-
+***
 
 * If you need to add your chat the customize way to do it:
 
@@ -171,8 +171,11 @@ let styles = {
 ```
 
 
-## * Options
+### * Options
 The following options are supported in view:
+
 type: 'classic' | 'fullscreen'
+
 If use 'classic' add the data:
+
 data: {width: '380px',height: '500px'}
