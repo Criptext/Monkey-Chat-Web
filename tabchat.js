@@ -485,9 +485,14 @@ function defineBubbleMessage(mokMessage){
 		    	message.bubbleType = 'file';
 		    	message.preview = 'File';
 		    	message.filesize = mokMessage.props.size;
+	    	}else{
+		    	return "";
 	    	}
     	}
     		break;
+    	case 207:{
+			return "";
+		}
     	default:
     		break;
     }
