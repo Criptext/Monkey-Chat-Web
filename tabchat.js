@@ -157,7 +157,7 @@ monkey.on('onNotification', function(mokMessage){
 	switch (notType){
 		case 200:{ // message
 			var proType = mokMessage.protocolType;
-			if(proType == 3){ // Temporal Notificatio
+			if(proType == 3){ // Temporal Notification
 				// HOW USE DATA BY PARAMS
 				let typeTmpNotif = mokMessage.params.type;
                 if (typeTmpNotif == 20 || typeTmpNotif == 21) { // typing state
