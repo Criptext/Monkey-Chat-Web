@@ -19,7 +19,7 @@ const Bubble = Component => class extends Component {
 		if(this.props.message.nameColor){
 			this.styleName = { color: this.props.message.nameColor };
 		}
-		
+
     	return (
 			<div className='mky-message-line'>
 				<div id={this.props.message.id} className={classBubble} style={styleBubble}>
@@ -95,7 +95,7 @@ const Status = ({value, classStatus, resendFunction}) => (
 	<div className={"mky-message-status "+classStatus} onClick={resendFunction}>
 		{
 			value !== 0 ? (
-				value == -1 ? <i className="demo-icon mky-check">!</i> : <i className="demo-icon mky-check">&#xe80a;</i>
+				value == -1 ? <i className="demo-icon mky-check">!</i> : <i className="demo-icon mky-check">&#xe814;</i>
 			)
 			: null
 		}

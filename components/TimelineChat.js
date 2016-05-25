@@ -14,7 +14,7 @@ class TimelineChat extends Component {
 		this.noNewMessage = false;
 		this.handleScroll = this.handleScroll.bind(this);
 		this.updateScrollTop = this.updateScrollTop.bind(this);
-		this.getMoreMessages = this.getMoreMessages.bind(this); 
+		this.getMoreMessages = this.getMoreMessages.bind(this);
 		this.state = {
 			update: 0
 		}
@@ -44,20 +44,20 @@ class TimelineChat extends Component {
 			this.loadingMessages = 1;
 		}
 	}
-	
+
 	componentWillMount() {
 		if(this.props.conversationSelected.unreadMessageCount === 0){
 			this.goBottom = true;
 		}
 		this.orderedConversations = this.sortObject(this.props.conversationSelected.messages);
 	}
-	
+
 	componentWillUpdate() {
-		
+
 	}
 
 	render(){
-		return( <div ref="timelineChat" id='mky-chat-timeline'>
+		return( <div ref="timelineChat" id='mky-chat-timeline'> <div className="mky-chat-inner-timeline">
 			{ Object.keys(this.props.conversationSelected).length
 				? this.orderedConversations.map( item => {
 					const message = this.props.conversationSelected.messages[item.key];
@@ -65,7 +65,7 @@ class TimelineChat extends Component {
 					return <Bubble_ key={message.id} message={message} userSessionId={this.context.userSession.id} layerClass={message.bubbleType} messageSelected={this.props.messageSelected} onClickMessage={this.props.onClickMessage} dataDownloadRequest={this.props.dataDownloadRequest} getUserName={this.props.getUserName} styles={this.context.styles}/>
 				})
 				: null}
-		</div>)
+		</div></div>)
 	}
 
 	componentDidMount() {
@@ -87,13 +87,13 @@ class TimelineChat extends Component {
  		}
  		this.updateScrollTop();
  		if(this.scrollHeight != this.domNode.scrollHeight && this.loadingMessages){
- 			
+
  			this.domNode.scrollTop += this.domNode.scrollHeight - this.scrollHeight;
  			this.scrollHeight = this.domNode.scrollHeight;
  			this.loadingMessages = 0;
  		}
 	}
-	
+
 	updateScrollTop(){
 		this.domNode = ReactDOM.findDOMNode(this.refs.timelineChat);
 
@@ -101,15 +101,15 @@ class TimelineChat extends Component {
 			this.scrollTop = this.domNode.scrollTop;
 			return;
 		}
-		
+
 		if (this.goBottom){
 			this.goBottom = false;
 // 			this.domNode.lastChild.scrollIntoView();
-			
+
 		}else if(this.domNode.scrollTop === 0 && this.scrollTop != 0){
 			this.scrollHeight = this.domNode.scrollHeight;
 			this.getMoreMessages();
-		}	
+		}
 		this.scrollTop = this.domNode.scrollTop;
 	}
 
@@ -131,7 +131,7 @@ class TimelineChat extends Component {
 	    });
 	    return arr;
 	}
-	
+
 	getMoreMessages() {
 		this.props.loadMessages(this.props.conversationSelected.id, this.props.conversationSelected.messages[this.orderedConversations[0].key].datetimeCreation/1000);
 	}

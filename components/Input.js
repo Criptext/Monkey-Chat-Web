@@ -87,15 +87,15 @@ class Input extends Component {
 
 	render() {
     	return (
-			<div id='mky-chat-input'>
+			<div id='mky-chat-input'> <div className="mky-chat-inner-input">
 				<div id='mky-divider-chat-input'></div>
 				<div className={'mky-button-input '+this.state.classAttachButton}>
-					<i id="mky-button-attach" className="mky-button-icon demo-icon mky-attach" onClick={this.handleMenuVisibility}>&#xe816;</i>
+					<i id="mky-button-attach" className="mky-button-icon demo-icon mky-attach" onClick={this.handleMenuVisibility}>&#xe825;</i>
 				</div>
                 <InputMenu toggleVisibility={this.handleMenuVisibility} visible={this.state.menuVisibility} enableGeoInput={this.props.enableGeoInput} handleAttach={this.handleAttach}/>
 				<div className={'mky-button-input '+this.state.classCancelAudioButton}>
 
-					<i id="mky-button-cancel-audio" className=" mky-button-icon demo-icon mky-trashcan-empty"  onClick={this.handleCancelAudio}>&#xe80e;</i>
+					<i id="mky-button-cancel-audio" className=" mky-button-icon demo-icon mky-trashcan-empty"  onClick={this.handleCancelAudio}>&#xe809;</i>
 				</div>
 				<textarea ref='textareaInput' id="mky-message-text-input" className={'mky-textarea-input '+this.state.classTextArea} value={this.state.text} placeholder="Write a secure message" onKeyDown={this.handleOnKeyDownTextArea} onChange={this.handleOnChangeTextArea}></textarea>
 				<div id='mky-record-area' className={this.state.classAudioArea}>
@@ -109,7 +109,7 @@ class Input extends Component {
 					</div>
 				</div>
 				<div className={'mky-button-input '+this.state.classSendButton}>
-					<i id='mky-button-send-message'  className="demo-icon mky-send-empty" onClick={this.handleSendMessage}>&#xe811;</i>
+					<i id='mky-button-send-message'  className="demo-icon mky-send-empty" onClick={this.handleSendMessage}>&#xe80b;</i>
 				</div>
 				<div className={'mky-button-input mky-disabledd '+this.state.classAudioButton}>
 				{ this.state.creatingAudio
@@ -121,7 +121,7 @@ class Input extends Component {
 							<div className="mky-rect4"></div>
 						</div>
 					)
-					: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe802;</i>
+					: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe823;</i>
 
 				}
 				</div>
@@ -131,7 +131,7 @@ class Input extends Component {
                 <ToastContainer ref="container"
                         toastMessageFactory={ToastMessageFactory}
                         className="toast-bottom-center" />
-			</div>
+			</div></div>
 		);
 	}
 
