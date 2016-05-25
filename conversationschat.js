@@ -19,7 +19,8 @@ class MonkeyChat extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			conversation: {}
+			conversation: {},
+			conversationId: undefined
 		}
 		this.view = {
 			type: 'fullscreen'
@@ -44,12 +45,13 @@ class MonkeyChat extends Component {
 
 	render() {
 		return (
-			<MonkeyUI view={this.view} deleteConversation={this.handleDeleteConversation} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionLogout={this.handleUserSessionLogout} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
+			<MonkeyUI conversation={this.props.store.conversations[this.state.conversationId]} view={this.view} deleteConversation={this.handleDeleteConversation} userSession={this.props.store.users.userSession} conversations={this.props.store.conversations} userSessionLogout={this.handleUserSessionLogout} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
 		)
 	}
 
 	// user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 	// user.monkeyId = 'imvie0trlgpl8ug5a9oirudi';
+	// user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
 	handleUserSessionToSet(user) {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
@@ -66,8 +68,40 @@ class MonkeyChat extends Component {
 		prepareMessage(message);
 	}
 
-	handleDeleteConversation(conversation) {
-		store.dispatch(actions.deleteConversation(conversation));
+	handleDeleteConversation(conversation, nextConversation, active, setConversationSelected) {
+		if(nextConversation){
+			monkey.deleteConversation(conversation.id, (err, data) => {
+				if(!err){
+					console.log('GOOD');
+					monkey.sendOpenToUser(nextConversation.id);
+					if(active){
+						this.setState({
+							conversationId : nextConversation.id
+						});
+						setConversationSelected(nextConversation.id);
+					}else{
+						setConversationSelected(-1);
+					}
+					store.dispatch(actions.deleteConversation(conversation));
+				}else{
+					setConversationSelected(-1);
+				}
+			});	
+		}else{
+			monkey.deleteConversation(conversation.id, (err, data) => {
+				if(!err){
+					if(active){
+						this.setState({
+							conversationId : undefined
+						})
+					}
+					store.dispatch(actions.deleteConversation(conversation));
+					setConversationSelected(-1);
+				}else{
+					setConversationSelected(-1);
+				}
+			});
+		}
 	}
 
 	handleConversationOpened(conversation) {
@@ -75,7 +109,9 @@ class MonkeyChat extends Component {
 		if(store.getState().conversations[conversation.id] && conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
 			store.dispatch(actions.updateConversationUnreadCounter(conversation, 0));
 		}
-		conversationSelectedId = conversation.id;
+		this.setState({
+			conversationId : conversation.id
+		})
 	}
 
 	handleLoadMessages(conversationId, firstMessageId) {
@@ -281,7 +317,7 @@ function getConversations() {
 
 		    	// define group conversation
 		        if(isConversationGroup(conversation.id)){
-			        conversationTmp.members = undefined;
+			        conversationTmp.members = conversation.members;
 			        conversationTmp.description = '';
 			        // add users into usersToGetInfo
 			        conversation.members.map( id => {

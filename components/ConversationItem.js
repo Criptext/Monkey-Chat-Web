@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import ModalGeneric from './ModalGeneric.js'
+import { defineTime, defineTimeByToday } from '../utils/monkey-utils.js'
 
 class ConversationItem extends Component {
 	constructor(props) {
@@ -26,11 +28,16 @@ class ConversationItem extends Component {
 				<div className="mky-full" onClick={this.openConversation}>
 					<div className='mky-conversation-image'><img src={this.props.conversation.urlAvatar} onerror='imgError(this);'/></div>
 					<div className='mky-conversation-description'>
-						<div className='mky-conversation-name'>
-							{ this.state.unreadMessages
-								? <span className='mky-ellipsify mky-bold-text'>{this.props.conversation.name}</span>
-								: <span className='mky-ellipsify'>{this.props.conversation.name}</span>
-							}
+						<div className='mky-conversation-title'>
+							<div className='mky-conversation-name'>
+								{ this.state.unreadMessages
+									? <span className='mky-ellipsify mky-bold-text'>{this.props.conversation.name}</span>
+									: <span className='mky-ellipsify'>{this.props.conversation.name}</span>
+								}
+							</div>
+							<div className='mky-conversation-time'>
+								<span className=''>{this.props.conversation.messages[this.props.conversation.lastMessage] ? defineTimeByToday(this.props.conversation.messages[this.props.conversation.lastMessage].datetimeCreation) : ''}</span>
+							</div>
 						</div>
 						<div className="mky-conversation-state">
 							{ this.props.conversation.messages
@@ -59,7 +66,11 @@ class ConversationItem extends Component {
 	}
 
 	deleteConversation(){
-		this.props.deleteConversation(this.props.conversation)
+		if(this.props.selected){
+			this.props.deleteConversation(this.props.conversation, this.props.index, true)
+		}else{
+			this.props.deleteConversation(this.props.conversation, this.props.index, false)
+		}
 	}
 
 	showNotification(name, message, user_image ) {

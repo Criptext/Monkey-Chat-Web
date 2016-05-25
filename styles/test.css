@@ -139,3 +139,80 @@ body, html {
 .mky-file-ppt-icon{
   background-image: url(https://cdn.criptext.com/MonkeyUI/images/ppt-icon.png);
 }
+
+.mky-generic-modal{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 100;
+}
+
+.mky-back-modal{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.mky-inner-modal{
+    width: 400px;
+    height: 200px;
+    background: white;
+    margin: auto;
+    top: 38%;
+    position: relative;
+    z-index: 200;
+}
+
+.mky-question{
+    height: 20%;
+    text-align: center;
+    padding-top: 15%;
+    margin-bottom: 5%;
+    position: relative;
+}
+
+.mky-button-left{
+    float: left;
+    height: 15%;
+    width: 30%;
+    margin-left: 15%;
+}
+
+.mky-button-right{
+    float: right;
+    height: 15%;
+    width: 30%;
+    margin-right: 15%;
+}
+
+
+.mky-conversatio-description{
+	font-size: none;
+    text-align: none;
+    white-space: none;
+}
+.mky-conversation-title{
+	width: 100%;
+	display: flex;
+}
+.mky-conversation-name{
+	width: calc(100% - 70px);
+	float: left;
+	font-size: 14px;
+    text-align: left;
+    white-space: nowrap;
+}
+.mky-conversation-time{
+	width: 65px;
+	float: right;
+	margin-left: 5px;
+	text-align: right;
+}
+.mky-conversation-time span{
+	font-size: 10px;
+}

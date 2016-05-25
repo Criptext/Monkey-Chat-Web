@@ -78,15 +78,14 @@ class BubbleFile extends Component {
 		if (pdf.indexOf(extension)>-1){
 			ft = 'pdf'
 		}else if (doc.indexOf(extension)>-1){
-        ft = 'word';
-    }else if(xls.indexOf(extension)>-1){
-      ft = 'exel';
-    }else if(ppt.indexOf(extension)>-1){
-      ft = 'ppt';
-    }else {
-   	   ft = 'file';
-    }
-
+            ft = 'word';
+        }else if(xls.indexOf(extension)>-1){
+	        ft = 'exel';
+        }else if(ppt.indexOf(extension)>-1){
+	        ft = 'ppt';
+        }else {
+	     	ft = 'file';   
+        }
         return 'mky-file-'+ft+'-icon';
     }
 }
