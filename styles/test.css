@@ -1,6 +1,9 @@
 body, html {
     margin: 0;
 }
+.mky-wrapper-out{
+  -webkit-font-smoothing: antialiased;
+}
 
 .mky-header-exit{
   margin-top: 22px;
