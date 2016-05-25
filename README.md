@@ -1,13 +1,13 @@
 # MonkeyChat-Web-React
 
-MonkeyChat help you set up your own chat in your site.
+MonkeyChat helps you set up your own chat in your site.
 
 ***
 
-* If you need to add your chat the fast way to do it:
+* If you need to add your chat, the fast way to do it:
 
 ## MonkeyChat CDN
-Use monkeyChat.js from CDN, this MonkeyChat has MonkeyUI and MonkeySDK
+Use monkeyChat.js from our CDN, this MonkeyChat has MonkeyUI and MonkeySDK
 ```
 https://cdn.criptext.com/v2.0.0/monkeyChat.js
 ```
@@ -18,27 +18,27 @@ monkeychat.init(IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, CONVERSATION_ID, MONKEY_DE
 ```
 IDDIV: Id of 'div' tag where you will add the chat in your html.
 
-MONKEY_APP_ID: Monkey ID from your app.
+MONKEY_APP_ID: App ID of your App, which you can get in this admin panel.
 
-MONKEY_APP_KEY: Monkey KEY from your app.
+MONKEY_APP_KEY: App KEY of your App, which you can get in this admin panel
 
 CONVERSATION_ID: Id of your group conversation of your support chat.
 
 MONKEY_DEBUG_MODE: true/false development debug mode.
 
-VIEW: To define the type chat view.
+VIEW: To define the type of chat view.
 
 STYLES: To define the styles of the chat view.
 
 ***
 
-* If you need to add your chat the customize way to do it:
+* If you need to customize your chat, here's the way to do it:
 
 ## MonkeyChat REACT
 Use monkeyUI using REACT, and you can pass props and methods to your React Class:
 
 #### view (prop)
-To define the type chat view.
+To define the type of chat view.
 ```
 let view = {
   screen: {
