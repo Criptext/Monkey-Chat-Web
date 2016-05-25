@@ -50,7 +50,7 @@ class ConversationItem extends Component {
 						</div>
 					</div>
 				</div>
-				<div className="mky-delete-convv" onClick={this.deleteConversation}></div>
+				<div className="mky-delete-conv" onClick={this.deleteConversation}></div>
 				<Badge value={this.props.conversation.unreadMessageCounter} />
 				{
 					this.props.conversation.unreadMessageCounter > 0 ?
@@ -74,10 +74,6 @@ class ConversationItem extends Component {
 	}
 
 	showNotification(name, message, user_image ) {
-			console.log('has to show a new notification');
-			console.log(name);
-			console.log(message);
-			console.log(user_image);
       var title = name;
       var desc = message;
       var url = 'http://criptext.com/';
