@@ -11,7 +11,7 @@ import * as actions from './actions'
 
 import MyForm from './components/MyForm.js'
 
-var monkey = new Monkey ();
+const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 
 var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, CONVERSATION_ID, VIEW, STYLES;
@@ -65,7 +65,7 @@ class MonkeyChat extends React.Component {
 	            console.log(err);
 	        }else if(res){
 		        if(res.length){
-			     	let messages = {};
+			    	let messages = {};
 					res.map( mokMessage => {
 						let message = defineBubbleMessage(mokMessage);
 						if(message){
@@ -109,8 +109,8 @@ window.monkeychat.init = function(divIDTag, appid, appkey, conversationId, inita
 	IDDIV = divIDTag;
 	MONKEY_APP_ID = appid;
 	MONKEY_APP_KEY = appkey;
-	MONKEY_DEBUG_MODE = debugmode;
 	CONVERSATION_ID = conversationId;
+	MONKEY_DEBUG_MODE = debugmode;
 	VIEW = viewchat;
 	STYLES = customStyles != null ? customStyles : {};
 	
@@ -157,7 +157,7 @@ monkey.on('onNotification', function(mokMessage){
 	switch (notType){
 		case 200:{ // message
 			var proType = mokMessage.protocolType;
-			if(proType == 3){ // Temporal Notificatio
+			if(proType == 3){ // Temporal Notification
 				// HOW USE DATA BY PARAMS
 				let typeTmpNotif = mokMessage.params.type;
                 if (typeTmpNotif == 20 || typeTmpNotif == 21) { // typing state
