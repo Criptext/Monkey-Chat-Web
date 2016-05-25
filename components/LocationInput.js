@@ -60,9 +60,9 @@ export default class LocationInput extends Component {
 			<div style={{height: 'calc(100% - 86px)', width: '100%', zIndex: 1000,}}>
 				<SimpleMapPage updateGeoLocation={this.updateGeoLocation.bind(this)} fireChangeEvent={this.setOpacity.bind(this)} ref="googleMap" />
 				<div className="testing-location" onClick={this.getLocation.bind(this)}></div>
-				<div className="quit-location" onClick={this.props.disableGeoInput}><i className="demo-icon mky-trashcan-empty">&#xe80e;</i>   </div>
+				<div className="quit-location" onClick={this.props.disableGeoInput}><i className="demo-icon mky-trashcan-empty">&#xe809;</i>   </div>
 
-				<div className="send-location" onClick={this.locationMessageInput.bind(this)}><i className="demo-icon mky-send-empty">&#xe811;</i></div>
+				<div className="send-location" onClick={this.locationMessageInput.bind(this)}><i className="demo-icon mky-send-empty">&#xe80b;</i></div>
 				<div className="pin-location" style={{display: this.state.opacity ? "block" : "none"}}></div>
 			</div>
 		)
