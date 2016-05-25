@@ -17,22 +17,22 @@ class BubbleAudio extends Component {
 		this.pauseAllAudio = this.pauseAllAudio.bind(this);
 		this.updateAnimationBuble = this.updateAnimationBuble.bind(this);
 	}
-	
-	componentWillMount() {		
+
+	componentWillMount() {
         if(this.props.message.data == null && !this.props.message.isDownloading){
             this.props.dataDownloadRequest(this.props.message.mokMessage);
             this.props.message.isDownloading = true;
         }
 	}
-	
+
 	render() {
 		return (
             <div className={'mky-content-audio'}>
                 { this.props.message.data
 	                ? (
                     	<div className={'mky-content-audio-data'}>
-	                        <img id={'mky-bubble-audio-play-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-play-button'} onClick={this.playAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/playAudioButton.png'></img>
-	                        <img id={'mky-bubble-audio-pause-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-pause-button'} onClick={this.pauseAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/pauseAudioButton.png'></img>
+	                        <div id={'mky-bubble-audio-play-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-play-button'} onClick={this.playAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/playAudioButton.png'></div>
+	                        <div id={'mky-bubble-audio-pause-button-'+this.messageId} className={'mky-bubble-audio-button mky-bubble-audio-button-'+this.messageId+' mky-bubble-audio-pause-button'} onClick={this.pauseAudioBubble} src='https://cdn.criptext.com/MonkeyUI/images/pauseAudioButton.png'></div>
 	                        <input id={'bubble-audio-player-'+this.messageId} className='knob second'></input>
 	                        <div className='mky-bubble-audio-timer'>
 	                            <span>{this.state.minutes}</span><span>:</span><span>{this.state.seconds}</span>
@@ -50,17 +50,17 @@ class BubbleAudio extends Component {
             </div>
 		)
 	}
-	
+
 	componentDidMount() {
 		$('#mky-bubble-audio-play-button-'+this.messageId).show();
 		$('#mky-bubble-audio-pause-button-'+this.messageId).hide();
-		
+
 		this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.length ? this.props.message.length : 1));
 		//this.createAudioHandlerBubble(this.messageId,Math.round(this.props.message.duration));
 
         let mkyAudioBubble = document.getElementById("audio_"+this.messageId);
         var that = this;
-        
+
         if(mkyAudioBubble){
 	        mkyAudioBubble.oncanplay = function() {
                 that.createAudioHandlerBubble(that.messageId,Math.round(mkyAudioBubble.duration));
@@ -69,7 +69,7 @@ class BubbleAudio extends Component {
             }
         }
 	}
-	
+
 	createAudioHandlerBubble(timestamp, duration) {
 		$("#bubble-audio-player-"+timestamp).knob({
             'min': 0,
@@ -86,7 +86,7 @@ class BubbleAudio extends Component {
             }
         });
 	}
-	
+
 	setDurationTime(timestamp) {
         let mkyAudioBubble = document.getElementById("audio_"+timestamp);
         let durationTime= Math.round(mkyAudioBubble.duration);
@@ -95,7 +95,7 @@ class BubbleAudio extends Component {
         let minutes = ("0" + parseInt(durationTime/60)).slice(-2);
         this.setState({minutes: minutes});
     }
-    
+
     playAudioBubble() {
 	    this.pauseAllAudio();
         window.$bubblePlayer = $("#bubble-audio-player-"+this.messageId); //handles the circle
@@ -113,7 +113,7 @@ class BubbleAudio extends Component {
             clearInterval(window.playIntervalBubble);
         });
     }
-    
+
     pauseAudioBubble() {
 		$('#mky-bubble-audio-play-button-'+this.messageId).show();
 		$('#mky-bubble-audio-pause-button-'+this.messageId).hide();
@@ -121,7 +121,7 @@ class BubbleAudio extends Component {
         audiobuble.pause();
         clearInterval(window.playIntervalBubble);
     }
-    
+
     pauseAllAudio() {
 	    clearInterval(window.playIntervalBubble);
 	    var that = this;
@@ -132,13 +132,13 @@ class BubbleAudio extends Component {
                     audios[i].pause();
                     $('.mky-bubble-audio-button').hide();
                     $('.mky-bubble-audio-play-button').show();
-                }   
+                }
             }
             $('#mky-bubble-audio-play-button-'+that.messageId).hide();
 			$('#mky-bubble-audio-pause-button-'+that.messageId).show();
         }, true);
     }
-    
+
     updateAnimationBuble() {
 	    let audiobuble = document.getElementById("audio_"+this.messageId);
         var currentTime = Math.round(audiobuble.currentTime);
