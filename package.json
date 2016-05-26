@@ -1,14 +1,27 @@
 {
-  "name": "monkey-ui-react",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
+  "name": "react-monkey-ui",
+  "version": "2.0.0",
+  "description": "User interface of MonkeySDK to create your own chat.",
+  "keywords": [
+    "monkey-ui",
+    "chat",
+    "react",
+    "react-component"
+  ],
+  "main": "./dist/monkeyUI.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --progress --colors --watch"
   },
   "author": "Criptext Inc.",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Criptext/MonkeyChat-Web-React"
+  },
+  "bugs": {
+    "url": "https://github.com/Criptext/MonkeyChat-Web-React/issues"
+  },
   "devDependencies": {
     "babel-loader": "^6.2.4",
     "babel-plugin-transform-object-rest-spread": "^6.6.5",

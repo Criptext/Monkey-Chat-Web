@@ -6,7 +6,8 @@ var config = {
 		tabChat: './tabchat.js',
 		mobileChat: './mobilechat.js',
 		conversationsChat: './conversationschat.js',
-		monkeyChat: './monkeychat.js'
+		monkeyChat: './monkeychat.js',
+// 		monkeyUI: './components/MonkeyUI.js',
 	},
 	output: {
     	path: path.join(__dirname, 'dist'),
