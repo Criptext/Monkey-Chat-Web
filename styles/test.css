@@ -3,6 +3,7 @@ body, html {
 }
 .mky-wrapper-out{
   -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.2px;
 }
 
 .mky-header-exit{
@@ -26,11 +27,16 @@ body, html {
 }
 
 .mky-conversation-image {
-    width: 45px;
-    height: 45px;
-    margin: 10px 18px;
+    width: 48px;
+    height: 48px;
+    margin: 0px;
+    padding: 10px 15px 10px 20px;
+    border-bottom: 1px solid #F6F7F9;
 }
-
+.mky-conversation-description{
+  margin-left:8px;
+  padding-top: 13px;
+}
 #mky-session-image {
     width: 40px;
     height: 40px;
@@ -53,14 +59,17 @@ body, html {
   #mky-session-name2{
 	  display: none;
   }
+
 }
 
 .mky-logout{
 	color: #6e8191;
+  font-size: 19px;
 }
 
 .mky-conversation-state {
     color: #8a8a8a;
+    margin-top: 8px;
 }
 
 #mky-conversation-list {
@@ -95,7 +104,7 @@ body, html {
 }
 
 #mky-message-text-input{
-  width: calc(100% - 100px);
+  width: calc(100% - 124px);
   margin: 8px 10px;
 }
 #mnk-menu-attach-icon{
@@ -114,6 +123,11 @@ body, html {
 .mky-status-sent .mky-check {
   font-size: 10px;
   font-weight: bold;
+  color: #00bfa5;
+}
+.mky-message-line{
+  max-width: 850px;
+  margin: 10px auto;
 }
 
 
@@ -197,7 +211,7 @@ body, html {
     white-space: none;
 }
 .mky-conversation-title{
-	width: 100%;
+	width: 99%;
 	display: flex;
 }
 .mky-conversation-name{
@@ -213,6 +227,161 @@ body, html {
 	margin-left: 5px;
 	text-align: right;
 }
+
+/*------------------------------
+  NEW DESIGN FOR "HABLA"
+------------------------------*/
+#mky-conversation-list li{
+  height: 68px;
+}
+
+.mky-chat-inner-timeline, .mky-chat-inner-input{
+  max-width: 890px;
+  margin: 0 auto;
+}
+.mky-chat-inner-input{
+  height: 50px;
+}
+#mky-conversation-selected-image{
+  margin-left: 25px
+}
+#mky-button-send-message{
+  color: #00bfa5;
+}
+
+.mky-bubble{
+  padding: 6px 10px 8px 14px;
+  border-radius: 15px;
+  max-width: 60%;
+}
+
 .mky-conversation-time span{
-	font-size: 10px;
+	font-size: 11px;
+}
+
+.mky-bubble-text-in{
+  background: #00bfa5;
+  border-bottom-left-radius: 1px;
+  color: #fff;
+  border: none;
+}
+.mky-bubble-text-out{
+  background: #829be2;
+  border-bottom-right-radius: 1px;
+  border: none;
+}
+.mky-notification-amount{
+  background: #8ec549;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+#mky-button-attach{
+  font-size: 28px;
+  color: #8660a9;
+}
+#mky-chat-input{
+  width: 100%;
+  border-top: 1px solid #ccc;
+  border-radius: 0;
+  margin-top: 0px;
+}
+#mnk-menu-attach-icon,
+#mnk-menu-attach-file{
+  font-size: 50px;
+  width: 100%;
+  text-align: center;
+  padding: 11px 0px 11px 0px;
+  margin: 0;
+  margin-top: 12px;
+  color: #00bfa5;
+  opacity: 0.8;
+}
+#mnk-menu-attach-icon:hover,
+#mnk-menu-attach-file:hover{
+  opacity: 1;
+}
+
+.menu-bubble{
+  position: absolute;
+  width: 100%;
+  bottom: 51px;
+  border: none;
+  background: #F0f4fc;
+  border-radius: 0;
+  height: 120px;
+  color: #8a8a8a;
+  box-shadow: 1px -2px 7px -1px rgba(136, 136, 136, 0.67);
+  -moz-box-shadow: 1px -2px 7px -1px rgba(136, 136, 136, 0.67);
+  -webkit-box-shadow: 1px -2px 7px -1px rgba(136, 136, 136, 0.67);
+  left: 0;
+  top: initial;
+  opacity: 1;
+}
+.menu-bubble-item{
+  width: 49%;
+  display: inline-block;
+  text-align: center;
+  border-radius: 0px;
+}
+.menu-bubble-item:first-child{
+  border-right: 1px solid #ccc;
+}
+.menu-bubble:before{
+  content: none;
+}
+.menu-bubble-item:hover{
+  background: #F0f4fc;
+  color: #8a8a8a;
+}
+.mky-message-hour{
+  font-size: 9px !important;
+}
+.mky-message-status{
+  margin: 1px;
+  margin-left: 5px;
+  margin-top: -1px;
+  margin-right: -1px;
+}
+.mky-bubble-audio-button:hover{
+  cursor: pointer;
+}
+#mky-divider-chat-input{
+  border: none;
+}
+.mky-button-input{
+  /*vertical-align: middle;*/
+}
+#mky-button-record-audio{
+  color: #00BFA5;
+}
+#mky-message-text-input{
+  top: initial;
+  transform: none;
+}
+#mky-session-header{
+  border-bottom: 1px solid #e1e1e1;
+}
+#mky-conversation-selected-header{
+      border-bottom: 1px solid #e1e1e1;
+}
+#mky-chat-timeline{
+  overflow-x: hidden;
+}
+
+.mky-wrapper-out aside{
+  border-right: 1px solid #c2c2c2;
+}
+
+.mky-bubble-audio-play-button{
+  background: url('../images/Green-Play-Button.png');
+  width: 60px;
+  background-position: 50%;
+background-size: 100%;
+}
+.mky-bubble-audio-pause-button{
+  background: url('../images/Green-Pause-Button.png');
+  width: 60px;
+  background-position: 50%;
+background-size: 100%;
 }
