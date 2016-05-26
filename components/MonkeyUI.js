@@ -265,6 +265,11 @@ MonkeyUI.childContextTypes = {
 	styles: React.PropTypes.object
 }
 
+/*
+if (typeof module !== 'undefined') {
+  module.exports = startInterval;
+}
+*/
 export default MonkeyUI;
 
 var e = document.createElement('link');
