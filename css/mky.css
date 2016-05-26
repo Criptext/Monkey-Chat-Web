@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'mky';
-  src: url('../font/mky.eot?90804341');
-  src: url('../font/mky.eot?90804341#iefix') format('embedded-opentype'),
-       url('../font/mky.woff2?90804341') format('woff2'),
-       url('../font/mky.woff?90804341') format('woff'),
-       url('../font/mky.ttf?90804341') format('truetype'),
-       url('../font/mky.svg?90804341#mky') format('svg');
+  src: url('../font/mky.eot?23479506');
+  src: url('../font/mky.eot?23479506#iefix') format('embedded-opentype'),
+       url('../font/mky.woff2?23479506') format('woff2'),
+       url('../font/mky.woff?23479506') format('woff'),
+       url('../font/mky.ttf?23479506') format('truetype'),
+       url('../font/mky.svg?23479506#mky') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'mky';
-    src: url('../font/mky.svg?90804341#mky') format('svg');
+    src: url('../font/mky.svg?23479506#mky') format('svg');
   }
 }
 */
@@ -100,3 +100,5 @@
 .mky-imagen-attach:before { content: '\e82a'; } /* '' */
 .mky-document-attach:before { content: '\e82b'; } /* '' */
 .mky-logout-1:before { content: '\e82c'; } /* '' */
+.mky-attention-alt:before { content: '\e82d'; } /* '' */
+.mky-danger-symbol:before { content: '\e82e'; } /* '' */

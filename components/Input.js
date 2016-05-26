@@ -122,7 +122,7 @@ class Input extends Component {
 								<div className="mky-rect4"></div>
 							</div>
 						)
-						: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe802;</i>
+						: <i  id="mky-button-record-audio" className=" mky-button-icon demo-icon mky-mic-empty" onClick={this.handleRecordAudio}>&#xe823;</i>
 
 					}
 					</div>

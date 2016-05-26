@@ -44,3 +44,5 @@
 .mky-imagen-attach:before { content: '\e82a'; } /* '' */
 .mky-document-attach:before { content: '\e82b'; } /* '' */
 .mky-logout-1:before { content: '\e82c'; } /* '' */
+.mky-attention-alt:before { content: '\e82d'; } /* '' */
+.mky-danger-symbol:before { content: '\e82e'; } /* '' */
