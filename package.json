@@ -1,14 +1,14 @@
 {
-  "name": "react-monkey-ui",
+  "name": "monkey-chat",
   "version": "2.0.0",
   "description": "User interface of MonkeySDK to create your own chat.",
   "keywords": [
     "monkey-ui",
     "chat",
-    "react",
-    "react-component"
+    "monkey-chat",
+    "react"
   ],
-  "main": "./dist/monkeyUI.js",
+  "main": "./dist/monkeyChat.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --progress --colors --watch"
@@ -42,6 +42,7 @@
     "react-dom": "^15.0.2",
     "react-dropzone": "^3.4.0",
     "react-google-maps": "^4.10.1",
+    "react-monkey-ui": "^2.0.0",
     "react-motion": "^0.4.3",
     "react-search-input": "^0.8.0",
     "react-toastr": "^2.6.1",

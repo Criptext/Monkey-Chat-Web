@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import MonkeyUI from './components/MonkeyUI.js'
+import MonkeyUI from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
 import { isConversationGroup } from './utils/monkey-utils.js'
 import * as vars from './utils/monkey-const.js'
@@ -8,8 +8,6 @@ import * as vars from './utils/monkey-const.js'
 import { createStore } from 'redux'
 import reducer from './reducers'
 import * as actions from './actions'
-
-import MyForm from './components/MyForm.js'
 
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
@@ -39,7 +37,7 @@ class MonkeyChat extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={VIEW} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} form={MyForm} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName} styles={STYLES}/>
+			<MonkeyUI view={VIEW} userSession={this.props.store.users.userSession} conversation={this.state.conversation} conversations={this.props.store.conversations} userSessionToSet={this.handleUserSessionToSet} messageToSet={this.handleMessageToSet} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName} styles={STYLES}/>
 		)
 	}
 

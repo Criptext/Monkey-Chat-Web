@@ -2,5 +2,6 @@ node_modules
 dist
 utils/monkey-const.js
 tabChat_dev.html
+examples/chat/node_modules
 .DS_Store
 *.DS_Store*
