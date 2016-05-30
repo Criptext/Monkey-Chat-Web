@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import MonkeyUI from './components/MonkeyUI.js'
+import MonkeyUI from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
 import * as vars from './utils/monkey-const.js'
 

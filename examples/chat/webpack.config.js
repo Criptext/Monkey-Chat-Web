@@ -3,10 +3,7 @@ var path = require('path');
 
 var config = {
 	entry: {
-		tabChat: './tabchat.js',
-		mobileChat: './mobilechat.js',
-		conversationsChat: './conversationschat.js',
-		monkeyChat: './monkeychat.js'
+		chat: './index.js'
 	},
 	output: {
     	path: path.join(__dirname, 'dist'),

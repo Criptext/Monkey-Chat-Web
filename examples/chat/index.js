@@ -1,15 +1,13 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import MonkeyUI from './components/MonkeyUI.js'
+import MonkeyUI from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
-import { isConversationGroup } from './utils/monkey-utils.js'
-import * as vars from './utils/monkey-const.js'
+import { isConversationGroup } from './../../utils/monkey-utils.js'
+import * as vars from './../../utils/monkey-const.js'
 
 import { createStore } from 'redux'
-import reducer from './reducers'
-import * as actions from './actions'
-
-import MyForm from './components/MyForm.js'
+import reducer from './../../reducers'
+import * as actions from './../../actions'
 
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
@@ -42,7 +40,7 @@ class MonkeyChat extends Component {
 
 	render() {
 		return (
-			<MonkeyUI view={this.view} form={MyForm} userSession={this.props.store.users.userSession} userSessionToSet={this.handleUserSessionToSet} userSessionLogout={this.handleUserSessionLogout} conversation={this.props.store.conversations[this.state.conversationId]} conversations={this.props.store.conversations} conversationOpened={this.handleConversationOpened} deleteConversation={this.handleDeleteConversation} loadMessages={this.handleLoadMessages} messageToSet={this.handleMessageToSet} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
+			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} userSessionToSet={this.handleUserSessionToSet} userSessionLogout={this.handleUserSessionLogout} conversation={this.props.store.conversations[this.state.conversationId]} conversations={this.props.store.conversations} conversationOpened={this.handleConversationOpened} deleteConversation={this.handleDeleteConversation} loadMessages={this.handleLoadMessages} messageToSet={this.handleMessageToSet} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
 		)
 	}
 	
