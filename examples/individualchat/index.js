@@ -12,7 +12,7 @@ import * as actions from './actions'
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 
-var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, CONVERSATION_ID, VIEW, STYLES, COMPANY_NAME;
+var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, CONVERSATION_ID, VIEW, STYLES;
 
 class MonkeyChat extends React.Component {
 	constructor(props){
@@ -109,7 +109,7 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, conversationId, initalUser, debugmode, viewchat, customStyles, companyName){
+window.monkeychat.init = function(divIDTag, appid, appkey, conversationId, initalUser, debugmode, viewchat, customStyles){
 	
 	IDDIV = divIDTag;
 	MONKEY_APP_ID = appid;
@@ -118,7 +118,6 @@ window.monkeychat.init = function(divIDTag, appid, appkey, conversationId, inita
 	MONKEY_DEBUG_MODE = debugmode;
 	VIEW = viewchat;
 	STYLES = customStyles != null ? customStyles : {};
-	COMPANY_NAME = companyName;
 	
 	if(initalUser!=null){
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, false, MONKEY_DEBUG_MODE, false);
@@ -286,8 +285,6 @@ function loadConversations(user) {
 						        usersToGetInfo[id] = id;
 					        }
 				        });
-					    conversationTmp.name = COMPANY_NAME;
-				    	
 			        }else{ // define personal conversation 
 				        conversationTmp.lastOpenMe = undefined,
 				    	conversationTmp.lastOpenApp = undefined,
@@ -365,12 +362,12 @@ function createConversation(user){
 				        // define group conversation
 			        	let newConversation = {
 				        	id: data.group_id,
-				        	name: COMPANY_NAME,
+				        	name: data.group_info.name,
 				        	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
 				        	unreadMessageCount: 0,
 				        	members: data.members,
 				        	messages: {},
-				        	description: '',
+				        	description: ''
 			        	}
 			        	
 			        	// get user info

@@ -42,7 +42,7 @@
     "react-dom": "^15.0.2",
     "react-dropzone": "^3.4.0",
     "react-google-maps": "^4.10.1",
-    "react-monkey-ui": "^2.0.0",
+    "react-monkey-ui": "file:react-monkey-ui-2.0.0.tgz",
     "react-motion": "^0.4.3",
     "react-search-input": "^0.8.0",
     "react-toastr": "^2.6.1",

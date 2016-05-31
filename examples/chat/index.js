@@ -65,10 +65,12 @@ class MonkeyChat extends Component {
 	
 	handleConversationOpened(conversation) {
 		monkey.sendOpenToUser(conversation.id);
+		
 		if(store.getState().conversations[conversation.id] && conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
 			store.dispatch(actions.updateConversationUnreadCounter(conversation, 0));
 		}
 		this.setState({conversationId : conversation.id});
+		conversationSelectedId = conversation.id;
 	}
 	
 	handleDeleteConversation(conversation, nextConversation, active, setConversationSelected) {
