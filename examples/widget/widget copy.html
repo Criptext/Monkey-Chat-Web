@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Demo Widget</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+  </head>
+  <body>
+    <div id="myDivForMonkey" class="monkey-tab"></div>
+    <script type="text/javascript" src="../../dist/monkeyChat.js"></script>
+    <script type="text/javascript">
+      (function() {
+        monkeychat.init( "myDivForMonkey",
+        				 "YOUR_API_ID", 
+                         "YOUR_API_KEY", 
+                         "YOUR_CONVERSATION_ID",
+                          null,
+                          true,
+                          {
+                            type: 'classic',
+                            data: {
+                                    width: '380px',
+                                    height: '500px'
+                                }
+                          },
+                          null, 'COMPANY_NAME');
+      })();
+      /*
+      {
+        colorIn: '#E9F8FF',
+        colorOut: '#42a5f5',
+        tabColor: 'red',
+        tabTextColor: 'white',
+        tabText: 'Do you need help?',
+        logo: 'http://cdn.shippify.co/web/images/shippify_logo.png',
+      }
+      */
+    </script>
+  </body>
+</html>

@@ -1,38 +1,45 @@
 <!DOCTYPE html>
-<html>
   <head>
-    <title>Demo Widget</title>
+    <title>Demo React</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="styles/test.css">
   </head>
   <body>
     <div id="myDivForMonkey" class="monkey-tab"></div>
-    <script type="text/javascript" src="../../dist/monkeyChat.js"></script>
+    <script type="text/javascript" src="https://cdn.criptext.com/v2.0.0/monkeyChat.js"></script>
     <script type="text/javascript">
       (function() {
-        monkeychat.init( "myDivForMonkey",
-        				 "YOUR_API_ID", 
-                         "YOUR_API_KEY", 
-                         "YOUR_CONVERSATION_ID",
-                          null,
-                          true,
-                          {
-                            type: 'classic',
-                            data: {
-                                    width: '380px',
-                                    height: '500px'
+        monkeychat.init("myDivForMonkey",
+                        "idkgwf6ghcmyfvvrxqiwwmi", 
+                        "9da5bbc32210ed6501de82927056b8d2", 
+                        "G:idkgwf6ghcmyfvvrxqiwwmi-82",
+                        null,
+                        false,
+                        {
+                          type: 'classic',
+                          data: {
+                                  width: '380px',
+                                  height: '500px'
                                 }
-                          },
-                          null);
+                        },
+        {
+        colorIn: '#E9F8FF',
+        colorOut: '#42a5f5',
+        tabColor: '#42a5f5',
+        tabTextColor: 'white',
+        tabText: 'Do you need help?',
+        logo: 'http://www.emelatour.com/wp-content/uploads/2015/12/logo_emela2.png',
+      }, 'Emela Tour');
       })();
       /*
       {
         colorIn: '#E9F8FF',
         colorOut: '#42a5f5',
-        tabColor: 'red',
+        tabColor: '#42a5f5',
         tabTextColor: 'white',
         tabText: 'Do you need help?',
-        logo: 'http://cdn.shippify.co/web/images/shippify_logo.png',
+        logo: 'http://www.emelatour.com/wp-content/uploads/2015/12/logo_emela2.png',
       }
       */
     </script>
