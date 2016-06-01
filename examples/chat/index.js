@@ -28,11 +28,12 @@ class MonkeyChat extends Component {
 		this.handleGetUserName = this.handleGetUserName.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleDeleteConversation = this.handleDeleteConversation.bind(this);
+		this.handleDownloadData = this.handleDownloadData.bind(this);
+		this.handleOnClickMessage = this.handleOnClickMessage.bind(this);
 	}
 
 	componentWillMount() {
 		if(monkey.getUser() != null){
-			console.log('Monkey Chat: componentWillMount');
 			var user = monkey.getUser();
 			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 		}
@@ -105,13 +106,13 @@ class MonkeyChat extends Component {
 			});
 		}
 	}
+
+	/* Message */
 	
 	handleMessageToSet(message) {
 		createMessage(message);
 	}
-
-	/* Message */
-
+	
 	handleLoadMessages(conversationId, firstMessageId) {
 		monkey.getConversationMessages(conversationId, 10, firstMessageId, function(err, res){
 			if(err){

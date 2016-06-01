@@ -20,12 +20,13 @@ class MonkeyChat extends React.Component {
 		this.state = {
 			conversation: undefined,
 			conversationId: undefined
-			
 		}
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 		this.handleGetUserName = this.handleGetUserName.bind(this);
+		this.handleDownloadData = this.handleDownloadData.bind(this);
+		this.handleOnClickMessage = this.handleOnClickMessage.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
