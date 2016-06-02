@@ -406,18 +406,27 @@ function createConversation(conversationId, mokMessage){
 }
 
 function defineConversation(mokMessage, name, members_info, members){
-	let message = defineBubbleMessage(mokMessage);
+	// define message
+	let messages = {};
+	let messageId = null;
+	let message = null;
+	if(mokMessage.id){
+		message = defineBubbleMessage(mokMessage);
+	}
+	if(message){
+		messages[message.id] = message;
+		messageId = message.id;
+	}
 
 	// define conversation
 	let conversation = {
     	name: name,
     	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
-    	messages: {
-    		[message.id]: message
-    	},
-    	lastMessage: message.id,
+    	messages: messages,
+    	lastMessage: messageId,
     	unreadMessageCounter: 1,
 	}
+	
 
 	// define group conversation
 	if(members_info){
@@ -508,6 +517,7 @@ function defineMessage(mokMessage) {
 }
 
 function defineBubbleMessage(mokMessage){
+		
 	let message = {
     	id: mokMessage.id.toString(),
     	oldId: mokMessage.oldId,
