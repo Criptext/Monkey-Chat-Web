@@ -42,3 +42,8 @@ type: 'classic' | 'fullscreen'
 If use 'classic' add the data:
 
 data: {width: '380px',height: '500px'}
+
+
+### Example
+
+Monkeychat is distributed with a few examples in its [source code](https://github.com/Criptext/MonkeyChat-Web-React/tree/master/examples).
