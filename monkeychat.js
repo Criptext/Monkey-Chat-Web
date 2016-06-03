@@ -36,6 +36,7 @@ class MonkeyChat extends React.Component {
 	}
 	
 	componentWillMount() {
+		
 	}
 	
 	render() {
