@@ -3,7 +3,7 @@ var path = require('path');
 
 var config = {
 	entry: {
-		chat: './index.js'
+		index: './index.js'
 	},
 	output: {
     	path: path.join(__dirname, 'bundle'),

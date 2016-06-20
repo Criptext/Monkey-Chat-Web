@@ -19,17 +19,9 @@ class MonkeyChat extends Component {
 		this.state = {
 			conversationId: undefined
 		}
-/*
+		
 		this.view = {
 			type: 'fullscreen'
-		}
-*/
-		this.view = {
-			type: 'rightside',
-			data: {
-				width: '350px',
-				height: '100%'
-			}
 		}
 		
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
@@ -509,7 +501,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'audio': { // bubble audio
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, null);
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: Number(message.length) }, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;

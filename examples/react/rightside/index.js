@@ -2,12 +2,12 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import MonkeyUI from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
-import { isConversationGroup } from './../../utils/monkey-utils.js'
-import * as vars from './../../utils/monkey-const.js'
+import { isConversationGroup } from './../../../utils/monkey-utils.js'
+import * as vars from './../../../utils/monkey-const.js'
 
 import { createStore } from 'redux'
-import reducer from './../../reducers'
-import * as actions from './../../actions'
+import reducer from './../../../reducers'
+import * as actions from './../../../actions'
 
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
@@ -95,6 +95,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleConversationClosed() {
+		this.setState({conversationId : 0});
 		conversationSelectedId = 0;
 	}
 	
@@ -511,7 +512,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'audio': { // bubble audio
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, null);
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: Number(message.length)}, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
