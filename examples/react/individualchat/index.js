@@ -2,25 +2,43 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import MonkeyUI from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
-import { isConversationGroup } from './utils/monkey-utils.js'
-import * as vars from './utils/monkey-const.js'
+import { isConversationGroup } from './../utils/monkey-utils.js'
+import * as vars from './../utils/monkey-const.js'
 
 import { createStore } from 'redux'
-import reducer from './reducers'
-import * as actions from './actions'
+import reducer from './../reducers'
+import * as actions from './../actions'
 
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
 
-var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, CONVERSATION_ID, VIEW, STYLES;
+var userPrivate = {};
 
-class MonkeyChat extends React.Component {
+window.initChat = function (userToChat){
+	userPrivate = userToChat;
+	render();
+}
+
+class MonkeyChat extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			conversation: undefined,
-			conversationId: undefined
+			conversationId: undefined	
 		}
+
+		this.view = {
+			type: 'fullscreen'
+		}
+
+		this.style = {			
+	        bubbleColorIn: '#edecec',
+	        bubbleColorOut: '#42a5f5',
+	        bubbleTextColorIn: 'black',
+	        bubbleTextColorOut: 'white',
+	        inputLeftButtonColor: '#2979ff',
+	        inputRightButtonColor: '#2979ff'
+		}
+
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
@@ -36,11 +54,15 @@ class MonkeyChat extends React.Component {
 	}
 	
 	componentWillMount() {
+		if(monkey.getUser() != null){
+			var user = monkey.getUser();
+			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
+		}
 	}
 	
 	render() {
 		return (
-			<MonkeyUI view={VIEW} styles={STYLES} userSession={this.props.store.users.userSession} userSessionToSet={this.handleUserSessionToSet} conversation={this.props.store.conversations[this.state.conversationId]} conversations={this.props.store.conversations} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} messageToSet={this.handleMessageToSet} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName} />
+			<MonkeyUI view={this.view} styles={this.style} userSession={this.props.store.users.userSession} userSessionToSet={this.handleUserSessionToSet} conversation={this.props.store.conversations[this.state.conversationId]} conversations={this.props.store.conversations} showConversations={false} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} messageToSet={this.handleMessageToSet} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName} extraChat={this.extrachat}/>
 		)
 	}
 	
@@ -48,11 +70,7 @@ class MonkeyChat extends React.Component {
 	
 	handleUserSessionToSet(user) {
 		store.dispatch(actions.addUserSession(user));
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, true, MONKEY_DEBUG_MODE); // monkey create monkeyId dynamically, when user doesn't have monkeyId.
-	}
-	
-	handleMessageToSet(message) {
-		createMessage(message);
+		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false); // monkey create monkeyId dynamically, when user doesn't have monkeyId.
 	}
 	
 	/* Conversation */
@@ -62,6 +80,10 @@ class MonkeyChat extends React.Component {
 	}
 	
 	/* Message */
+	
+	handleMessageToSet(message) {
+		createMessage(message);
+	}
 	
 	handleLoadMessages(conversationId, firstMessageId) {	
 		monkey.getConversationMessages(conversationId, 10, firstMessageId, function(err, res){
@@ -104,31 +126,10 @@ class MonkeyChat extends React.Component {
 }
 
 function render() {
-	ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementById(IDDIV));
+	ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementById('my-chat'));
 }
 
 store.subscribe(render);
-
-window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, conversationId, initalUser, debugmode, viewchat, customStyles){
-	
-	IDDIV = divIDTag;
-	MONKEY_APP_ID = appid;
-	MONKEY_APP_KEY = appkey;
-	CONVERSATION_ID = conversationId;
-	MONKEY_DEBUG_MODE = debugmode;
-	VIEW = viewchat;
-	STYLES = customStyles != null ? customStyles : {};
-	
-	if(initalUser!=null){
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, false, MONKEY_DEBUG_MODE, false);
-	}
-	else if(monkey.getUser() != null){
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), false, MONKEY_DEBUG_MODE, false);
-	}
-
-	render();
-}
 
 // MonkeyKit
 
@@ -246,13 +247,15 @@ function loadConversations(user) {
 		monkey.getAllConversations(function(err, res){
 	        if(err){
 	            console.log(err);
-	        }
-	        else if(res && res.data.conversations.length > 0){
+	        }else if(res && res.data.conversations.length > 0){
 		        let conversations = {};
 		        let users = {};
 		        let usersToGetInfo = {};
 		        res.data.conversations.map (conversation => {
 			        if(!Object.keys(conversation.info).length)
+			        	return;
+			        
+			        if(conversation.id !== userPrivate.monkey_id) // launch only with the user private
 			        	return;
 			        
 			        // define message
@@ -340,8 +343,12 @@ function loadConversations(user) {
 			        store.dispatch(actions.addConversations(conversations));
 			        monkey.getPendingMessages();
 				}
-	        }
-	        else{
+				
+				if(!store.getState().conversations[userPrivate.monkey_id]){ // if does not exists private conversation
+					createConversation(user);
+				}
+				
+	        }else{
 	        	createConversation(user);
 	        }
 	    });
@@ -351,59 +358,65 @@ function loadConversations(user) {
 }
 
 function createConversation(user){
-	let conversationId = CONVERSATION_ID;
-	if(isConversationGroup(conversationId)) { // group conversation
-		monkey.getInfoById(conversationId, function(error, data){
-	        if(data != undefined){
-		        var _members = data.members;
-		        var _info = {name: 'Support: '+user.name}
-		        monkey.createGroup(_members, _info, null, null, function(error, data){ // create new group
-			        
-			        if(data != undefined){
-				        // define group conversation
-			        	let newConversation = {
-				        	id: data.group_id,
-				        	name: data.group_info.name,
-				        	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
-				        	unreadMessageCount: 0,
-				        	members: data.members,
-				        	messages: {},
-				        	description: ''
-			        	}
-			        	
-			        	// get user info
-			        	let users = {};
-				        monkey.getInfoByIds(data.members, function(err, res){
-					        if(err){
-					            console.log(err);
-					        }else if(res){
-						        if(res.length){
-							        let userTmp;
-							        // add user into users
-							        res.map(user => {
-								    	userTmp = {
-									    	id: user.monkey_id,
-									    	name: user.name == undefined ? 'Unknown' : user.name,
-									    }
-									    users[userTmp.id] = userTmp;
-							        });
-						        }
-					        }
-					        if(Object.keys(users).length){
-						        store.dispatch(actions.addUsersContact(users));
-					        }
-					        store.dispatch(actions.addConversation(newConversation));
-				        });
-			        }else{
-				        console.log(error);
-			        }
-		        });
-		        
-	        }else{
-		        console.log(error);
-	        }
-        });
+	let conversationId = userPrivate.monkey_id;
+	
+	monkey.getInfoById(conversationId, function(err, resp){
+		if(err){
+            console.log(err);
+        }else if(resp){
+	        store.dispatch(actions.addConversation(defineConversation(conversationId, null, resp.name)));
+        }
+	});
+}
+
+function defineConversation(conversationId, mokMessage, name, members_info, members){
+	// define message
+	let messages = {};
+	let messageId = null;
+	let message = null;
+	let unreadMessageCounter = 0;
+	if(mokMessage){
+		message = defineBubbleMessage(mokMessage);
+	} 
+	if(message){
+		messages[message.id] = message;
+		messageId = message.id;
+		unreadMessageCounter++;
 	}
+
+	// define conversation
+	let conversation = {
+		id: conversationId,
+    	name: name,
+    	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
+    	messages: messages,
+    	lastMessage: messageId,
+    	unreadMessageCounter: unreadMessageCounter,
+	}
+	
+	// define group conversation
+	if(members_info){
+		conversation.description = '';
+		conversation.members = members;
+
+		// get user info
+		let users = {};
+		let userTmp;
+		members_info.map(user => {
+			userTmp = {
+		    	id: user.monkey_id,
+		    	name: user.name == undefined ? 'Unknown' : user.name,
+		    }
+		    users[userTmp.id] = userTmp;
+		});
+		store.dispatch(actions.addUsersContact(users));
+	}else{ // define personal conversation
+		conversation.lastOpenMe = undefined;
+    	conversation.lastOpenApp = undefined;
+    	conversation.onlineStatus = undefined;
+	}
+
+	return conversation;
 }
 
 // MonkeyChat: Message
@@ -465,6 +478,7 @@ function defineMessage(mokMessage) {
 }
 
 function defineBubbleMessage(mokMessage){
+	
 	let message = {
     	id: mokMessage.id.toString(),
     	oldId: mokMessage.oldId,
@@ -474,7 +488,7 @@ function defineBubbleMessage(mokMessage){
 		senderId: mokMessage.senderId,
 		status: 50,
 		mokMessage: mokMessage,
-		isDownloading: false
+		error: false
     }
 	
     switch (mokMessage.protocolType){
@@ -520,35 +534,56 @@ function toDownloadMessageData(mokMessage){
 			
 	case 1: // audio
 		monkey.downloadFile(mokMessage, function(err, data){
-			console.log('App - audio downloaded');
-			let src = 'data:audio/mpeg;base64,'+data;
 			let message = {
 				id: mokMessage.id,
-				data: src
-			}
-			store.dispatch(actions.updateMessageData(message, conversationId));
+				data: null,
+				error: true
+			};
+			if(err){
+	            console.log(err);
+	        }else{
+		        console.log('App - audio downloaded');
+				let src = `data:audio/mpeg;base64,${data}`;
+				message.data = src;
+				message.error = false;
+	        }
+	        store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
 	case 3: // image
 		monkey.downloadFile(mokMessage, function(err, data){
-			console.log('App - image downloaded');
-			let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
 			let message = {
 				id: mokMessage.id,
-				data: src
-			}
-			store.dispatch(actions.updateMessageData(message, conversationId));
+				data: null,
+				error: true
+			};
+			if(err){
+	            console.log(err);
+	        }else{
+		        console.log('App - image downloaded');
+				let src = `data:${mokMessage.props.mime_type};base64,${data}`;
+				message.data = src;
+				message.error = false;
+	        }
+	        store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
 	case 4: // file
 		monkey.downloadFile(mokMessage, function(err, data){
-			console.log('App - file downloaded');
-			let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
 			let message = {
 				id: mokMessage.id,
-				data: src
-			}
-			store.dispatch(actions.updateMessageData(message, conversationId));
+				data: null,
+				error: true
+			};
+			if(err){
+	            console.log(err);
+	        }else{
+		        console.log('App - file downloaded');
+				let src = `data:${mokMessage.props.mime_type};base64,${data}`;
+				message.data = src;
+				message.error = false;
+	        }
+	        store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
 	}

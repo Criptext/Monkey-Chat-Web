@@ -13,7 +13,7 @@
     "monkey-sdk": "0.0.86",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
-    "react-monkey-ui": "^2.0.2",
+    "react-monkey-ui": "file:react-monkey-ui-2.0.6.tgz",
     "redux": "^3.5.2"
   },
   "devDependencies": {

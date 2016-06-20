@@ -19,12 +19,19 @@ class MonkeyChat extends Component {
 		this.state = {
 			conversationId: undefined
 		}
+		
 		this.view = {
-			type: 'fullscreen'
+			type: 'rightside',
+			data: {
+				width: '350px',
+				height: '100%'
+			}
 		}
+		
 		this.handleMessageToSet = this.handleMessageToSet.bind(this);
 		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
+		this.handleConversationClosed = this.handleConversationClosed.bind(this);
 		this.handleGetUserName = this.handleGetUserName.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleDeleteConversation = this.handleDeleteConversation.bind(this);
@@ -41,7 +48,20 @@ class MonkeyChat extends Component {
 
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} userSessionToSet={this.handleUserSessionToSet} userSessionLogout={this.handleUserSessionLogout} conversation={this.props.store.conversations[this.state.conversationId]} conversations={this.props.store.conversations} conversationOpened={this.handleConversationOpened} deleteConversation={this.handleDeleteConversation} loadMessages={this.handleLoadMessages} messageToSet={this.handleMessageToSet} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
+			<MonkeyUI view={this.view}
+				userSession={this.props.store.users.userSession}
+				userSessionToSet={this.handleUserSessionToSet}
+				userSessionLogout={this.handleUserSessionLogout}
+				conversation={this.props.store.conversations[this.state.conversationId]}
+				conversations={this.props.store.conversations}
+				conversationOpened={this.handleConversationOpened}
+				conversationClosed={this.handleConversationClosed}
+				deleteConversation={this.handleDeleteConversation}
+				loadMessages={this.handleLoadMessages}
+				messageToSet={this.handleMessageToSet}
+				onClickMessage={this.handleOnClickMessage}
+				dataDownloadRequest={this.handleDownloadData}
+				getUserName={this.handleGetUserName}/>
 		)
 	}
 	
@@ -72,6 +92,10 @@ class MonkeyChat extends Component {
 		}
 		this.setState({conversationId : conversation.id});
 		conversationSelectedId = conversation.id;
+	}
+	
+	handleConversationClosed() {
+		conversationSelectedId = 0;
 	}
 	
 	handleDeleteConversation(conversation, nextConversation, active, setConversationSelected) {
@@ -137,7 +161,7 @@ class MonkeyChat extends Component {
 	}
 
 	handleOnClickMessage(mokMessage) {
-
+		
 	}
 
 	handleDownloadData(mokMessage){
@@ -145,7 +169,7 @@ class MonkeyChat extends Component {
 	}
 
 	handleGetUserName(userId){
-		return store.getState().users[userId].name;
+		return store.getState().users[userId].name ? store.getState().users[userId].name : 'Unknown';
 	}
 
 /*
@@ -290,7 +314,7 @@ function loadConversations() {
 	monkey.getAllConversations(function(err, res){
         if(err){
             console.log(err);
-        }else if(res){
+        }else if(res && res.data.conversations.length > 0){
 	        let conversations = {};
 	        let users = {};
 	        let usersToGetInfo = {};
@@ -388,49 +412,50 @@ function loadConversations() {
 
 function createConversation(conversationId, mokMessage){
 
-	if(store.getState().users[conversationId]==null){
-		monkey.getInfoById(conversationId, function(err, resp){
+	if(store.getState().users[conversationId] == null){
+		monkey.getInfoById(conversationId, function(err, data){
 			if(err){
 	            console.log(err);
-	        }else if(resp){
+	        }else if(data){
 				if(isConversationGroup(conversationId)){
-					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.info.name, resp.members_info, resp.members)));
+					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.info.name, data.members_info, data.members)));
 				}else{
-					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.name)));
+					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.name)));
 				}
 			}
 		});
 	}else{
-		store.dispatch(actions.addConversation(defineConversation(mokMessage, store.getState().users[mokMessage.senderId].name)));
+		store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, store.getState().users[mokMessage.senderId].name)));
 	}
 }
 
-function defineConversation(mokMessage, name, members_info, members){
+function defineConversation(conversationId, mokMessage, name, members_info, members){
 	// define message
 	let messages = {};
 	let messageId = null;
 	let message = null;
-	if(mokMessage.id){
+	let unreadMessageCounter = 0;
+	if(mokMessage){
 		message = defineBubbleMessage(mokMessage);
 	}
 	if(message){
 		messages[message.id] = message;
 		messageId = message.id;
+		unreadMessageCounter++;
 	}
 
 	// define conversation
 	let conversation = {
+		id: conversationId,
     	name: name,
     	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
     	messages: messages,
     	lastMessage: messageId,
-    	unreadMessageCounter: 1,
+    	unreadMessageCounter: unreadMessageCounter,
 	}
-	
 
 	// define group conversation
 	if(members_info){
-		conversation.id = mokMessage.recipientId;
 		conversation.description = '';
 		conversation.members = members;
 
@@ -446,7 +471,6 @@ function defineConversation(mokMessage, name, members_info, members){
 		});
 		store.dispatch(actions.addUsersContact(users));
 	}else{ // define personal conversation
-		conversation.id = mokMessage.senderId;
 		conversation.lastOpenMe = undefined;
     	conversation.lastOpenApp = undefined;
     	conversation.onlineStatus = undefined;
@@ -573,35 +597,56 @@ function toDownloadMessageData(mokMessage){
 
 	case 1: // audio
 		monkey.downloadFile(mokMessage, function(err, data){
-			console.log('App - audio downloaded');
-			let src = 'data:audio/mpeg;base64,'+data;
 			let message = {
 				id: mokMessage.id,
-				data: src
-			}
-			store.dispatch(actions.updateMessageData(message, conversationId));
+				data: null,
+				error: true
+			};
+			if(err){
+	            console.log(err);
+	        }else{
+		        console.log('App - audio downloaded');
+				let src = `data:audio/mpeg;base64,${data}`;
+				message.data = src;
+				message.error = false;
+	        }
+	        store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
 	case 3: // image
 		monkey.downloadFile(mokMessage, function(err, data){
-			console.log('App - image downloaded');
-			let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
 			let message = {
 				id: mokMessage.id,
-				data: src
-			}
-			store.dispatch(actions.updateMessageData(message, conversationId));
+				data: null,
+				error: true
+			};
+			if(err){
+	            console.log(err);
+	        }else{
+		        console.log('App - image downloaded');
+				let src = `data:${mokMessage.props.mime_type};base64,${data}`;
+				message.data = src;
+				message.error = false;
+	        }
+	        store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
 	case 4: // file
 		monkey.downloadFile(mokMessage, function(err, data){
-			console.log('App - file downloaded');
-			let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
 			let message = {
 				id: mokMessage.id,
-				data: src
-			}
-			store.dispatch(actions.updateMessageData(message, conversationId));
+				data: null,
+				error: true
+			};
+			if(err){
+	            console.log(err);
+	        }else{
+		        console.log('App - file downloaded');
+				let src = `data:${mokMessage.props.mime_type};base64,${data}`;
+				message.data = src;
+				message.error = false;
+	        }
+	        store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
 	}
