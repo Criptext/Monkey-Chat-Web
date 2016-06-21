@@ -4,8 +4,8 @@
   "description": "sample",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack --progress --colors --watch"
+    "test": "webpack --progress --colors --watch",
+    "start": "webpack --progress --colors"
   },
   "author": "",
   "license": "ISC",
@@ -13,7 +13,7 @@
     "monkey-sdk": "0.0.86",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
-    "react-monkey-ui": "^2.0.2",
+    "react-monkey-ui": "^2.0.8",
     "redux": "^3.5.2"
   },
   "devDependencies": {

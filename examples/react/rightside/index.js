@@ -2,12 +2,12 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import MonkeyUI from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
-import { isConversationGroup } from './../../utils/monkey-utils.js'
-import * as vars from './../../utils/monkey-const.js'
+import { isConversationGroup } from './../../../utils/monkey-utils.js'
+import * as vars from './../../../utils/monkey-const.js'
 
 import { createStore } from 'redux'
-import reducer from './../../reducers'
-import * as actions from './../../actions'
+import reducer from './../../../reducers'
+import * as actions from './../../../actions'
 
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
@@ -19,17 +19,24 @@ class MonkeyChat extends Component {
 		this.state = {
 			conversationId: undefined
 		}
+		
 		this.view = {
-			type: 'fullscreen'
+			type: 'rightside',
+			data: {
+				width: '350px',
+				height: '100%'
+			}
 		}
-		this.handleMessageToSet = this.handleMessageToSet.bind(this);
-		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
-		this.handleConversationOpened = this.handleConversationOpened.bind(this);
-		this.handleGetUserName = this.handleGetUserName.bind(this);
+		
+		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
-		this.handleDeleteConversation = this.handleDeleteConversation.bind(this);
-		this.handleDownloadData = this.handleDownloadData.bind(this);
-		this.handleOnClickMessage = this.handleOnClickMessage.bind(this);
+		this.handleConversationOpened = this.handleConversationOpened.bind(this);
+		this.handleConversationClosed = this.handleConversationClosed.bind(this);
+		this.handleConversationDelete = this.handleConversationDelete.bind(this);
+		this.handleMessagesLoad = this.handleMessagesLoad.bind(this);
+		this.handleMessage = this.handleMessage.bind(this);
+		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
+		this.handleMessageGetUsername = this.handleMessageGetUsername.bind(this);
 	}
 
 	componentWillMount() {
@@ -41,7 +48,19 @@ class MonkeyChat extends Component {
 
 	render() {
 		return (
-			<MonkeyUI view={this.view} userSession={this.props.store.users.userSession} userSessionToSet={this.handleUserSessionToSet} userSessionLogout={this.handleUserSessionLogout} conversation={this.props.store.conversations[this.state.conversationId]} conversations={this.props.store.conversations} conversationOpened={this.handleConversationOpened} deleteConversation={this.handleDeleteConversation} loadMessages={this.handleLoadMessages} messageToSet={this.handleMessageToSet} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName}/>
+			<MonkeyUI view={this.view}
+				userSession={this.props.store.users.userSession}
+				onUserSession={this.handleUserSession}
+				onUserSessionLogout={this.handleUserSessionLogout}
+				conversations={this.props.store.conversations}
+				conversation={this.props.store.conversations[this.state.conversationId]}
+				onConversationOpened={this.handleConversationOpened}
+				onConversationClosed={this.handleConversationClosed}
+				onConversationDelete={this.handleConversationDelete}
+				onMessagesLoad={this.handleMessagesLoad}
+				onMessage={this.handleMessage}
+				onMessageDownloadData={this.handleMessageDownloadData}
+				onMessageGetUsername={this.handleMessageGetUsername}/>
 		)
 	}
 	
@@ -50,7 +69,7 @@ class MonkeyChat extends Component {
 	// user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 	// user.monkeyId = 'imvie0trlgpl8ug5a9oirudi';
 	// user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
-	handleUserSessionToSet(user) {
+	handleUserSession(user) {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
@@ -74,7 +93,12 @@ class MonkeyChat extends Component {
 		conversationSelectedId = conversation.id;
 	}
 	
-	handleDeleteConversation(conversation, nextConversation, active, setConversationSelected) {
+	handleConversationClosed() {
+		this.setState({conversationId : 0});
+		conversationSelectedId = 0;
+	}
+	
+	handleConversationDelete(conversation, nextConversation, active, setConversationSelected) {
 		if(nextConversation){
 			monkey.deleteConversation(conversation.id, (err, data) => {
 				if(!err){
@@ -109,11 +133,11 @@ class MonkeyChat extends Component {
 
 	/* Message */
 	
-	handleMessageToSet(message) {
+	handleMessage(message) {
 		createMessage(message);
 	}
 	
-	handleLoadMessages(conversationId, firstMessageId) {
+	handleMessagesLoad(conversationId, firstMessageId) {
 		monkey.getConversationMessages(conversationId, 10, firstMessageId, function(err, res){
 			if(err){
 	            console.log(err);
@@ -136,16 +160,12 @@ class MonkeyChat extends Component {
 		});
 	}
 
-	handleOnClickMessage(mokMessage) {
-
-	}
-
-	handleDownloadData(mokMessage){
+	handleMessageDownloadData(mokMessage){
 		toDownloadMessageData(mokMessage);
 	}
 
-	handleGetUserName(userId){
-		return store.getState().users[userId].name;
+	handleMessageGetUsername(userId){
+		return store.getState().users[userId].name ? store.getState().users[userId].name : 'Unknown';
 	}
 
 /*
@@ -290,7 +310,7 @@ function loadConversations() {
 	monkey.getAllConversations(function(err, res){
         if(err){
             console.log(err);
-        }else if(res){
+        }else if(res && res.data.conversations.length > 0){
 	        let conversations = {};
 	        let users = {};
 	        let usersToGetInfo = {};
@@ -388,49 +408,50 @@ function loadConversations() {
 
 function createConversation(conversationId, mokMessage){
 
-	if(store.getState().users[conversationId]==null){
-		monkey.getInfoById(conversationId, function(err, resp){
+	if(store.getState().users[conversationId] == null){
+		monkey.getInfoById(conversationId, function(err, data){
 			if(err){
 	            console.log(err);
-	        }else if(resp){
+	        }else if(data){
 				if(isConversationGroup(conversationId)){
-					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.info.name, resp.members_info, resp.members)));
+					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.info.name, data.members_info, data.members)));
 				}else{
-					store.dispatch(actions.addConversation(defineConversation(mokMessage, resp.name)));
+					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.name)));
 				}
 			}
 		});
 	}else{
-		store.dispatch(actions.addConversation(defineConversation(mokMessage, store.getState().users[mokMessage.senderId].name)));
+		store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, store.getState().users[mokMessage.senderId].name)));
 	}
 }
 
-function defineConversation(mokMessage, name, members_info, members){
+function defineConversation(conversationId, mokMessage, name, members_info, members){
 	// define message
 	let messages = {};
 	let messageId = null;
 	let message = null;
-	if(mokMessage.id){
+	let unreadMessageCounter = 0;
+	if(mokMessage){
 		message = defineBubbleMessage(mokMessage);
 	}
 	if(message){
 		messages[message.id] = message;
 		messageId = message.id;
+		unreadMessageCounter++;
 	}
 
 	// define conversation
 	let conversation = {
+		id: conversationId,
     	name: name,
     	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
     	messages: messages,
     	lastMessage: messageId,
-    	unreadMessageCounter: 1,
+    	unreadMessageCounter: unreadMessageCounter,
 	}
-	
 
 	// define group conversation
 	if(members_info){
-		conversation.id = mokMessage.recipientId;
 		conversation.description = '';
 		conversation.members = members;
 
@@ -446,7 +467,6 @@ function defineConversation(mokMessage, name, members_info, members){
 		});
 		store.dispatch(actions.addUsersContact(users));
 	}else{ // define personal conversation
-		conversation.id = mokMessage.senderId;
 		conversation.lastOpenMe = undefined;
     	conversation.lastOpenApp = undefined;
     	conversation.onlineStatus = undefined;
@@ -487,7 +507,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'audio': { // bubble audio
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, null);
+			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: Number(message.length)}, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = mokMessage.datetimeCreation*1000;
@@ -573,35 +593,56 @@ function toDownloadMessageData(mokMessage){
 
 	case 1: // audio
 		monkey.downloadFile(mokMessage, function(err, data){
-			console.log('App - audio downloaded');
-			let src = 'data:audio/mpeg;base64,'+data;
 			let message = {
 				id: mokMessage.id,
-				data: src
-			}
-			store.dispatch(actions.updateMessageData(message, conversationId));
+				data: null,
+				error: true
+			};
+			if(err){
+	            console.log(err);
+	        }else{
+		        console.log('App - audio downloaded');
+				let src = `data:audio/mpeg;base64,${data}`;
+				message.data = src;
+				message.error = false;
+	        }
+	        store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
 	case 3: // image
 		monkey.downloadFile(mokMessage, function(err, data){
-			console.log('App - image downloaded');
-			let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
 			let message = {
 				id: mokMessage.id,
-				data: src
-			}
-			store.dispatch(actions.updateMessageData(message, conversationId));
+				data: null,
+				error: true
+			};
+			if(err){
+	            console.log(err);
+	        }else{
+		        console.log('App - image downloaded');
+				let src = `data:${mokMessage.props.mime_type};base64,${data}`;
+				message.data = src;
+				message.error = false;
+	        }
+	        store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
 	case 4: // file
 		monkey.downloadFile(mokMessage, function(err, data){
-			console.log('App - file downloaded');
-			let src = 'data:'+mokMessage.props.mime_type+';base64,'+data;
 			let message = {
 				id: mokMessage.id,
-				data: src
-			}
-			store.dispatch(actions.updateMessageData(message, conversationId));
+				data: null,
+				error: true
+			};
+			if(err){
+	            console.log(err);
+	        }else{
+		        console.log('App - file downloaded');
+				let src = `data:${mokMessage.props.mime_type};base64,${data}`;
+				message.data = src;
+				message.error = false;
+	        }
+	        store.dispatch(actions.updateMessageData(message, conversationId));
 		});
 		break;
 	}

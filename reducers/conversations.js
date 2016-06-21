@@ -227,7 +227,8 @@ const message = (state, action) => {
 		case UPDATE_MESSAGE_DATA: {
 			return {
 				...state,
-				data: action.message.data
+				data: action.message.data,
+				error: action.message.error
 			}
 		}
 		

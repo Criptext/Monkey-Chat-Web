@@ -2,6 +2,11 @@ node_modules
 dist
 utils/monkey-const.js
 tabChat_dev.html
-examples/chat/node_modules
+examples/react/messenger/node_modules
+examples/react/messenger/bundle
+examples/react/individualchat/node_modules
+examples/react/individualchat/bundle
+examples/react/rightside/node_modules
+examples/react/rightside/bundle
 .DS_Store
 *.DS_Store*
