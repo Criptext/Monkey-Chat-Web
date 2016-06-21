@@ -21,12 +21,12 @@ class MonkeyChat extends React.Component {
 			conversation: undefined,
 			conversationId: undefined
 		}
-		this.handleMessageToSet = this.handleMessageToSet.bind(this);
-		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
+		
+		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
-		this.handleGetUserName = this.handleGetUserName.bind(this);
-		this.handleDownloadData = this.handleDownloadData.bind(this);
-		this.handleOnClickMessage = this.handleOnClickMessage.bind(this);
+		this.handleMessage = this.handleMessage.bind(this);
+		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
+		this.handleMessageGetUsername = this.handleMessageGetUsername.bind(this);
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -41,18 +41,28 @@ class MonkeyChat extends React.Component {
 	
 	render() {
 		return (
-			<MonkeyUI view={VIEW} styles={STYLES} userSession={this.props.store.users.userSession} userSessionToSet={this.handleUserSessionToSet} conversation={this.props.store.conversations[this.state.conversationId]} conversations={this.props.store.conversations} conversationOpened={this.handleConversationOpened} loadMessages={this.handleLoadMessages} messageToSet={this.handleMessageToSet} onClickMessage={this.handleOnClickMessage} dataDownloadRequest={this.handleDownloadData} getUserName={this.handleGetUserName} />
+			<MonkeyUI view={VIEW}
+				styles={STYLES}
+				userSession={this.props.store.users.userSession}
+				onUserSession={this.handleUserSession}
+				conversations={this.props.store.conversations}
+				conversation={this.props.store.conversations[this.state.conversationId]} 
+				onConversationOpened={this.handleConversationOpened}
+				onMessagesLoad={this.handleMessagesLoad}
+				onMessage={this.handleMessage}
+				onMessageDownloadData={this.handleMessageDownloadData}
+				onMessageGetUsername={this.handleMessageGetUsername} />
 		)
 	}
 	
 	/* User */
 	
-	handleUserSessionToSet(user) {
+	handleUserSession(user) {
 		store.dispatch(actions.addUserSession(user));
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, true, MONKEY_DEBUG_MODE); // monkey create monkeyId dynamically, when user doesn't have monkeyId.
 	}
 	
-	handleMessageToSet(message) {
+	handleMessage(message) {
 		createMessage(message);
 	}
 	
@@ -64,7 +74,7 @@ class MonkeyChat extends React.Component {
 	
 	/* Message */
 	
-	handleLoadMessages(conversationId, firstMessageId) {	
+	handleMessagesLoad(conversationId, firstMessageId) {	
 		monkey.getConversationMessages(conversationId, 10, firstMessageId, function(err, res){
 			if(err){
 	            console.log(err);
@@ -82,16 +92,12 @@ class MonkeyChat extends React.Component {
 			}
 		});
 	}
-	
-	handleOnClickMessage(message) {
-		
-	}
 
-	handleDownloadData(mokMessage){
+	handleMessageDownloadData(mokMessage){
 		toDownloadMessageData(mokMessage);
 	}
 	
-	handleGetUserName(userId){
+	handleMessageGetUsername(userId){
 		return store.getState().users[userId].name ? store.getState().users[userId].name : 'Unknown';
 	}
 	

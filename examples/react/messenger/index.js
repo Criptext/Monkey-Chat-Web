@@ -2,12 +2,12 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import MonkeyUI from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
-import { isConversationGroup } from './../../utils/monkey-utils.js'
-import * as vars from './../../utils/monkey-const.js'
+import { isConversationGroup } from './../../../utils/monkey-utils.js'
+import * as vars from './../../../utils/monkey-const.js'
 
 import { createStore } from 'redux'
-import reducer from './../../reducers'
-import * as actions from './../../actions'
+import reducer from './../../../reducers'
+import * as actions from './../../../actions'
 
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
@@ -24,14 +24,14 @@ class MonkeyChat extends Component {
 			type: 'fullscreen'
 		}
 		
-		this.handleMessageToSet = this.handleMessageToSet.bind(this);
-		this.handleUserSessionToSet = this.handleUserSessionToSet.bind(this);
-		this.handleConversationOpened = this.handleConversationOpened.bind(this);
-		this.handleGetUserName = this.handleGetUserName.bind(this);
+		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
-		this.handleDeleteConversation = this.handleDeleteConversation.bind(this);
-		this.handleDownloadData = this.handleDownloadData.bind(this);
-		this.handleOnClickMessage = this.handleOnClickMessage.bind(this);
+		this.handleConversationOpened = this.handleConversationOpened.bind(this);
+		this.handleConversationDelete = this.handleConversationDelete.bind(this);
+		this.handleMessagesLoad = this.handleMessagesLoad.bind(this);
+		this.handleMessage = this.handleMessage.bind(this);
+		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
+		this.handleMessageGetUsername = this.handleMessageGetUsername.bind(this);
 	}
 
 	componentWillMount() {
@@ -45,17 +45,16 @@ class MonkeyChat extends Component {
 		return (
 			<MonkeyUI view={this.view}
 				userSession={this.props.store.users.userSession}
-				userSessionToSet={this.handleUserSessionToSet}
-				userSessionLogout={this.handleUserSessionLogout}
-				conversation={this.props.store.conversations[this.state.conversationId]}
+				onUserSession={this.handleUserSession}
+				onUserSessionLogout={this.handleUserSessionLogout}
 				conversations={this.props.store.conversations}
-				conversationOpened={this.handleConversationOpened}
-				deleteConversation={this.handleDeleteConversation}
-				loadMessages={this.handleLoadMessages}
-				messageToSet={this.handleMessageToSet}
-				onClickMessage={this.handleOnClickMessage}
-				dataDownloadRequest={this.handleDownloadData}
-				getUserName={this.handleGetUserName}/>
+				conversation={this.props.store.conversations[this.state.conversationId]}
+				onConversationOpened={this.handleConversationOpened}
+				onConversationDelete={this.handleConversationDelete}
+				onMessagesLoad={this.handleMessagesLoad}
+				onMessage={this.handleMessage}
+				onMessageDownloadData={this.handleMessageDownloadData}
+				onMessageGetUsername={this.handleMessageGetUsername}/>
 		)
 	}
 	
@@ -64,7 +63,7 @@ class MonkeyChat extends Component {
 	// user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 	// user.monkeyId = 'imvie0trlgpl8ug5a9oirudi';
 	// user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
-	handleUserSessionToSet(user) {
+	handleUserSession(user) {
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
@@ -88,7 +87,7 @@ class MonkeyChat extends Component {
 		conversationSelectedId = conversation.id;
 	}
 	
-	handleDeleteConversation(conversation, nextConversation, active, setConversationSelected) {
+	handleConversationDelete(conversation, nextConversation, active, setConversationSelected) {
 		if(nextConversation){
 			monkey.deleteConversation(conversation.id, (err, data) => {
 				if(!err){
@@ -123,11 +122,11 @@ class MonkeyChat extends Component {
 
 	/* Message */
 	
-	handleMessageToSet(message) {
+	handleMessage(message) {
 		createMessage(message);
 	}
 	
-	handleLoadMessages(conversationId, firstMessageId) {
+	handleMessagesLoad(conversationId, firstMessageId) {
 		monkey.getConversationMessages(conversationId, 10, firstMessageId, function(err, res){
 			if(err){
 	            console.log(err);
@@ -150,15 +149,11 @@ class MonkeyChat extends Component {
 		});
 	}
 
-	handleOnClickMessage(mokMessage) {
-		
-	}
-
-	handleDownloadData(mokMessage){
+	handleMessageDownloadData(mokMessage){
 		toDownloadMessageData(mokMessage);
 	}
 
-	handleGetUserName(userId){
+	handleMessageGetUsername(userId){
 		return store.getState().users[userId].name ? store.getState().users[userId].name : 'Unknown';
 	}
 
