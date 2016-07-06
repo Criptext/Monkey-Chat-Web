@@ -19,7 +19,8 @@ class MonkeyChat extends React.Component {
 		super(props);
 		this.state = {
 			conversation: undefined,
-			conversationId: undefined
+			conversationId: undefined,
+			loading: false
 		}
 		
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -33,16 +34,22 @@ class MonkeyChat extends React.Component {
 		if(Object.keys(nextProps.store.conversations).length && this.state.conversationId == undefined){ // handle define only one conversation
 			this.setState({conversationId: nextProps.store.conversations[Object.keys(nextProps.store.conversations)[0]].id});
 		}
+		if(nextProps.store.users.userSession && this.state.loading){ // handle stop loading when foun user session
+			this.setState({loading: false});
+		}
 	}
 	
 	componentWillMount() {
-		
+		if(monkey.getUser() != null){
+			this.setState({loading: true});
+		}
 	}
 	
 	render() {
 		return (
 			<MonkeyUI view={VIEW}
 				styles={STYLES}
+				viewLoading={this.state.loading}
 				userSession={this.props.store.users.userSession}
 				onUserSession={this.handleUserSession}
 				conversations={this.props.store.conversations}
@@ -58,6 +65,7 @@ class MonkeyChat extends React.Component {
 	/* User */
 	
 	handleUserSession(user) {
+		this.setState({loading: true});
 		store.dispatch(actions.addUserSession(user));
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, true, MONKEY_DEBUG_MODE); // monkey create monkeyId dynamically, when user doesn't have monkeyId.
 	}

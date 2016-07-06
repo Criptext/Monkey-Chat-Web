@@ -10,9 +10,8 @@
   ],
   "main": "./dist/monkeyChat.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack --progress --colors",
-    "test": "webpack --progress --colors --watch"
+    "test": "webpack --progress --colors --watch",
+    "start": "webpack --progress --colors"
   },
   "author": "Criptext Inc.",
   "license": "ISC",
@@ -34,11 +33,11 @@
     "webpack": "^1.12.14"
   },
   "dependencies": {
-    "monkey-sdk": "0.0.85",
+    "monkey-sdk": "^0.3.23",
     "react": "^15.0.2",
     "react-dom": "^15.0.2",
     "react-google-maps": "^4.10.1",
-    "react-monkey-ui": "^2.0.8",
+    "react-monkey-ui": "^2.0.25",
     "redux": "^3.4.0"
   }
 }

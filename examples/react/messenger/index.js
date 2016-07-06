@@ -17,11 +17,21 @@ class MonkeyChat extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			conversationId: undefined
+			conversationId: undefined,
+			loading: false
 		}
-		
+
 		this.view = {
 			type: 'fullscreen'
+		}
+		
+		this.options = {
+			deleteConversation: {
+				permission: {
+					exitGroup: true,
+					delete: true
+				}
+			}
 		}
 		
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -36,14 +46,23 @@ class MonkeyChat extends Component {
 
 	componentWillMount() {
 		if(monkey.getUser() != null){
+			this.setState({loading: true});
 			var user = monkey.getUser();
 			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 		}
 	}
-
+	
+	componentWillReceiveProps(nextProps) {
+		if(nextProps.store.users.userSession && this.state.loading){ // handle stop loading when found user session
+			this.setState({loading: false});
+		}
+	}
+	
 	render() {
 		return (
 			<MonkeyUI view={this.view}
+				options={this.options}
+				viewLoading={this.state.loading}
 				userSession={this.props.store.users.userSession}
 				onUserSession={this.handleUserSession}
 				onUserSessionLogout={this.handleUserSessionLogout}
@@ -51,6 +70,7 @@ class MonkeyChat extends Component {
 				conversation={this.props.store.conversations[this.state.conversationId]}
 				onConversationOpened={this.handleConversationOpened}
 				onConversationDelete={this.handleConversationDelete}
+				onConversationExit={this.handleConversationExit}
 				onMessagesLoad={this.handleMessagesLoad}
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
@@ -64,8 +84,8 @@ class MonkeyChat extends Component {
 	// user.monkeyId = 'imvie0trlgpl8ug5a9oirudi';
 	// user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
 	handleUserSession(user) {
+		this.setState({loading: true});
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
-		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
 	}
 
@@ -94,32 +114,30 @@ class MonkeyChat extends Component {
 					monkey.sendOpenToUser(nextConversation.id);
 					if(active){
 						this.setState({ conversationId : nextConversation.id});
-						setConversationSelected(nextConversation.id);
-					}else{
-						setConversationSelected(-1);
 					}
 					store.dispatch(actions.deleteConversation(conversation));
-				}else{
-					setConversationSelected(-1);
 				}
+				setConversationSelected();
 			});	
 		}else{
 			monkey.deleteConversation(conversation.id, (err, data) => {
 				if(!err){
 					if(active){
 						this.setState({
-							conversationId : undefined
+							conversationId: undefined
 						})
 					}
 					store.dispatch(actions.deleteConversation(conversation));
-					setConversationSelected(-1);
-				}else{
-					setConversationSelected(-1);
 				}
+				setConversationSelected();
 			});
 		}
 	}
-
+	
+	handleConversationExit() {
+		
+	}
+	
 	/* Message */
 	
 	handleMessage(message) {
@@ -157,13 +175,6 @@ class MonkeyChat extends Component {
 		return store.getState().users[userId].name ? store.getState().users[userId].name : 'Unknown';
 	}
 
-/*
-	conversationToSet() {
-		let newConversation = dataConversation;
-		store.dispatch(actions.addConversation(newConversation));
-	}
-*/
-
 }
 
 function render() {
@@ -194,6 +205,7 @@ monkey.on('onConnect', function(event){
 // -------------- ON DISCONNECT --------------- //
 monkey.on('onDisconnect', function(event){
 	console.log('App - onDisconnect');
+	
 });
 
 // --------------- ON MESSAGE ----------------- //
@@ -526,6 +538,8 @@ function defineMessage(mokMessage) {
 }
 
 function defineBubbleMessage(mokMessage){
+	if (!mokMessage.id)
+		return;
 		
 	let message = {
     	id: mokMessage.id.toString(),
