@@ -1,4 +1,4 @@
-import { ADD_CONVERSATION, DELETE_CONVERSATION, ADD_CONVERSATIONS, REMOVE_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, UPDATE_CONVERSATION_UNREAD_COUNTER, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
+import { ADD_CONVERSATION, DELETE_CONVERSATION, ADD_CONVERSATIONS, REMOVE_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, UPDATE_CONVERSATION_UNREAD_COUNTER, REMOVE_MEMBER, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGES_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
@@ -46,6 +46,14 @@ const conversations = (state = {}, action) => {
 			}
 		}
 		
+		case REMOVE_MEMBER: {
+			const conversationId = action.conversationId;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+
 		case ADD_MESSAGE: {
 			const conversationId = action.conversationId;
 			return {
@@ -77,7 +85,15 @@ const conversations = (state = {}, action) => {
 				[conversationId]: conversation(state[conversationId], action)
 			}
 		}
-
+		
+		case UPDATE_MESSAGES_STATUS: {
+			const conversationId = action.conversationId;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+		
 		case DELETE_MESSAGE: {
 			const conversationId = action.conversationId;
 			return {
@@ -95,9 +111,16 @@ const conversation = (state, action) => {
 	switch (action.type) {
 		case UPDATE_CONVERSATION_STATUS: {
 			if (action.conversation.online == 0){
+				if(action.conversation.lastOpenMe){
+					return {
+						...state,
+						lastOpenMe: action.conversation.lastOpenMe,
+						lastOpenApp: action.conversation.lastOpenApp,
+						online: action.conversation.online
+					}
+				}
 				return {
 					...state,
-					lastOpenMe: action.conversation.lastOpenMe,
 					lastOpenApp: action.conversation.lastOpenApp,
 					online: action.conversation.online
 				}
@@ -117,6 +140,13 @@ const conversation = (state, action) => {
 			}
 		}
 		
+		case REMOVE_MEMBER: {
+			return {
+				...state,
+				members: members(state.members, action)
+			}
+		}
+
 		case ADD_MESSAGE: {
 			var lastMessage;
 			if(!state.lastMessage){
@@ -154,17 +184,28 @@ const conversation = (state, action) => {
 		}
 		
 		case UPDATE_MESSAGE_STATUS: {
-			if(!state.messages[action.message.oldId]) // handle repeated update
-				return state;
-			
-			let lastMessage = action.message.oldId === state.lastMessage ? action.message.id : state.lastMessage;
-			return {
-				...state,
-				messages: messages(state.messages, action),
-				lastMessage: lastMessage
+			if(state.messages[action.message.oldId]){ 
+				let lastMessage = action.message.oldId === state.lastMessage ? action.message.id : state.lastMessage;
+				return {
+					...state,
+					messages: messages(state.messages, action),
+					lastMessage: lastMessage
+				}
+			}else{ // to update 'state' only
+				return {
+					...state,
+					messages: messages(state.messages, action)
+				}
 			}
 		}
-
+		
+		case UPDATE_MESSAGES_STATUS: {
+			return {
+				...state,
+				messages: messages(state.messages, action, state.lastOpenMe)
+			}
+		}
+		
 		case DELETE_MESSAGE: {
 			return {
 				...state,
@@ -175,7 +216,25 @@ const conversation = (state, action) => {
 	return state;
 }
 
-const messages = (state, action) => {
+const members = (state, action) => {
+	const monkeyId = action.monkeyId;
+	switch (action.type) {
+		case REMOVE_MEMBER: {
+
+			const monkeyId = action.monkeyId;
+			let newState = state;
+			let index = newState.indexOf(monkeyId);
+
+			if (index > -1) {
+			    newState.splice(index, 1);
+			}
+			return newState;
+		}
+	}
+	return state;
+}
+
+const messages = (state, action, lastOpenMe) => {
 	switch (action.type) {
 		case ADD_MESSAGE: {
 			return {
@@ -200,16 +259,49 @@ const messages = (state, action) => {
 		}
 		
 		case UPDATE_MESSAGE_STATUS: {
-			const messageId = action.message.oldId;
-			const newMessageId = action.message.id;
-			let newState = {
-				...state,
-				[newMessageId]: message(state[messageId], action)
+			if(state[action.message.oldId]){ // to update 'oldId' and other params
+				const messageId = action.message.oldId;
+				const newMessageId = action.message.id;
+				let newState = {
+					...state,
+					[newMessageId]: message(state[messageId], action)
+				}
+				delete newState[messageId];
+				return newState;
+			}else{ // to update 'state' only
+				const messageId = action.message.id;
+				return {
+					...state,
+					[messageId]: message(state[messageId], action)	
+				}
 			}
-			delete newState[messageId];
-			return newState;
 		}
-
+		
+		case UPDATE_MESSAGES_STATUS: {
+			if(action.byLastOpenMe){
+				return Object.keys(state).map(messageId => {
+					if(state[messageId].status !== action.status && state[messageId].datetimeCreation < lastOpenMe){
+						return {
+							...state[messageId],
+							status: action.status
+						}
+					}
+					return state[messageId];
+					
+				}).reduce((messages, message) => ({ ...messages, [message.id]: message }), {});
+			}else{
+				return Object.keys(state).map(messageId => {
+					if(state[messageId].status === action.status){
+						return state[messageId];
+					}
+					return {
+						...state[messageId],
+						status: action.status
+					}
+				}).reduce((messages, message) => ({ ...messages, [message.id]: message }), {});
+			}
+		}
+		
 		case DELETE_MESSAGE: {
 			const deleteMessageId = action.message.id;
 			let newState = {
