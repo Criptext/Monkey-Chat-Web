@@ -10,9 +10,12 @@ export const REMOVE_CONVERSATIONS = 'REMOVE_CONVERSATIONS'
 export const UPDATE_CONVERSATION_STATUS = 'UPDATE_CONVERSATION_STATUS'
 export const UPDATE_CONVERSATION_UNREAD_COUNTER = 'UPDATE_CONVERSATION_UNREAD_COUNTER'
 
+export const REMOVE_MEMBER = 'REMOVE_MEMBER'
+
 export const ADD_MESSAGE = 'ADD_MESSAGE'
 export const ADD_MESSAGES = 'ADD_MESSAGES'
 export const UPDATE_MESSAGE_STATUS = 'UPDATE_MESSAGE_STATUS'
+export const UPDATE_MESSAGES_STATUS = 'UPDATE_MESSAGES_STATUS'
 export const UPDATE_MESSAGE_DATA = 'UPDATE_MESSAGE_DATA'
 export const DELETE_MESSAGE = 'DELETE_MESSAGE'
 
@@ -90,6 +93,16 @@ export const updateConversationUnreadCounter = (conversation, unreadCounter) => 
 	}
 }
 
+// --------------- MEMBER --------------- //
+
+export const removeMember = (monkeyId, conversationId) => {
+	return {
+		type: REMOVE_MEMBER,
+		monkeyId: monkeyId,
+		conversationId: conversationId,
+	}
+}
+
 // --------------- MESSAGE --------------- //
 
 export const addMessage = (message, conversationId, unread) => {
@@ -122,6 +135,15 @@ export const updateMessageStatus = (message, conversationId) => {
 		type: UPDATE_MESSAGE_STATUS,
 		message: message,
 		conversationId: conversationId
+	}
+}
+
+export const updateMessagesStatus = (status, conversationId, byLastOpenMe) => {
+	return {
+		type: UPDATE_MESSAGES_STATUS,
+		status: status,
+		conversationId: conversationId,
+		byLastOpenMe: byLastOpenMe
 	}
 }
 
