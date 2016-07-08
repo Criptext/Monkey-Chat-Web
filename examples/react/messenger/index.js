@@ -51,7 +51,13 @@ class MonkeyChat extends Component {
 			this.setState({viewLoading: true});
 			var user = monkey.getUser();
 			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
-				
+				this.setState({viewLoading: false});
+				if(error){
+					monkey.logout();
+					window.errorMsg = "Sorry, Unable to load your data. Please wait a few minutes before trying again."
+				}else{
+					store.dispatch(actions.addUserSession(user));	
+				}
 			});
 		}
 	}
@@ -91,7 +97,13 @@ class MonkeyChat extends Component {
 		this.setState({viewLoading: true});
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
-				
+			this.setState({viewLoading: false});
+			if(error){
+				monkey.logout();
+				window.errorMsg = "Sorry, Unable to load your data. Please wait a few minutes before trying again."
+			}else{
+				store.dispatch(actions.addUserSession(user));	
+			}
 		});
 	}
 
@@ -114,57 +126,41 @@ class MonkeyChat extends Component {
 	}
 	
 	handleConversationDelete(conversation, nextConversation, active, setConversationSelected) {
-		if(nextConversation){
-			monkey.deleteConversation(conversation.id, (err, data) => {
-				if(!err){
+		monkey.deleteConversation(conversation.id, (err, data) => {
+			if(!err){
+				if(nextConversation){
 					monkey.sendOpenToUser(nextConversation.id);
 					if(active){
-						this.setState({ conversationId : nextConversation.id});
+						this.setState({conversationId: nextConversation.id});
 					}
-					store.dispatch(actions.deleteConversation(conversation));
-				}
-				setConversationSelected();
-			});	
-		}else{
-			monkey.deleteConversation(conversation.id, (err, data) => {
-				if(!err){
+				}else{
 					if(active){
-						this.setState({
-							conversationId: undefined
-						})
+						this.setState({conversationId: undefined})
 					}
-					store.dispatch(actions.deleteConversation(conversation));
 				}
-				setConversationSelected();
-			});
-		}
+				store.dispatch(actions.deleteConversation(conversation));
+			}
+			setConversationSelected();
+		});
 	}
 	
 	handleConversationExit() {
-		if(nextConversation){
-			monkey.removeMemberFromGroup(conversation.id, store.getState().users.userSession.id, (err, data) => {
-				if(!err){
+		monkey.removeMemberFromGroup(conversation.id, store.getState().users.userSession.id, (err, data) => {
+			if(!err){
+				if(nextConversation){
 					monkey.sendOpenToUser(nextConversation.id);
 					if(active){
-						this.setState({ conversationId : nextConversation.id});
+						this.setState({conversationId: nextConversation.id});
 					}
-					store.dispatch(actions.deleteConversation(conversation));
-				}
-				setConversationSelected();
-			});	
-		}else{
-			monkey.removeMemberFromGroup(conversation.id, store.getState().users.userSession.id, (err, data) => {
-				if(!err){
+				}else{
 					if(active){
-						this.setState({
-							conversationId : undefined
-						})
+						this.setState({conversationId : undefined});
 					}
-					store.dispatch(actions.deleteConversation(conversation));
 				}
-				setConversationSelected();
-			});
-		}
+				store.dispatch(actions.deleteConversation(conversation));
+			}
+			setConversationSelected();
+		});
 	}
 	
 	/* Message */
@@ -209,7 +205,6 @@ class MonkeyChat extends Component {
 	handleMessageGetUser(userId){
 		return store.getState().users[userId];
 	}
-
 }
 
 function render() {
@@ -222,8 +217,8 @@ store.subscribe(render);
 // MonkeyKit
 
 // --------------- ON CONNECT ----------------- //
-monkey.on('onConnect', function(event){
-	console.log('App - onConnect');
+monkey.on('Connect', function(event){
+	console.log('App - Connect');
 	
 	let user = event;
 	if(!store.getState().users.userSession){
@@ -240,19 +235,19 @@ monkey.on('onConnect', function(event){
 
 // -------------- ON DISCONNECT --------------- //
 monkey.on('onDisconnect', function(event){
-	console.log('App - onDisconnect');
+	console.log('App - Disconnect');
 	
 });
 
 // --------------- ON MESSAGE ----------------- //
-monkey.on('onMessage', function(mokMessage){
-	console.log('App - onMessage');
+monkey.on('Message', function(mokMessage){
+	console.log('App - Message');
 	defineMessage(mokMessage);
 });
 
 // ------------- ON NOTIFICATION --------------- //
-monkey.on('onNotification', function(mokMessage){
-	console.log('App - onNotification');
+monkey.on('Notification', function(mokMessage){
+	console.log('App - Notification');
 	
 	let notType = mokMessage.protocolCommand;
 	let conversationId = mokMessage.senderId;
@@ -272,10 +267,6 @@ monkey.on('onNotification', function(mokMessage){
 			}
 		}
             break;
-        case 203:{ // open arrived
-			store.dispatch(actions.updateMessagesStatus(52, conversationId, false));
-        }
-            break;
         case 207:{ // unsend message
         	let message = {
 				id: mokMessage.id,
@@ -292,61 +283,54 @@ monkey.on('onNotification', function(mokMessage){
 });
 
 // -------------- ON ACKNOWLEDGE --------------- //
-monkey.on('onAcknowledge', function(mokMessage){
-	console.log('App - onAcknowledge');
+monkey.on('Acknowledge', function(data){
+	console.log('App - Acknowledge');
 	
-	let ackType = mokMessage.protocolType;
-	let conversationId = mokMessage.senderId;
-	switch (ackType){
-        case 1:{ // text
-            let message = {
-				id: mokMessage.id,
-				oldId: mokMessage.oldId,
-	 			status: Number(mokMessage.props.status),
-				recipientId: mokMessage.recipientId
-			}
-			store.dispatch(actions.updateMessageStatus(message, conversationId));
-        }
-		break;
-        case 2:{ // media
-            let message = {
-				id: mokMessage.id,
-				oldId: mokMessage.oldId,
-				status: Number(mokMessage.props.status),
-				recipientId: mokMessage.recipientId
-			}
-			store.dispatch(actions.updateMessageStatus(message, conversationId));
-        }
-        break;
-        case 203:{ // open conversation
-	        if(!store.getState().conversations[conversationId])
-	        	return;
+	let conversationId = data.senderId;
+	if(!store.getState().conversations[conversationId])
+    	return;
+	
+	let message = {
+		id: data.newId,
+		oldId: data.oldId,
+		status: Number(data.status),
+		recipientId: data.recipientId
+	}
+	store.dispatch(actions.updateMessageStatus(message, conversationId));
+});
 
-            let conversation = {
-	            id: conversationId,
-	            online: Number(mokMessage.props.online)
-            }
-            // define lastOpenMe
-            if(mokMessage.props.last_open_me){
-	            conversation.lastOpenMe = Number(mokMessage.props.last_open_me)*1000;
-            }
-			// define lastOpenApp
-            if(mokMessage.props.last_seen){
-	            conversation.lastOpenApp = Number(mokMessage.props.last_seen)*1000;
-            }
-            
-            store.dispatch(actions.updateConversationStatus(conversation));
-            store.dispatch(actions.updateMessagesStatus(52, conversationId, true));
-        }
-        break;
-        default:
-            break;
-    }
+monkey.on('ConversationOpenResponse', function(data){
+	console.log('App - ConversationOpenResponse');
+
+	let conversationId = conversationSelectedId;
+	if(!store.getState().conversations[conversationId])
+		return;
+
+	let conversation = {
+		id: conversationId,
+		online: data.online
+	}
+	// define lastOpenMe
+	if(data.lastOpenMe){
+		conversation.lastOpenMe = Number(data.lastOpenMe)*1000;
+	}
+	// define lastOpenApp
+	if(data.lastSeen){
+		conversation.lastOpenApp = Number(data.lastSeen)*1000;
+	}
+
+	store.dispatch(actions.updateConversationStatus(conversation));
+	store.dispatch(actions.updateMessagesStatus(52, conversationId, true));
+});
+
+monkey.on('ConversationOpen', function(data){
+	let conversationId = data.senderId;
+	store.dispatch(actions.updateMessagesStatus(52, conversationId, false));
 });
 
 // --------------- GROUP DELETE MEMBER ----------------- //
-monkey.on('onGroupDeleteMember', function(data){
-	console.log('App - onGroupDeleteMember');
+monkey.on('GroupRemove', function(data){
+	console.log('App - GroupRemove');
 
 	if(store.getState().conversations[data.id]){
 		store.dispatch(actions.removeMember(data.member, data.id));
@@ -520,7 +504,7 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
 	}else{ // define personal conversation
 		conversation.lastOpenMe = undefined;
     	conversation.lastOpenApp = undefined;
-    	conversation.onlineStatus = undefined;
+    	conversation.online = undefined;
 	}
 
 	return conversation;
