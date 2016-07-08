@@ -110,7 +110,7 @@ const conversations = (state = {}, action) => {
 const conversation = (state, action) => {
 	switch (action.type) {
 		case UPDATE_CONVERSATION_STATUS: {
-			if (action.conversation.online == 0){
+			if (action.conversation.online === false){
 				if(action.conversation.lastOpenMe){
 					return {
 						...state,

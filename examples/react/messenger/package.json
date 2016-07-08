@@ -10,10 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "monkey-sdk": "^0.3.23",
+    "monkey-sdk": "^0.4.10",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
-    "react-monkey-ui": "^2.0.25",
+    "react-monkey-ui": "^2.0.26",
     "redux": "^3.5.2"
   },
   "devDependencies": {
