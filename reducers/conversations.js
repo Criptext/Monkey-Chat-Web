@@ -1,4 +1,4 @@
-import { ADD_CONVERSATION, DELETE_CONVERSATION, ADD_CONVERSATIONS, REMOVE_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, UPDATE_CONVERSATION_UNREAD_COUNTER, REMOVE_MEMBER, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGES_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
+import { ADD_CONVERSATION, DELETE_CONVERSATION, ADD_CONVERSATIONS, DELETE_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, UPDATE_CONVERSATION_UNREAD_COUNTER, REMOVE_MEMBER, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGES_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
@@ -9,7 +9,7 @@ const conversations = (state = {}, action) => {
 			}
 		}
 
-		case REMOVE_CONVERSATIONS: {
+		case DELETE_CONVERSATIONS: {
 			return {}
 		}
 		
@@ -110,7 +110,12 @@ const conversations = (state = {}, action) => {
 const conversation = (state, action) => {
 	switch (action.type) {
 		case UPDATE_CONVERSATION_STATUS: {
-			if (action.conversation.online === false){
+			if( typeof action.conversation.description !== 'undefined') {
+				return {
+					...state,
+					description: action.conversation.description
+				}
+			}else if(!action.conversation.online) {
 				if(action.conversation.lastOpenMe){
 					return {
 						...state,
@@ -125,9 +130,15 @@ const conversation = (state, action) => {
 					online: action.conversation.online
 				}
 			}else{
+				if(action.conversation.lastOpenMe) {
+					return {
+						...state,
+						lastOpenMe: action.conversation.lastOpenMe,
+						online: action.conversation.online
+					}
+				}
 				return {
 					...state,
-					lastOpenMe: action.conversation.lastOpenMe,
 					online: action.conversation.online
 				}
 			}

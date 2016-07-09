@@ -4,11 +4,11 @@ export const ADD_USER_CONTACT = 'ADD_USER_CONTACT'
 export const ADD_USERS_CONTACT = 'ADD_USERS_CONTACT'
 
 export const ADD_CONVERSATION = 'ADD_CONVERSATION'
-export const DELETE_CONVERSATION = 'DELETE_CONVERSATION'
 export const ADD_CONVERSATIONS = 'ADD_CONVERSATIONS'
-export const REMOVE_CONVERSATIONS = 'REMOVE_CONVERSATIONS'
+export const DELETE_CONVERSATIONS = 'DELETE_CONVERSATIONS'
 export const UPDATE_CONVERSATION_STATUS = 'UPDATE_CONVERSATION_STATUS'
 export const UPDATE_CONVERSATION_UNREAD_COUNTER = 'UPDATE_CONVERSATION_UNREAD_COUNTER'
+export const DELETE_CONVERSATION = 'DELETE_CONVERSATION'
 
 export const REMOVE_MEMBER = 'REMOVE_MEMBER'
 
@@ -58,22 +58,9 @@ export const addConversations = (conversations) => {
 	}
 }
 
-export const removeConversations = (conversations) => {
-	return {
-		type: REMOVE_CONVERSATIONS,
-	}
-}
-
 export const addConversation = (conversation) => {
 	return {
 		type: ADD_CONVERSATION,
-		conversation: conversation
-	}
-}
-
-export const deleteConversation = (conversation) => {
-	return {
-		type: DELETE_CONVERSATION,
 		conversation: conversation
 	}
 }
@@ -92,6 +79,20 @@ export const updateConversationUnreadCounter = (conversation, unreadCounter) => 
 		unreadCounter : unreadCounter
 	}
 }
+
+export const deleteConversations = (conversations) => {
+	return {
+		type: DELETE_CONVERSATIONS,
+	}
+}
+
+export const deleteConversation = (conversation) => {
+	return {
+		type: DELETE_CONVERSATION,
+		conversation: conversation
+	}
+}
+
 
 // --------------- MEMBER --------------- //
 
