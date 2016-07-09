@@ -110,7 +110,7 @@ class MonkeyChat extends Component {
 	handleUserSessionLogout() {
 		monkey.logout();
 		store.dispatch(actions.deleteUserSession());
-		store.dispatch(actions.removeConversations());
+		store.dispatch(actions.deleteConversations());
 	}
 	
 	/* Conversation */
@@ -142,6 +142,7 @@ class MonkeyChat extends Component {
 			}
 			setConversationSelected();
 		});
+		monkey.closeConversation(conversation.id);
 	}
 	
 	handleConversationExit() {
@@ -234,7 +235,7 @@ monkey.on('Connect', function(event){
 });
 
 // -------------- ON DISCONNECT --------------- //
-monkey.on('onDisconnect', function(event){
+monkey.on('Disconnect', function(event){
 	console.log('App - Disconnect');
 	
 });
@@ -245,39 +246,42 @@ monkey.on('Message', function(mokMessage){
 	defineMessage(mokMessage);
 });
 
+// ------------ ON MESSAGE UNSEND -------------- //
+monkey.on('MessageUnsend', function(mokMessage){
+	console.log('App - MessageUnsend');
+	
+	let conversationId = mokMessage.recipientId;
+	let message = {
+		id: mokMessage.id
+	}
+	store.dispatch(actions.deleteMessage(message, conversationId));
+});
+
 // ------------- ON NOTIFICATION --------------- //
-monkey.on('Notification', function(mokMessage){
+monkey.on('Notification', function(data){
 	console.log('App - Notification');
 	
-	let notType = mokMessage.protocolCommand;
-	let conversationId = mokMessage.senderId;
-	switch (notType){
-		case 200:{ // message
-			var proType = mokMessage.protocolType;
-			if(proType == 3){ // Temporal Notification
-				// HOW USE DATA BY PARAMS
-				let typeTmpNotif = mokMessage.params.type;
-                if (typeTmpNotif == 20 || typeTmpNotif == 21) { // typing state
-                    let conversation = {
-			            id: conversationId,
-			            typing: typeTmpNotif
-		            }
-// 		            store.dispatch(actions.updateConversationTyping(conversation));
-                }
-			}
+	let paramsType = Number(data.params.type);
+	let conversationId = data.senderId;
+	
+	switch(paramsType) {
+		case 20: {
+				let conversation = {
+					id: conversationId,
+					description: null
+				}
+				store.dispatch(actions.updateConversationStatus(conversation));
+			break;
 		}
-            break;
-        case 207:{ // unsend message
-        	let message = {
-				id: mokMessage.id,
-			}
-        	if(mokMessage.protocolType == 207){
-				store.dispatch(actions.deleteMessage(message, mokMessage.recipientId));
-				return;
-			}
-        }
-            break;
-        default:
+		case 21: {
+				let conversation = {
+					id: conversationId,
+					description: 'typing...'
+				}
+				store.dispatch(actions.updateConversationStatus(conversation));
+			break;
+		}
+		default:
             break;
 	}
 });
@@ -299,6 +303,7 @@ monkey.on('Acknowledge', function(data){
 	store.dispatch(actions.updateMessageStatus(message, conversationId));
 });
 
+// ------- ON CONVERSATION OPEN RESPONSE ------- //
 monkey.on('ConversationOpenResponse', function(data){
 	console.log('App - ConversationOpenResponse');
 
@@ -323,12 +328,13 @@ monkey.on('ConversationOpenResponse', function(data){
 	store.dispatch(actions.updateMessagesStatus(52, conversationId, true));
 });
 
+// ------------ ON CONVERSATION OPEN ----------- //
 monkey.on('ConversationOpen', function(data){
 	let conversationId = data.senderId;
 	store.dispatch(actions.updateMessagesStatus(52, conversationId, false));
 });
 
-// --------------- GROUP DELETE MEMBER ----------------- //
+// -------------- ON GROUP REMOVE -------------- //
 monkey.on('GroupRemove', function(data){
 	console.log('App - GroupRemove');
 
@@ -371,7 +377,8 @@ function loadConversations() {
 			    	urlAvatar: conversation.info.avatar,
 			    	messages: messages,
 			    	lastMessage: messageId,
-			    	unreadMessageCounter: 0
+			    	unreadMessageCounter: 0,
+			    	description: null
 		    	}
 
 		    	// define group conversation
@@ -483,6 +490,7 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
     	messages: messages,
     	lastMessage: messageId,
     	unreadMessageCounter: unreadMessageCounter,
+    	description: null
 	}
 
 	// define group conversation
