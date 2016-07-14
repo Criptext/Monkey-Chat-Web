@@ -1,4 +1,19 @@
-import { ADD_CONVERSATION, DELETE_CONVERSATION, ADD_CONVERSATIONS, DELETE_CONVERSATIONS, UPDATE_CONVERSATION_STATUS, UPDATE_CONVERSATION_UNREAD_COUNTER, REMOVE_MEMBER, ADD_MESSAGE, ADD_MESSAGES, UPDATE_MESSAGE_STATUS, UPDATE_MESSAGES_STATUS, UPDATE_MESSAGE_DATA, DELETE_MESSAGE} from '../actions'
+import { ADD_CONVERSATION,
+	DELETE_CONVERSATION,
+	ADD_CONVERSATIONS,
+	DELETE_CONVERSATIONS,
+	UPDATE_CONVERSATION_STATUS,
+	UPDATE_CONVERSATION_UNREAD_COUNTER,
+	UPDATE_CONVERSATION_LOADING,
+	REMOVE_MEMBER,
+	ADD_MESSAGE,
+	ADD_MESSAGES,
+	UPDATE_MESSAGE_STATUS,
+	UPDATE_MESSAGES_STATUS,
+	UPDATE_MESSAGE_DATA,
+	UPDATE_MESSAGE_DATA_STATUS,
+	DELETE_MESSAGE
+	} from '../actions'
 
 const conversations = (state = {}, action) => {
 	switch(action.type) {
@@ -46,6 +61,14 @@ const conversations = (state = {}, action) => {
 			}
 		}
 		
+		case UPDATE_CONVERSATION_LOADING: {
+			const conversationId = action.conversation.id;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+		
 		case REMOVE_MEMBER: {
 			const conversationId = action.conversationId;
 			return {
@@ -63,7 +86,7 @@ const conversations = (state = {}, action) => {
 		}
 		
 		case ADD_MESSAGES: {
-			const conversationId = action.conversationId;
+			const conversationId = action.conversation.id;
 			return {
 				...state,
 				[conversationId]: conversation(state[conversationId], action)
@@ -71,6 +94,14 @@ const conversations = (state = {}, action) => {
 		}
 		
 		case UPDATE_MESSAGE_DATA: {
+			const conversationId = action.conversationId;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+		
+		case UPDATE_MESSAGE_DATA_STATUS: {
 			const conversationId = action.conversationId;
 			return {
 				...state,
@@ -151,6 +182,13 @@ const conversation = (state, action) => {
 			}
 		}
 		
+		case UPDATE_CONVERSATION_LOADING: {
+			return {
+				...state,
+				loading: action.conversation.loading
+			}
+		}
+		
 		case REMOVE_MEMBER: {
 			return {
 				...state,
@@ -183,11 +221,19 @@ const conversation = (state, action) => {
 		case ADD_MESSAGES: {
 			return {
 				...state,
-				messages: messages(state.messages, action)
+				messages: messages(state.messages, action),
+				loading: action.conversation.loading
 			}
 		}
 		
 		case UPDATE_MESSAGE_DATA: {
+			return {
+				...state,
+				messages: messages(state.messages, action)
+			}
+		}
+		
+		case UPDATE_MESSAGE_DATA_STATUS: {
 			return {
 				...state,
 				messages: messages(state.messages, action)
@@ -269,6 +315,14 @@ const messages = (state, action, lastOpenMe) => {
 			}
 		}
 		
+		case UPDATE_MESSAGE_DATA_STATUS: {
+			const messageId = action.message.id;
+			return {
+				...state,
+				[messageId]: message(state[messageId], action)
+			}
+		}
+		
 		case UPDATE_MESSAGE_STATUS: {
 			if(state[action.message.oldId]){ // to update 'oldId' and other params
 				const messageId = action.message.oldId;
@@ -279,12 +333,14 @@ const messages = (state, action, lastOpenMe) => {
 				}
 				delete newState[messageId];
 				return newState;
-			}else{ // to update 'state' only
+			}else if(state[action.message.id]){ // to update 'state' only
 				const messageId = action.message.id;
 				return {
 					...state,
 					[messageId]: message(state[messageId], action)	
 				}
+			}else{
+				return state;
 			}
 		}
 		
@@ -332,6 +388,13 @@ const message = (state, action) => {
 				...state,
 				data: action.message.data,
 				error: action.message.error
+			}
+		}
+		
+		case UPDATE_MESSAGE_DATA_STATUS: {
+			return {
+				...state,
+				isDownloading: action.message.isDownloading
 			}
 		}
 		
