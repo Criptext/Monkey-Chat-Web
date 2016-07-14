@@ -5,12 +5,21 @@ import Monkey from 'monkey-sdk'
 import { isConversationGroup } from './../../../utils/monkey-utils.js'
 import * as vars from './../../../utils/monkey-const.js'
 
-import { createStore } from 'redux'
+import { applyMiddleware, createStore, compose } from 'redux'
 import reducer from './../../../reducers'
 import * as actions from './../../../actions'
 
 const monkey = new Monkey ();
-const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
+
+const middlewares = [];
+if (process.env.NODE_ENV === 'development') {
+	const createLogger = require('redux-logger');
+	const logger = createLogger();
+	middlewares.push(logger);
+}
+
+const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
+
 const colorUsers = ["#6f067b","#00a49e","#b3007c","#b4d800","#e20068","#00b2eb","#ec870e","#84b0b9","#3a6a74","#bda700","#826aa9","#af402a","#733610","#020dd8","#7e6565","#cd7967","#fd78a7","#009f62","#336633","#e99c7a","#000000"];
 var conversationSelectedId = 0;
 
@@ -52,12 +61,6 @@ class MonkeyChat extends Component {
 			var user = monkey.getUser();
 			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
 				this.setState({viewLoading: false});
-				if(error){
-					monkey.logout();
-					window.errorMsg = "Sorry, Unable to load your data. Please wait a few minutes before trying again."
-				}else{
-					store.dispatch(actions.addUserSession(user));	
-				}
 			});
 		}
 	}
@@ -121,7 +124,7 @@ class MonkeyChat extends Component {
 		if(store.getState().conversations[conversation.id] && conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
 			store.dispatch(actions.updateConversationUnreadCounter(conversation, 0));
 		}
-		this.setState({conversationId : conversation.id});
+		this.setState({conversationId: conversation.id});
 		conversationSelectedId = conversation.id;
 	}
 	
@@ -155,7 +158,7 @@ class MonkeyChat extends Component {
 					}
 				}else{
 					if(active){
-						this.setState({conversationId : undefined});
+						this.setState({conversationId: undefined});
 					}
 				}
 				store.dispatch(actions.deleteConversation(conversation));
@@ -171,6 +174,12 @@ class MonkeyChat extends Component {
 	}
 	
 	handleMessagesLoad(conversationId, firstMessageId) {
+		let conversation = {
+			id: conversationId,
+			loading: true
+		}
+		store.dispatch(actions.updateConversationLoading(conversation));
+		
 		monkey.getConversationMessages(conversationId, 10, firstMessageId, function(err, res){
 			if(err){
 	            console.log(err);
@@ -189,10 +198,15 @@ class MonkeyChat extends Component {
 							messages[message.id] = message;
 						}
 					});
+					let conversation = {
+						id: conversationId,
+						loading: false
+					}
+					
 					if(conversationSelectedId != conversationId){
-						store.dispatch(actions.addMessages(messages, conversationId, true));
+						store.dispatch(actions.addMessages(conversation, messages, true));
 					}else{
-						store.dispatch(actions.addMessages(messages, conversationId, false));
+						store.dispatch(actions.addMessages(conversation, messages, false));
 					}
 		        }
 			}
@@ -218,7 +232,7 @@ store.subscribe(render);
 // MonkeyKit
 
 // --------------- ON CONNECT ----------------- //
-monkey.on('Connect', function(event){
+monkey.on('Connect', function(event) {
 	console.log('App - Connect');
 	
 	let user = event;
@@ -231,6 +245,8 @@ monkey.on('Connect', function(event){
 	}
 	if(!Object.keys(store.getState().conversations).length){
 		loadConversations();
+	}else{
+		monkey.getPendingMessages();
 	}
 });
 
@@ -330,7 +346,12 @@ monkey.on('ConversationOpenResponse', function(data){
 
 // ------------ ON CONVERSATION OPEN ----------- //
 monkey.on('ConversationOpen', function(data){
+	console.log('App - ConversationOpen');
+	
 	let conversationId = data.senderId;
+	if(!store.getState().conversations[conversationId])
+		return;
+		
 	store.dispatch(actions.updateMessagesStatus(52, conversationId, false));
 });
 
@@ -378,7 +399,8 @@ function loadConversations() {
 			    	messages: messages,
 			    	lastMessage: messageId,
 			    	unreadMessageCounter: 0,
-			    	description: null
+			    	description: null,
+			    	loading: false
 		    	}
 
 		    	// define group conversation
@@ -449,7 +471,6 @@ function loadConversations() {
 }
 
 function createConversation(conversationId, mokMessage){
-
 	if(store.getState().users[conversationId] == null){
 		monkey.getInfoById(conversationId, function(err, data){
 			if(err){
@@ -490,7 +511,8 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
     	messages: messages,
     	lastMessage: messageId,
     	unreadMessageCounter: unreadMessageCounter,
-    	description: null
+    	description: null,
+    	loading: false
 	}
 
 	// define group conversation
@@ -577,7 +599,7 @@ function defineMessage(mokMessage) {
 			message.status = 52;
 		}
 		
-		if(conversationSelectedId != conversationId){
+		if(conversationSelectedId != conversationId && message.senderId != store.getState().users.userSession.id){
 			store.dispatch(actions.addMessage(message, conversationId, true));
 		}else{
 			store.dispatch(actions.addMessage(message, conversationId, false));
@@ -611,6 +633,8 @@ function defineBubbleMessage(mokMessage){
     	case 2:{
 	    	message.filename = mokMessage.props.filename;
 			message.mimetype = mokMessage.props.mime_type;
+			message.data = null;
+			message.error = false;
 
 	    	if(mokMessage.props.file_type == 1){
 		    	message.bubbleType = 'audio';
@@ -639,7 +663,12 @@ function defineBubbleMessage(mokMessage){
 
 function toDownloadMessageData(mokMessage){
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
-
+	let message = {
+			id: mokMessage.id,
+			isDownloading: true
+	};
+    store.dispatch(actions.updateMessageDataStatus(message, conversationId));
+        
 	switch(parseInt(mokMessage.props.file_type)){
 
 	case 1: // audio
@@ -653,7 +682,11 @@ function toDownloadMessageData(mokMessage){
 	            console.log(err);
 	        }else{
 		        console.log('App - audio downloaded');
-				let src = `data:audio/mpeg;base64,${data}`;
+		        let mime = 'audio/mpeg';
+		        if(mokMessage.props.mime_type){
+			        mime = mokMessage.props.mime_type;
+		        }
+				let src = `data:${mime};base64,${data}`;
 				message.data = src;
 				message.error = false;
 	        }

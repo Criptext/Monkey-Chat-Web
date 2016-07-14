@@ -8,6 +8,7 @@ export const ADD_CONVERSATIONS = 'ADD_CONVERSATIONS'
 export const DELETE_CONVERSATIONS = 'DELETE_CONVERSATIONS'
 export const UPDATE_CONVERSATION_STATUS = 'UPDATE_CONVERSATION_STATUS'
 export const UPDATE_CONVERSATION_UNREAD_COUNTER = 'UPDATE_CONVERSATION_UNREAD_COUNTER'
+export const UPDATE_CONVERSATION_LOADING = 'UPDATE_CONVERSATION_LOADING'
 export const DELETE_CONVERSATION = 'DELETE_CONVERSATION'
 
 export const REMOVE_MEMBER = 'REMOVE_MEMBER'
@@ -17,6 +18,7 @@ export const ADD_MESSAGES = 'ADD_MESSAGES'
 export const UPDATE_MESSAGE_STATUS = 'UPDATE_MESSAGE_STATUS'
 export const UPDATE_MESSAGES_STATUS = 'UPDATE_MESSAGES_STATUS'
 export const UPDATE_MESSAGE_DATA = 'UPDATE_MESSAGE_DATA'
+export const UPDATE_MESSAGE_DATA_STATUS = 'UPDATE_MESSAGE_DATA_STATUS'
 export const DELETE_MESSAGE = 'DELETE_MESSAGE'
 
 
@@ -80,6 +82,13 @@ export const updateConversationUnreadCounter = (conversation, unreadCounter) => 
 	}
 }
 
+export const updateConversationLoading = (conversation) => {
+	return {
+		type: UPDATE_CONVERSATION_LOADING,
+		conversation: conversation
+	}
+}
+
 export const deleteConversations = (conversations) => {
 	return {
 		type: DELETE_CONVERSATIONS,
@@ -115,17 +124,25 @@ export const addMessage = (message, conversationId, unread) => {
 	}
 }
 
-export const addMessages = (messages, conversationId) => {
+export const addMessages = (conversation, messages) => {
 	return {
 		type: ADD_MESSAGES,
-		messages: messages,
-		conversationId: conversationId
+		conversation: conversation,
+		messages: messages
 	}
 }
 
 export const updateMessageData = (message, conversationId) => {
 	return {
 		type: UPDATE_MESSAGE_DATA,
+		message: message,
+		conversationId: conversationId
+	}
+}
+
+export const updateMessageDataStatus = (message, conversationId) => {
+	return {
+		type: UPDATE_MESSAGE_DATA_STATUS,
 		message: message,
 		conversationId: conversationId
 	}

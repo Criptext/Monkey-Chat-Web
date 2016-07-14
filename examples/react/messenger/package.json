@@ -4,16 +4,16 @@
   "description": "sample",
   "main": "index.js",
   "scripts": {
-    "test": "webpack --progress --colors --watch",
-    "start": "webpack --progress --colors"
+    "test": "set NODE_ENV=development && webpack --progress --colors --watch",
+    "start": "set NODE_ENV=production && webpack --progress --colors"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "monkey-sdk": "^0.4.10",
+    "monkey-sdk": "^0.4.22",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
-    "react-monkey-ui": "^2.0.27",
+    "react-monkey-ui": "^2.0.28",
     "redux": "^3.5.2"
   },
   "devDependencies": {
@@ -23,6 +23,7 @@
     "babel-preset-react": "^6.5.0",
     "css-loader": "^0.23.1",
     "file-loader": "^0.8.5",
+    "redux-logger": "^2.6.1",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1"
   }
