@@ -39,8 +39,18 @@ var config = {
 	        jQuery: "jquery",
 	        'window.jQuery': 'jquery',
 	    })
+		]
+  	},
+  	plugins: [
+	    new webpack.optimize.UglifyJsPlugin({
+	      compress: { warnings: false }
+	    }),
+	    new webpack.DefinePlugin({
+			'process.env': {
+				'NODE_ENV': '"production"'
+			}
+		})
 	]
-  	}
 };
 
 module.exports = config;
