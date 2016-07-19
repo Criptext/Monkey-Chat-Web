@@ -36,18 +36,20 @@ var config = {
 			exclude: /node_modules/,
 			loader: 'eslint-loader'
     	}],
+    	plugins: [
+		    new webpack.ProvidePlugin({
+		        $: "jquery",
+		        jQuery: "jquery",
+		        'window.jQuery': 'jquery',
+		    })
+		]
 	},
 	plugins: [
 	    new webpack.DefinePlugin({
 			'process.env': {
 				'NODE_ENV': JSON.stringify('development')
 			}
-		}),
-	    new webpack.ProvidePlugin({
-	        $: 'jquery',
-	        jQuery: 'jquery',
-	        'window.jQuery': 'jquery',
-	    })
+		})
 	]
 };
 
