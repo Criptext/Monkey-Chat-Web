@@ -208,6 +208,12 @@ class MonkeyChat extends Component {
 					}else{
 						store.dispatch(actions.addMessages(conversation, messages, false));
 					}
+		        }else{
+			        let conversation = {
+						id: conversationId,
+						loading: false
+					}
+					store.dispatch(actions.updateConversationLoading(conversation));
 		        }
 			}
 		});
