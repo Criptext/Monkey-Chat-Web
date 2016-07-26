@@ -35,14 +35,7 @@ var config = {
         	test: /\.js$/,
 			exclude: /node_modules/,
 			loader: 'eslint-loader'
-    	}],
-    	plugins: [
-		    new webpack.ProvidePlugin({
-		        $: "jquery",
-		        jQuery: "jquery",
-		        'window.jQuery': 'jquery',
-		    })
-		]
+    	}]
 	},
 	plugins: [
 	    new webpack.DefinePlugin({
