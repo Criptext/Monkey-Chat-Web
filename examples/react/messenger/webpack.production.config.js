@@ -31,14 +31,7 @@ var config = {
 	    }, {
 	        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
 	        loader: "file?name=[name].[ext]&limit=10000&mimetype=image/svg+xml"
-	    }],
-	    plugins: [
-		    new webpack.ProvidePlugin({
-		        $: "jquery",
-		        jQuery: "jquery",
-		        'window.jQuery': 'jquery',
-		    })
-		]
+	    }]
 	},
 	plugins: [
 	    new webpack.DefinePlugin({
