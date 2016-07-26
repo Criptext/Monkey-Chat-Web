@@ -41,6 +41,13 @@ class MonkeyChat extends Component {
 					exitGroup: true,
 					delete: true
 				}
+			},
+			conversationSort : function(conversation1, conversation2){
+			    if( !conversation1.messages || Object.keys(conversation1.messages).length == 0 || !conversation1.lastMessage || conversation1.messages[conversation1.lastMessage] == null )
+			        return 1;
+			    if( !conversation2.messages || Object.keys(conversation2.messages).length == 0 || !conversation2.lastMessage || conversation2.messages[conversation2.lastMessage] == null )
+			        return -1;
+			    return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.messages[conversation1.lastMessage].datetimeCreation;
 			}
 		}
 		
@@ -224,7 +231,7 @@ class MonkeyChat extends Component {
 	}
 
 	handleMessageGetUser(userId){
-		return store.getState().users[userId];
+		return store.getState().users[userId] ? store.getState().users[userId] : {};
 	}
 }
 
@@ -262,6 +269,12 @@ monkey.on('Disconnect', function(event){
 	
 });
 
+// -------------- ON STATUS CHANGE --------------- //
+monkey.on('StatusChange', function(data){
+	console.log('App - StatusChange ' + data);
+
+});
+
 // --------------- ON MESSAGE ----------------- //
 monkey.on('Message', function(mokMessage){
 	console.log('App - Message');
@@ -285,7 +298,9 @@ monkey.on('Notification', function(data){
 	
 	let paramsType = Number(data.params.type);
 	let conversationId = data.senderId;
-	
+	if(!store.getState().conversations[conversationId]){
+    	return;
+	}
 	switch(paramsType) {
 		case 20: {
 				let conversation = {
@@ -404,7 +419,7 @@ function loadConversations() {
 			    	urlAvatar: conversation.info.avatar,
 			    	messages: messages,
 			    	lastMessage: messageId,
-			    	unreadMessageCounter: 0,
+			    	unreadMessageCounter: conversation.unread,
 			    	description: null,
 			    	loading: false
 		    	}
@@ -439,7 +454,9 @@ function loadConversations() {
 		        // define usersToGetInfo to array
 		        let ids = [];
 		        Object.keys(usersToGetInfo).map(id => {
-			        ids.push(id);
+			        if (id !== '' && id !== 'null'){
+						ids.push(id);
+			        }
 		        })
 
 		        // get user info
@@ -490,7 +507,7 @@ function createConversation(conversationId, mokMessage){
 			}
 		});
 	}else{
-		store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, store.getState().users[mokMessage.senderId].name, store.getState().users[mokMessage.senderId].urlAvatar)));
+		store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, store.getState().users[conversationId].name, store.getState().users[conversationId].urlAvatar)));
 	}
 }
 
