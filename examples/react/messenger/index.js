@@ -17,18 +17,21 @@ if (process.env.NODE_ENV === 'development') {
 	const logger = createLogger();
 	middlewares.push(logger);
 }
-
+const DISCONNECTED = 1;
 const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
 
 const colorUsers = ["#6f067b","#00a49e","#b3007c","#b4d800","#e20068","#00b2eb","#ec870e","#84b0b9","#3a6a74","#bda700","#826aa9","#af402a","#733610","#020dd8","#7e6565","#cd7967","#fd78a7","#009f62","#336633","#e99c7a","#000000"];
 var conversationSelectedId = 0;
+var monkeyChatInstance;
+var mky_focused = true;
 
 class MonkeyChat extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
 			conversationId: undefined,
-			viewLoading: false
+			viewLoading: false,
+			connectionStatus : 0,
 		}
 
 		this.view = {
@@ -60,6 +63,8 @@ class MonkeyChat extends Component {
 		this.handleMessage = this.handleMessage.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
+		this.handleNotifyTyping = this.handleNotifyTyping.bind(this);
+		this.handleReconnect = this.handleReconnect.bind(this);
 	}
 
 	componentWillMount() {
@@ -94,7 +99,10 @@ class MonkeyChat extends Component {
 				onMessagesLoad={this.handleMessagesLoad}
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
-				onMessageGetUser={this.handleMessageGetUser}/>
+				onMessageGetUser={this.handleMessageGetUser}
+				connectionStatus = {this.state.connectionStatus}
+				onReconnect = {this.handleReconnect}
+				onNotifyTyping = {this.handleNotifyTyping}/>
 		)
 	}
 	
@@ -105,7 +113,7 @@ class MonkeyChat extends Component {
 	// user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
 	handleUserSession(user) {
 		this.setState({viewLoading: true});
-		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
+		user.monkeyId = 'imic29drtsv4z2nj5n42huxr';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			this.setState({viewLoading: false});
 			if(error){
@@ -155,7 +163,7 @@ class MonkeyChat extends Component {
 		monkey.closeConversation(conversation.id);
 	}
 	
-	handleConversationExit() {
+	handleConversationExit(conversation, nextConversation, active, setConversationSelected) {
 		monkey.removeMemberFromGroup(conversation.id, store.getState().users.userSession.id, (err, data) => {
 			if(!err){
 				if(nextConversation){
@@ -231,17 +239,51 @@ class MonkeyChat extends Component {
 	}
 
 	handleMessageGetUser(userId){
-		return store.getState().users[userId] ? store.getState().users[userId] : {};
+		let user = store.getState().users[userId];
+		if(!user){
+			user = {};
+		}
+		let conversation = store.getState().conversations[this.state.conversationId];
+		if(conversation && isConversationGroup(conversation.id)){
+		 	var index = conversation.members.indexOf(userId);
+		 	if(index >= 0){
+	 			user.color = colorUsers[index%(colorUsers.length)];
+		 	}else{
+		 		user.color = '#8c8c8c'
+		 	}
+        }
+
+		return user;
+	}
+
+	handleNotifyTyping(conversationId, isTyping){
+		if(!isConversationGroup(conversationId)){
+			monkey.sendTemporalNotification(conversationId, {type : isTyping ? 21 : 20}, null);
+		}
+	}
+
+	handleReconnect(){
+		if(monkey.status == DISCONNECTED){
+			monkey.startConnection(store.getState().users.userSession.id);
+		}
 	}
 }
 
 function render() {
-	ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementById('my-chat'));
+	monkeyChatInstance = ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementById('my-chat'));
 }
 
 render();
 store.subscribe(render);
 
+window.onfocus = function(){
+	mky_focused = true;
+
+};
+window.onblur = function(){
+	mky_focused = false;
+	
+};
 // MonkeyKit
 
 // --------------- ON CONNECT ----------------- //
@@ -290,6 +332,15 @@ monkey.on('MessageUnsend', function(mokMessage){
 		id: mokMessage.id
 	}
 	store.dispatch(actions.deleteMessage(message, conversationId));
+});
+
+// -------------- ON STATUS CHANGE --------------- //
+monkey.on('StatusChange', function(data){
+	console.log('App - StatusChange ' + data);
+
+	monkeyChatInstance.setState({
+		connectionStatus : monkey.status
+	})
 });
 
 // ------------- ON NOTIFICATION --------------- //
@@ -390,14 +441,14 @@ monkey.on('GroupRemove', function(data){
 // MonkeyChat: Conversation
 
 function loadConversations() {
-	monkey.getAllConversations(function(err, res){
+	monkey.getAllConversations(function(err, resConversations){
         if(err){
             console.log(err);
-        }else if(res && res.data.conversations.length > 0){
+        }else if(resConversations && resConversations.length > 0){
 	        let conversations = {};
 	        let users = {};
 	        let usersToGetInfo = {};
-	        res.data.conversations.map (conversation => {
+	        resConversations.map (conversation => {
 		        if(!Object.keys(conversation.info).length)
 		        	return;
 
@@ -517,6 +568,8 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
 	let messageId = null;
 	let message = null;
 	let unreadMessageCounter = 0;
+	let notification_text = "";
+
 	if(mokMessage){
 		message = defineBubbleMessage(mokMessage);
 	}
@@ -558,6 +611,21 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
 		conversation.lastOpenMe = undefined;
     	conversation.lastOpenApp = undefined;
     	conversation.online = undefined;
+	}
+
+	if (conversation.id.substring(0, 2) == "G:") {
+	    notification_text = store.getState().users[message.senderId].name + ' has sent a message to ' + conversation.name + '!';
+	}else{
+		notification_text = store.getState().users[message.senderId].name + ' has sent You a message!';
+	}
+
+	if(store.getState().users.userSession.id != mokMessage.senderId && !mky_focused){
+		console.log('NOTIFY CONVERSATION');
+		monkey.createPush(notification_text, message.preview, 4000, messageId, conversation.urlAvatar, function(){
+			monkey.closePush(messageId);
+			window.focus();
+			monkeyChatInstance.handleConversationOpened(conversation);
+		})
 	}
 
 	return conversation;
@@ -609,6 +677,8 @@ function createMessage(message) {
 function defineMessage(mokMessage) {
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
 	var conversation = store.getState().conversations[conversationId];
+	var notification_text = "";
+
 	if(!conversation){ // handle does not exits conversations
 		createConversation(conversationId, mokMessage);
 		return;
@@ -626,6 +696,21 @@ function defineMessage(mokMessage) {
 			store.dispatch(actions.addMessage(message, conversationId, true));
 		}else{
 			store.dispatch(actions.addMessage(message, conversationId, false));
+		}
+
+		if( (!conversation.lastMessage || conversation.messages[conversation.lastMessage].datetimeOrder < message.datetimeOrder) && store.getState().users.userSession.id != mokMessage.senderId && !mky_focused){
+			monkey.closePush(conversation.lastMessage);
+			console.log('NOTIFY MESSAGE');
+			if (conversation.id.substring(0, 2) == "G:") {
+			    notification_text = store.getState().users[message.senderId].name + ' has sent a message to ' + conversation.name + '!';
+			}else{
+				notification_text = store.getState().users[message.senderId].name + ' has sent You a message!';
+			}
+			monkey.createPush(notification_text, message.preview, 4000, message.id, conversation.urlAvatar, function(){
+				monkey.closePush(message.id);
+				window.focus();
+				monkeyChatInstance.handleConversationOpened(conversation);
+			})
 		}
 	}
 }
