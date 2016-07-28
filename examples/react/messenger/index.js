@@ -18,6 +18,7 @@ if (process.env.NODE_ENV === 'development') {
 	middlewares.push(logger);
 }
 const DISCONNECTED = 1;
+const CONVERSATIONS_LOAD = 15;
 const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
 
 const colorUsers = ["#6f067b","#00a49e","#b3007c","#b4d800","#e20068","#00b2eb","#ec870e","#84b0b9","#3a6a74","#bda700","#826aa9","#af402a","#733610","#020dd8","#7e6565","#cd7967","#fd78a7","#009f62","#336633","#e99c7a","#000000"];
@@ -55,7 +56,6 @@ class MonkeyChat extends Component {
 			}
 		}
 		
-		this.isLoadingConversations = false;
 		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
@@ -453,7 +453,7 @@ function loadConversations(timestamp) {
 	monkeyChatInstance.setState({
 		isLoadingConversations : true
 	})
-	monkey.getConversations(timestamp, 2, function(err, resConversations){
+	monkey.getConversations(timestamp, CONVERSATIONS_LOAD, function(err, resConversations){
         if(err){
             console.log(err);
             monkeyChatInstance.setState({
