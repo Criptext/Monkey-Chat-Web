@@ -17,7 +17,11 @@ if (process.env.NODE_ENV === 'development') {
 	const logger = createLogger();
 	middlewares.push(logger);
 }
+const OFFLINE = 0;
 const DISCONNECTED = 1;
+const CONNECTING = 2;
+const CONNECTED = 3;
+const CONVERSATIONS_LOAD = 15;
 const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
 
 const colorUsers = ["#6f067b","#00a49e","#b3007c","#b4d800","#e20068","#00b2eb","#ec870e","#84b0b9","#3a6a74","#bda700","#826aa9","#af402a","#733610","#020dd8","#7e6565","#cd7967","#fd78a7","#009f62","#336633","#e99c7a","#000000"];
@@ -31,7 +35,8 @@ class MonkeyChat extends Component {
 		this.state = {
 			conversationId: undefined,
 			viewLoading: false,
-			connectionStatus : 0,
+			panelParams : {},
+			isLoadingConversations: false
 		}
 
 		this.view = {
@@ -65,6 +70,7 @@ class MonkeyChat extends Component {
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleNotifyTyping = this.handleNotifyTyping.bind(this);
 		this.handleReconnect = this.handleReconnect.bind(this);
+		this.handleLoadConversations = this.handleLoadConversations.bind(this);
 	}
 
 	componentWillMount() {
@@ -100,9 +106,11 @@ class MonkeyChat extends Component {
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
-				connectionStatus = {this.state.connectionStatus}
+				panelParams = {this.state.panelParams}
 				onReconnect = {this.handleReconnect}
-				onNotifyTyping = {this.handleNotifyTyping}/>
+				onNotifyTyping = {this.handleNotifyTyping}
+				onLoadMoreConversations = {this.handleLoadConversations}
+				isLoadingConversations = {this.state.isLoadingConversations}/>
 		)
 	}
 	
@@ -267,6 +275,10 @@ class MonkeyChat extends Component {
 			monkey.startConnection(store.getState().users.userSession.id);
 		}
 	}
+
+	handleLoadConversations(timestamp){
+		loadConversations(timestamp/1000);
+	}
 }
 
 function render() {
@@ -299,7 +311,7 @@ monkey.on('Connect', function(event) {
 		store.dispatch(actions.addUserSession(user));
 	}
 	if(!Object.keys(store.getState().conversations).length){
-		loadConversations();
+		loadConversations(Date.now());
 	}else{
 		monkey.getPendingMessages();
 	}
@@ -338,8 +350,27 @@ monkey.on('MessageUnsend', function(mokMessage){
 monkey.on('StatusChange', function(data){
 	console.log('App - StatusChange ' + data);
 
+	var params = {};
+
+	switch(monkey.status){
+		case OFFLINE:
+			params = {backgroundColor : "red", color : 'white', show : true, message : "No Internet Connection"};
+			break;
+		case DISCONNECTED:
+			params = {backgroundColor : "black", color : 'white', show : true, message : "You Have a Session in another tab! Refresh the page to use Criptext Here!"};
+			break;
+		case CONNECTING:
+			params = {backgroundColor : "#FF9900", color : 'black', show : true, message : "Connecting..."};
+			break;
+		case CONNECTED:
+			params = {backgroundColor : "#429A38", color : 'white', show : false, message : "Connected!!"};
+			break;
+		default:
+			params = {};
+	}
+
 	monkeyChatInstance.setState({
-		connectionStatus : monkey.status
+		panelParams : params
 	})
 });
 
@@ -440,17 +471,27 @@ monkey.on('GroupRemove', function(data){
 
 // MonkeyChat: Conversation
 
-function loadConversations() {
-	monkey.getAllConversations(function(err, resConversations){
+function loadConversations(timestamp) {
+	monkeyChatInstance.setState({
+		isLoadingConversations : true
+	})
+	monkey.getConversations(timestamp, CONVERSATIONS_LOAD, function(err, resConversations){
         if(err){
             console.log(err);
+            monkeyChatInstance.setState({
+				isLoadingConversations : false
+			})
         }else if(resConversations && resConversations.length > 0){
 	        let conversations = {};
 	        let users = {};
 	        let usersToGetInfo = {};
 	        resConversations.map (conversation => {
-		        if(!Object.keys(conversation.info).length)
+		        if(!Object.keys(conversation.info).length){
+		        	monkeyChatInstance.setState({
+						isLoadingConversations : false
+					})
 		        	return;
+		        }
 
 		        // define message
 		        let messages = {};
@@ -533,12 +574,18 @@ function loadConversations() {
 			        store.dispatch(actions.addConversations(conversations));
 			        monkey.getPendingMessages();
 		        });
+		        monkeyChatInstance.setState({
+					isLoadingConversations : false
+				})
 	        }else{
 		        if(Object.keys(users).length){
 			        store.dispatch(actions.addUsersContact(users));
 		        }
 		        store.dispatch(actions.addConversations(conversations));
 		        monkey.getPendingMessages();
+		        monkeyChatInstance.setState({
+					isLoadingConversations : false
+				})
 	        }
         }
     });
