@@ -17,7 +17,10 @@ if (process.env.NODE_ENV === 'development') {
 	const logger = createLogger();
 	middlewares.push(logger);
 }
+const OFFLINE = 0;
 const DISCONNECTED = 1;
+const CONNECTING = 2;
+const CONNECTED = 3;
 const CONVERSATIONS_LOAD = 15;
 const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
 
@@ -32,7 +35,7 @@ class MonkeyChat extends Component {
 		this.state = {
 			conversationId: undefined,
 			viewLoading: false,
-			connectionStatus : 0,
+			panelParams : {},
 			isLoadingConversations: false
 		}
 
@@ -103,10 +106,10 @@ class MonkeyChat extends Component {
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
-				connectionStatus = {this.state.connectionStatus}
+				panelParams = {this.state.panelParams}
 				onReconnect = {this.handleReconnect}
 				onNotifyTyping = {this.handleNotifyTyping}
-				loadMoreConversations = {this.handleLoadConversations}
+				onLoadMoreConversations = {this.handleLoadConversations}
 				isLoadingConversations = {this.state.isLoadingConversations}/>
 		)
 	}
@@ -347,8 +350,27 @@ monkey.on('MessageUnsend', function(mokMessage){
 monkey.on('StatusChange', function(data){
 	console.log('App - StatusChange ' + data);
 
+	var params = {};
+
+	switch(monkey.status){
+		case OFFLINE:
+			params = {backgroundColor : "red", color : 'white', show : true, message : "No Internet Connection"};
+			break;
+		case DISCONNECTED:
+			params = {backgroundColor : "black", color : 'white', show : true, message : "You Have a Session in another tab! Refresh the page to use Criptext Here!"};
+			break;
+		case CONNECTING:
+			params = {backgroundColor : "#FF9900", color : 'black', show : true, message : "Connecting..."};
+			break;
+		case CONNECTED:
+			params = {backgroundColor : "#429A38", color : 'white', show : false, message : "Connected!!"};
+			break;
+		default:
+			params = {};
+	}
+
 	monkeyChatInstance.setState({
-		connectionStatus : monkey.status
+		panelParams : params
 	})
 });
 
