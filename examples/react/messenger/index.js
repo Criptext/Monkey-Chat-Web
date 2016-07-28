@@ -32,6 +32,7 @@ class MonkeyChat extends Component {
 			conversationId: undefined,
 			viewLoading: false,
 			connectionStatus : 0,
+			isLoadingConversations: false
 		}
 
 		this.view = {
@@ -54,6 +55,7 @@ class MonkeyChat extends Component {
 			}
 		}
 		
+		this.isLoadingConversations = false;
 		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
@@ -65,6 +67,7 @@ class MonkeyChat extends Component {
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleNotifyTyping = this.handleNotifyTyping.bind(this);
 		this.handleReconnect = this.handleReconnect.bind(this);
+		this.handleLoadConversations = this.handleLoadConversations.bind(this);
 	}
 
 	componentWillMount() {
@@ -102,7 +105,9 @@ class MonkeyChat extends Component {
 				onMessageGetUser={this.handleMessageGetUser}
 				connectionStatus = {this.state.connectionStatus}
 				onReconnect = {this.handleReconnect}
-				onNotifyTyping = {this.handleNotifyTyping}/>
+				onNotifyTyping = {this.handleNotifyTyping}
+				loadMoreConversations = {this.handleLoadConversations}
+				isLoadingConversations = {this.state.isLoadingConversations}/>
 		)
 	}
 	
@@ -267,6 +272,10 @@ class MonkeyChat extends Component {
 			monkey.startConnection(store.getState().users.userSession.id);
 		}
 	}
+
+	handleLoadConversations(timestamp){
+		loadConversations(timestamp/1000);
+	}
 }
 
 function render() {
@@ -299,7 +308,7 @@ monkey.on('Connect', function(event) {
 		store.dispatch(actions.addUserSession(user));
 	}
 	if(!Object.keys(store.getState().conversations).length){
-		loadConversations();
+		loadConversations(Date.now());
 	}else{
 		monkey.getPendingMessages();
 	}
@@ -440,17 +449,27 @@ monkey.on('GroupRemove', function(data){
 
 // MonkeyChat: Conversation
 
-function loadConversations() {
-	monkey.getAllConversations(function(err, resConversations){
+function loadConversations(timestamp) {
+	monkeyChatInstance.setState({
+		isLoadingConversations : true
+	})
+	monkey.getConversations(timestamp, 2, function(err, resConversations){
         if(err){
             console.log(err);
+            monkeyChatInstance.setState({
+				isLoadingConversations : false
+			})
         }else if(resConversations && resConversations.length > 0){
 	        let conversations = {};
 	        let users = {};
 	        let usersToGetInfo = {};
 	        resConversations.map (conversation => {
-		        if(!Object.keys(conversation.info).length)
+		        if(!Object.keys(conversation.info).length){
+		        	monkeyChatInstance.setState({
+						isLoadingConversations : false
+					})
 		        	return;
+		        }
 
 		        // define message
 		        let messages = {};
@@ -533,12 +552,18 @@ function loadConversations() {
 			        store.dispatch(actions.addConversations(conversations));
 			        monkey.getPendingMessages();
 		        });
+		        monkeyChatInstance.setState({
+					isLoadingConversations : false
+				})
 	        }else{
 		        if(Object.keys(users).length){
 			        store.dispatch(actions.addUsersContact(users));
 		        }
 		        store.dispatch(actions.addConversations(conversations));
 		        monkey.getPendingMessages();
+		        monkeyChatInstance.setState({
+					isLoadingConversations : false
+				})
 	        }
         }
     });
