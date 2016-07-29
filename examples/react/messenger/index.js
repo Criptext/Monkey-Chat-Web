@@ -62,6 +62,7 @@ class MonkeyChat extends Component {
 		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
+		this.handleConversationClosed = this.handleConversationClosed.bind(this);
 		this.handleConversationDelete = this.handleConversationDelete.bind(this);
 		this.handleConversationExit = this.handleConversationExit.bind(this);
 		this.handleMessagesLoad = this.handleMessagesLoad.bind(this);
@@ -100,6 +101,7 @@ class MonkeyChat extends Component {
 				conversations={this.props.store.conversations}
 				conversation={this.props.store.conversations[this.state.conversationId]}
 				onConversationOpened={this.handleConversationOpened}
+				onConversationClosed={this.handleConversationClosed}
 				onConversationDelete={this.handleConversationDelete}
 				onConversationExit={this.handleConversationExit}
 				onMessagesLoad={this.handleMessagesLoad}
@@ -149,6 +151,11 @@ class MonkeyChat extends Component {
 		}
 		this.setState({conversationId: conversation.id});
 		conversationSelectedId = conversation.id;
+	}
+	
+	handleConversationClosed() {
+		this.setState({conversationId: 0});
+		conversationSelectedId = 0;
 	}
 	
 	handleConversationDelete(conversation, nextConversation, active, setConversationSelected) {
