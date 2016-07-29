@@ -4,7 +4,6 @@ import MonkeyUI from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
 import { isConversationGroup } from './../../../utils/monkey-utils.js'
 import * as vars from './../../../utils/monkey-const.js'
-
 import { applyMiddleware, createStore, compose } from 'redux'
 import reducer from './../../../reducers'
 import * as actions from './../../../actions'
@@ -109,7 +108,6 @@ class MonkeyChat extends Component {
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
 				panelParams = {this.state.panelParams}
-				onReconnect = {this.handleReconnect}
 				onNotifyTyping = {this.handleNotifyTyping}
 				onLoadMoreConversations = {this.handleLoadConversations}
 				isLoadingConversations = {this.state.isLoadingConversations}/>
@@ -258,7 +256,7 @@ class MonkeyChat extends Component {
 		if(!user){
 			user = {};
 		}
-		let conversation = store.getState().conversations[this.state.conversationId];
+		let conversation = store.getState().conversations[conversationSelectedId];
 		if(conversation && isConversationGroup(conversation.id)){
 		 	var index = conversation.members.indexOf(userId);
 		 	if(index >= 0){
@@ -358,6 +356,7 @@ monkey.on('StatusChange', function(data){
 	console.log('App - StatusChange ' + data);
 
 	var params = {};
+	var panelParams = {};
 
 	switch(monkey.status){
 		case OFFLINE:
@@ -375,9 +374,12 @@ monkey.on('StatusChange', function(data){
 		default:
 			params = {};
 	}
+	//panelParams = {component : <ImageDummy/>, show : true, properties : params}
+
+	panelParams = params;
 
 	monkeyChatInstance.setState({
-		panelParams : params
+		panelParams : panelParams
 	})
 });
 
@@ -518,6 +520,7 @@ function loadConversations(timestamp) {
 			    	urlAvatar: conversation.info.avatar,
 			    	messages: messages,
 			    	lastMessage: messageId,
+			    	lastModified : conversation.last_modified*1000,
 			    	unreadMessageCounter: conversation.unread,
 			    	description: null,
 			    	loading: false
@@ -562,6 +565,9 @@ function loadConversations(timestamp) {
 		        monkey.getInfoByIds(ids, function(err, res){
 			        if(err){
 			            console.log(err);
+			            monkeyChatInstance.setState({
+							isLoadingConversations : false
+						})
 			        }else if(res){
 				        if(res.length){
 					        let userTmp;
@@ -580,10 +586,11 @@ function loadConversations(timestamp) {
 			        }
 			        store.dispatch(actions.addConversations(conversations));
 			        monkey.getPendingMessages();
+			        monkeyChatInstance.setState({
+						isLoadingConversations : false
+					})
 		        });
-		        monkeyChatInstance.setState({
-					isLoadingConversations : false
-				})
+		        
 	        }else{
 		        if(Object.keys(users).length){
 			        store.dispatch(actions.addUsersContact(users));
@@ -594,6 +601,10 @@ function loadConversations(timestamp) {
 					isLoadingConversations : false
 				})
 	        }
+        }else{
+        	monkeyChatInstance.setState({
+				isLoadingConversations : false
+			})
         }
     });
 }
