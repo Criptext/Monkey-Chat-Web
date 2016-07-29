@@ -690,6 +690,7 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
 function createMessage(message) {
 	switch (message.bubbleType){
 		case 'text': { // bubble text
+			let push = createPush(message.recipientId, 1);
 			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -699,6 +700,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'image': { // bubble image
+			let push = createPush(message.recipientId, 5);
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -708,6 +710,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'file': { // bubble file
+			let push = createPush(message.recipientId, 7);
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -717,6 +720,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'audio': { // bubble audio
+			let push = createPush(message.recipientId, 3);
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: Number(message.length) }, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -900,4 +904,90 @@ function listMembers(members){
 			list.push(member.name);
         })
 	return list.join(', ');
+}
+
+// MonkeyChat: Push
+
+function createPush(conversationId, pushKey) {
+
+	const username = store.getState().users.userSession.name;
+    let pushLocalization;
+    let text;
+	let locArgs;
+
+    if (!isConversationGroup(conversationId)) {
+	    locArgs = [username];
+        switch(pushKey) {
+            case 1: // text message
+                pushLocalization = 'pushtextKey';
+                text = username+' sent you a message';
+                break;
+            case 2: // private text message
+                pushLocalization = 'pushprivatetextKey';
+                text = username+' sent you a private message';
+                break;
+            case 3: // audio message
+                pushLocalization = 'pushaudioKey';
+                text = username+' sent you an audio';
+                break;
+            case 4: // private audio message
+                pushLocalization = 'pushprivateaudioKey';
+                text = username+' sent you a private audio';
+                break;
+            case 5: // image message
+                pushLocalization = 'pushimageKey';
+                text = username+' sent you an image';
+                break;
+            case 6: // private image message
+                pushLocalization = 'pushprivateimageKey';
+                text = username+' sent you a private image';
+                break;
+            case 7: // file message
+                pushLocalization = 'pushfileKey';
+                text = username+' sent you a file';
+                break;
+            case 8: // contact message
+                pushLocalization = 'pushcontactKey';
+                text = username+' sent you a contact';
+                break;
+        }
+    }else{ // to group
+	    var groupName = store.getState().conversations[conversationId].name;
+	    locArgs = [username, groupName];
+        switch(pushKey){
+            case 1: // text message
+                pushLocalization = 'grouppushtextKey';
+                text = username+' sent a message to';
+                break;
+            case 2: // private text message
+                pushLocalization = 'grouppushprivatetextKey';
+                text = username+' sent a private message to';
+                break;
+            case 3: // audio message
+                pushLocalization = 'grouppushaudioKey';
+                text = username+' sent an audio to';
+                break;
+            case 4: // private audio message
+                pushLocalization = 'grouppushprivateaudioKey';
+                text = username+' sent a private audio to';
+                break;
+            case 5: // image message
+                pushLocalization = 'grouppushimageKey';
+                text = username+' sent an image to';
+                break;
+            case 6: // private image message
+                pushLocalization = 'grouppushprivateimageKey';
+                text = username+' sent a private image to';
+                break;
+            case 7: // file message
+                pushLocalization = 'pushfileKey';
+                text = username+' sent you a file to';
+                break;
+            case 8: // contact message
+                pushLocalization = 'grouppushcontactKey';
+                text = username+' sent a contact to';
+                break;
+        }
+    }
+    return monkey.generateLocalizedPush(pushLocalization, locArgs, text);
 }
