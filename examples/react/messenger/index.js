@@ -62,6 +62,7 @@ class MonkeyChat extends Component {
 		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
+		this.handleConversationClosed = this.handleConversationClosed.bind(this);
 		this.handleConversationDelete = this.handleConversationDelete.bind(this);
 		this.handleConversationExit = this.handleConversationExit.bind(this);
 		this.handleMessagesLoad = this.handleMessagesLoad.bind(this);
@@ -100,6 +101,7 @@ class MonkeyChat extends Component {
 				conversations={this.props.store.conversations}
 				conversation={this.props.store.conversations[this.state.conversationId]}
 				onConversationOpened={this.handleConversationOpened}
+				onConversationClosed={this.handleConversationClosed}
 				onConversationDelete={this.handleConversationDelete}
 				onConversationExit={this.handleConversationExit}
 				onMessagesLoad={this.handleMessagesLoad}
@@ -149,6 +151,11 @@ class MonkeyChat extends Component {
 		}
 		this.setState({conversationId: conversation.id});
 		conversationSelectedId = conversation.id;
+	}
+	
+	handleConversationClosed() {
+		this.setState({conversationId: 0});
+		conversationSelectedId = 0;
 	}
 	
 	handleConversationDelete(conversation, nextConversation, active, setConversationSelected) {
@@ -683,6 +690,7 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
 function createMessage(message) {
 	switch (message.bubbleType){
 		case 'text': { // bubble text
+			let push = createPush(message.recipientId, message.bubbleType);
 			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -692,6 +700,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'image': { // bubble image
+			let push = createPush(message.recipientId, message.bubbleType);
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -701,6 +710,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'file': { // bubble file
+			let push = createPush(message.recipientId, message.bubbleType);
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -710,6 +720,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'audio': { // bubble audio
+			let push = createPush(message.recipientId, message.bubbleType);
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: Number(message.length) }, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -893,4 +904,58 @@ function listMembers(members){
 			list.push(member.name);
         })
 	return list.join(', ');
+}
+
+// MonkeyChat: Push
+
+function createPush(conversationId, bubbleType) {
+
+	const username = store.getState().users.userSession.name;
+    let pushLocalization;
+    let text;
+	let locArgs;
+
+    if (!isConversationGroup(conversationId)) {
+	    locArgs = [username];
+        switch(bubbleType) {
+            case 'text': // text message
+                pushLocalization = 'pushtextKey';
+                text = username+' sent you a message';
+                break;
+            case 'audio': // audio message
+                pushLocalization = 'pushaudioKey';
+                text = username+' sent you an audio';
+                break;
+            case 'image': // image message
+                pushLocalization = 'pushimageKey';
+                text = username+' sent you an image';
+                break;
+            case 'file': // file message
+                pushLocalization = 'pushfileKey';
+                text = username+' sent you a file';
+                break;
+        }
+    }else{ // to group
+	    var groupName = store.getState().conversations[conversationId].name;
+	    locArgs = [username, groupName];
+        switch(bubbleType){
+            case 'text': // text message
+                pushLocalization = 'grouppushtextKey';
+                text = username+' sent a message to';
+                break;
+            case 'audio': // audio message
+                pushLocalization = 'grouppushaudioKey';
+                text = username+' sent an audio to';
+                break;
+            case 'image': // image message
+                pushLocalization = 'grouppushimageKey';
+                text = username+' sent an image to';
+                break;
+            case 'file': // file message
+                pushLocalization = 'pushfileKey';
+                text = username+' sent you a file to';
+                break;
+        }
+    }
+    return monkey.generateLocalizedPush(pushLocalization, locArgs, text);
 }
