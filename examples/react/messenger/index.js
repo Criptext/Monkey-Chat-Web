@@ -803,7 +803,11 @@ function defineMessage(mokMessage) {
 		if(!mky_focused && message.senderId != store.getState().users.userSession.id){
 			store.dispatch(actions.addMessage(message, conversationId, true));
 		}else{
-			store.dispatch(actions.addMessage(message, conversationId, false));
+			if(conversationSelectedId != conversationId && message.senderId != store.getState().users.userSession.id){
+				store.dispatch(actions.addMessage(message, conversationId, true));
+			}else{
+				store.dispatch(actions.addMessage(message, conversationId, false));
+			}
 		}
 
 		if( (!conversation.lastMessage || conversation.messages[conversation.lastMessage].datetimeOrder < message.datetimeOrder) && store.getState().users.userSession.id != mokMessage.senderId && !mky_focused){
