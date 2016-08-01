@@ -27,6 +27,7 @@ const colorUsers = ["#6f067b","#00a49e","#b3007c","#b4d800","#e20068","#00b2eb",
 var conversationSelectedId = 0;
 var monkeyChatInstance;
 var mky_focused = true;
+var pendingConversations;
 
 class MonkeyChat extends Component {
 	constructor(props){
@@ -144,8 +145,11 @@ class MonkeyChat extends Component {
 	handleConversationOpened(conversation) {
 		monkey.sendOpenToUser(conversation.id);
 		
-		if(store.getState().conversations[conversation.id] && conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
+		if(store.getState().conversations[conversation.id] && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
 			store.dispatch(actions.updateConversationUnreadCounter(conversation, 0));
+		}
+		if(this.state.conversationId){
+			monkey.closeConversation(this.state.conversationId);
 		}
 		this.setState({conversationId: conversation.id});
 		conversationSelectedId = conversation.id;
@@ -295,11 +299,27 @@ store.subscribe(render);
 
 window.onfocus = function(){
 	mky_focused = true;
-
+	document.getElementById('mky-title').innerHTML = "Criptext Enterprise";
+	if(store.getState().conversations[conversationSelectedId]){
+		monkeyChatInstance.handleConversationOpened(store.getState().conversations[conversationSelectedId]);
+	}
 };
 window.onblur = function(){
 	mky_focused = false;
-	
+	pendingConversations = 0;
+	var myConversations = store.getState().conversations;
+	Object.keys(myConversations).forEach( (key) => {
+		if(myConversations[key].unreadMessageCounter){
+			pendingConversations++;
+		}
+	})
+	if(pendingConversations){
+		document.getElementById('mky-title').innerHTML = pendingConversations + " Pending Conversations"
+	}
+
+	if(conversationSelectedId){
+		monkey.closeConversation(conversationSelectedId);
+	}
 };
 // MonkeyKit
 
@@ -326,6 +346,15 @@ monkey.on('Connect', function(event) {
 monkey.on('Disconnect', function(event){
 	console.log('App - Disconnect');
 	
+});
+
+// --------------- ON CONNECT ----------------- //
+monkey.on('Exit', function(event) {
+	console.log('App - Exit');
+	monkey.logout();
+	store.dispatch(actions.deleteUserSession());
+	store.dispatch(actions.deleteConversations());
+	conversationSelectedId = 0;
 });
 
 // -------------- ON STATUS CHANGE --------------- //
@@ -625,6 +654,11 @@ function createConversation(conversationId, mokMessage){
 	}else{
 		store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, store.getState().users[conversationId].name, store.getState().users[conversationId].urlAvatar)));
 	}
+
+	if(!mky_focused){
+		pendingConversations++;
+		document.getElementById('mky-title').innerHTML = pendingConversations + " Pending Conversations";
+	}
 }
 
 function defineConversation(conversationId, mokMessage, name, urlAvatar, members_info, members){
@@ -761,10 +795,19 @@ function defineMessage(mokMessage) {
 			message.status = 52;
 		}
 		
-		if(conversationSelectedId != conversationId && message.senderId != store.getState().users.userSession.id){
+		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused){
+			pendingConversations++;
+			document.getElementById('mky-title').innerHTML = pendingConversations + " Pending Conversations";
+		}
+
+		if(!mky_focused && message.senderId != store.getState().users.userSession.id){
 			store.dispatch(actions.addMessage(message, conversationId, true));
 		}else{
-			store.dispatch(actions.addMessage(message, conversationId, false));
+			if(conversationSelectedId != conversationId && message.senderId != store.getState().users.userSession.id){
+				store.dispatch(actions.addMessage(message, conversationId, true));
+			}else{
+				store.dispatch(actions.addMessage(message, conversationId, false));
+			}
 		}
 
 		if( (!conversation.lastMessage || conversation.messages[conversation.lastMessage].datetimeOrder < message.datetimeOrder) && store.getState().users.userSession.id != mokMessage.senderId && !mky_focused){
