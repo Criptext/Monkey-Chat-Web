@@ -8,20 +8,19 @@ import { applyMiddleware, createStore, compose } from 'redux'
 import reducer from './../../../reducers'
 import * as actions from './../../../actions'
 
-const monkey = new Monkey ();
-
 const middlewares = [];
 if (process.env.NODE_ENV === 'development') {
 	const createLogger = require('redux-logger');
 	const logger = createLogger();
 	middlewares.push(logger);
 }
+const monkey = new Monkey ();
+const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
 const OFFLINE = 0;
 const DISCONNECTED = 1;
 const CONNECTING = 2;
 const CONNECTED = 3;
 const CONVERSATIONS_LOAD = 15;
-const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
 
 const colorUsers = ["#6f067b","#00a49e","#b3007c","#b4d800","#e20068","#00b2eb","#ec870e","#84b0b9","#3a6a74","#bda700","#826aa9","#af402a","#733610","#020dd8","#7e6565","#cd7967","#fd78a7","#009f62","#336633","#e99c7a","#000000"];
 var conversationSelectedId = 0;
@@ -122,7 +121,7 @@ class MonkeyChat extends Component {
 	// user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
 	handleUserSession(user) {
 		this.setState({viewLoading: true});
-		user.monkeyId = 'imic29drtsv4z2nj5n42huxr';
+		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			this.setState({viewLoading: false});
 			if(error){
@@ -197,6 +196,10 @@ class MonkeyChat extends Component {
 			}
 			setConversationSelected();
 		});
+	}
+	
+	handleLoadConversations(timestamp){
+		loadConversations(timestamp/1000);
 	}
 	
 	/* Message */
@@ -285,9 +288,6 @@ class MonkeyChat extends Component {
 		}
 	}
 
-	handleLoadConversations(timestamp){
-		loadConversations(timestamp/1000);
-	}
 }
 
 function render() {
@@ -321,6 +321,7 @@ window.onblur = function(){
 		monkey.closeConversation(conversationSelectedId);
 	}
 };
+
 // MonkeyKit
 
 // --------------- ON CONNECT ----------------- //
@@ -619,7 +620,6 @@ function loadConversations(timestamp) {
 						isLoadingConversations : false
 					})
 		        });
-		        
 	        }else{
 		        if(Object.keys(users).length){
 			        store.dispatch(actions.addUsersContact(users));
