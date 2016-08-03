@@ -4,13 +4,20 @@ import MonkeyUI from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
 import { isConversationGroup } from './../../../utils/monkey-utils.js'
 import * as vars from './../../../utils/monkey-const.js'
-
-import { createStore } from 'redux'
+import { applyMiddleware, createStore, compose } from 'redux'
 import reducer from './../../../reducers'
 import * as actions from './../../../actions'
 
+const middlewares = [];
+if (process.env.NODE_ENV === 'development') {
+	const createLogger = require('redux-logger');
+	const logger = createLogger();
+	middlewares.push(logger);
+}
 const monkey = new Monkey ();
-const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
+const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
+const CONVERSATIONS_LOAD = 15;
+
 var conversationSelectedId = 0;
 
 class MonkeyChat extends Component {
@@ -37,14 +44,16 @@ class MonkeyChat extends Component {
 		this.handleMessagesLoad = this.handleMessagesLoad.bind(this);
 		this.handleMessage = this.handleMessage.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
-		this.handleMessageGetUsername = this.handleMessageGetUsername.bind(this);
+		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 	}
 
 	componentWillMount() {
 		if(monkey.getUser() != null){
 			this.setState({loading: true});
 			var user = monkey.getUser();
-			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
+			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
+				this.setState({viewLoading: false});
+			});
 		}
 	}
 
@@ -69,7 +78,7 @@ class MonkeyChat extends Component {
 				onMessagesLoad={this.handleMessagesLoad}
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
-				onMessageGetUsername={this.handleMessageGetUsername}/>
+				onMessageGetUser={this.handleMessageGetUser}/>
 		)
 	}
 	
@@ -81,8 +90,15 @@ class MonkeyChat extends Component {
 	handleUserSession(user) {
 		this.setState({loading: true});
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
-		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
-		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, false, vars.MONKEY_DEBUG_MODE, false);
+		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
+			this.setState({viewLoading: false});
+			if(error){
+				monkey.logout();
+				window.errorMsg = "Sorry, Unable to load your data. Please wait a few minutes before trying again."
+			}else{
+				store.dispatch(actions.addUserSession(user));	
+			}
+		});
 	}
 
 	handleUserSessionLogout() {
@@ -99,42 +115,33 @@ class MonkeyChat extends Component {
 		if(store.getState().conversations[conversation.id] && conversation.id != conversationSelectedId && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
 			store.dispatch(actions.updateConversationUnreadCounter(conversation, 0));
 		}
-		this.setState({conversationId : conversation.id});
+		this.setState({conversationId: conversation.id});
 		conversationSelectedId = conversation.id;
 	}
 	
 	handleConversationClosed() {
-		this.setState({conversationId : 0});
+		this.setState({conversationId: 0});
 		conversationSelectedId = 0;
 	}
 	
 	handleConversationDelete(conversation, nextConversation, active, setConversationSelected) {
-		if(nextConversation){
-			monkey.deleteConversation(conversation.id, (err, data) => {
-				if(!err){
+		monkey.deleteConversation(conversation.id, (err, data) => {
+			if(!err){
+				if(nextConversation){
 					monkey.sendOpenToUser(nextConversation.id);
 					if(active){
-						this.setState({ conversationId : nextConversation.id});
+						this.setState({conversationId: nextConversation.id});
 					}
-					
-					store.dispatch(actions.deleteConversation(conversation));
-				}
-				setConversationSelected();
-				
-			});	
-		}else{
-			monkey.deleteConversation(conversation.id, (err, data) => {
-				if(!err){
+				}else{
 					if(active){
-						this.setState({
-							conversationId : undefined
-						})
+						this.setState({conversationId: undefined})
 					}
-					store.dispatch(actions.deleteConversation(conversation));
 				}
-				setConversationSelected();	
-			});
-		}
+				store.dispatch(actions.deleteConversation(conversation));
+			}
+			setConversationSelected();
+		});
+		monkey.closeConversation(conversation.id);
 	}
 
 	/* Message */
@@ -144,23 +151,46 @@ class MonkeyChat extends Component {
 	}
 	
 	handleMessagesLoad(conversationId, firstMessageId) {
+		let conversation = {
+			id: conversationId,
+			loading: true
+		}
+		store.dispatch(actions.updateConversationLoading(conversation));
+		
 		monkey.getConversationMessages(conversationId, 10, firstMessageId, function(err, res){
 			if(err){
 	            console.log(err);
 	        }else if(res){
 		        if(res.length){
 			     	let messages = {};
+			     	let lastOpenMe = store.getState().conversations[conversationId].lastOpenMe;
 					res.map( mokMessage => {
 						let message = defineBubbleMessage(mokMessage);
-						if(message){
+						if(message) {
+							// define status							
+							if(message.datetimeCreation <= lastOpenMe) {
+								message.status = 52;
+							}
+							
 							messages[message.id] = message;
 						}
 					});
-					if(conversationSelectedId != conversationId){
-						store.dispatch(actions.addMessages(messages, conversationId, true));
-					}else{
-						store.dispatch(actions.addMessages(messages, conversationId, false));
+					let conversation = {
+						id: conversationId,
+						loading: false
 					}
+					
+					if(conversationSelectedId != conversationId){
+						store.dispatch(actions.addMessages(conversation, messages, true));
+					}else{
+						store.dispatch(actions.addMessages(conversation, messages, false));
+					}
+		        }else{
+			        let conversation = {
+						id: conversationId,
+						loading: false
+					}
+					store.dispatch(actions.updateConversationLoading(conversation));
 		        }
 			}
 		});
@@ -170,8 +200,8 @@ class MonkeyChat extends Component {
 		toDownloadMessageData(mokMessage);
 	}
 
-	handleMessageGetUsername(userId){
-		return store.getState().users[userId].name ? store.getState().users[userId].name : 'Unknown';
+	handleMessageGetUser(userId){
+		return store.getState().users[userId] ? store.getState().users[userId] : {};
 	}
 
 /*
@@ -193,134 +223,159 @@ store.subscribe(render);
 // MonkeyKit
 
 // --------------- ON CONNECT ----------------- //
-monkey.on('onConnect', function(event){
+monkey.on('Connect', function(event){
+	console.log('App - Connect');
+	
 	let user = event;
 	if(!store.getState().users.userSession){
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}else if(!store.getState().users.userSession.id){
 		user.id = event.monkeyId;
-		user.urlAvatar = 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png';
 		store.dispatch(actions.addUserSession(user));
 	}
 	if(!Object.keys(store.getState().conversations).length){
-		loadConversations();
+		loadConversations(Date.now());
+	}else{
+		monkey.getPendingMessages();
 	}
 });
 
 // -------------- ON DISCONNECT --------------- //
-monkey.on('onDisconnect', function(event){
-	console.log('App - onDisconnect');
+monkey.on('Disconnect', function(event){
+	console.log('App - Disconnect');
+	
+});
+
+// -------------- ON STATUS CHANGE --------------- //
+monkey.on('StatusChange', function(data){
+	console.log('App - StatusChange ' + data);
+
 });
 
 // --------------- ON MESSAGE ----------------- //
-monkey.on('onMessage', function(mokMessage){
+monkey.on('Message', function(mokMessage){
 	console.log('App - onMessage');
 	defineMessage(mokMessage);
 });
 
+// ------------ ON MESSAGE UNSEND -------------- //
+monkey.on('MessageUnsend', function(mokMessage){
+	console.log('App - MessageUnsend');
+	
+	let conversationId = mokMessage.recipientId;
+	let message = {
+		id: mokMessage.id
+	}
+	store.dispatch(actions.deleteMessage(message, conversationId));
+});
+
 // ------------- ON NOTIFICATION --------------- //
-monkey.on('onNotification', function(mokMessage){
-
-	console.log('App - onNotification');
-	let notType = mokMessage.protocolCommand;
-	let conversationId = mokMessage.senderId;
-	switch (notType){
-		case 200:{ // message
-			var proType = mokMessage.protocolType;
-			if(proType == 3){ // Temporal Notificatio
-				// HOW USE DATA BY PARAMS
-				let typeTmpNotif = mokMessage.params.type;
-                if (typeTmpNotif == 20 || typeTmpNotif == 21) { // typing state
-                    let conversation = {
-			            id: conversationId,
-			            typing: typeTmpNotif
-		            }
-// 		            store.dispatch(actions.updateConversationTyping(conversation));
-                }
-			}
+monkey.on('Notification', function(data){
+	console.log('App - Notification');
+	
+	let paramsType = Number(data.params.type);
+	let conversationId = data.senderId;
+	if(!store.getState().conversations[conversationId]){
+    	return;
+	}
+	switch(paramsType) {
+		case 20: {
+				let conversation = {
+					id: conversationId,
+					description: null
+				}
+				store.dispatch(actions.updateConversationStatus(conversation));
+			break;
 		}
-            break;
-        case 203:{ // open arrived
-
-        }
-            break;
-        case 207:{ // open arrived
-        	let message = {
-				id: mokMessage.id,
-			}
-        	if(mokMessage.protocolType == 207){
-				store.dispatch(actions.deleteMessage(message, mokMessage.recipientId));
-				return;
-			}
-        }
-            break;
-        default:
+		case 21: {
+				let conversation = {
+					id: conversationId,
+					description: 'typing...'
+				}
+				store.dispatch(actions.updateConversationStatus(conversation));
+			break;
+		}
+		default:
             break;
 	}
 });
 
 // -------------- ON ACKNOWLEDGE --------------- //
-monkey.on('onAcknowledge', function(mokMessage){
+monkey.on('Acknowledge', function(data){
+	console.log('App - Acknowledge');
+	
+	let conversationId = data.senderId;
+	if(!store.getState().conversations[conversationId])
+    	return;
+	
+	let message = {
+		id: data.newId,
+		oldId: data.oldId,
+		status: Number(data.status),
+		recipientId: data.recipientId
+	}
+	store.dispatch(actions.updateMessageStatus(message, conversationId));
+});
 
-	let ackType = mokMessage.protocolType;
-	let conversationId = mokMessage.senderId;
-	switch (ackType){
-        case 1:{ // text
-            let message = {
-				id: mokMessage.id,
-				oldId: mokMessage.oldId,
-// 				status: Number(mokMessage.props.status),
-				status: 50,
-				recipientId: mokMessage.recipientId
-			}
-			store.dispatch(actions.updateMessageStatus(message, conversationId));
-        }
-		break;
-        case 2:{ // media
-            let message = {
-				id: mokMessage.id,
-				oldId: mokMessage.oldId,
-// 				status: Number(mokMessage.props.status),
-				status: 50,
-				recipientId: mokMessage.recipientId
-			}
-			store.dispatch(actions.updateMessageStatus(message, conversationId));
-        }
-        break;
-        case 203:{ // open conversation
-	        if(!store.getState().conversations[conversationId])
-	        	return;
+// ------- ON CONVERSATION OPEN RESPONSE ------- //
+monkey.on('ConversationOpenResponse', function(data){
+	console.log('App - ConversationOpenResponse');
 
-            let conversation = {
-	            id: conversationId,
-	            lastOpenMe: Number(mokMessage.props.last_open_me)*1000,
-	            lastOpenApp: Number(mokMessage.props.last_seen)*1000,
-	            online: Number(mokMessage.props.online)
-            }
-            store.dispatch(actions.updateConversationStatus(conversation));
-            //monkeyUI.updateStatusMessageBubbleByTime(_conversationId,_lastOpenMe);
+	let conversationId = conversationSelectedId;
+	if(!store.getState().conversations[conversationId])
+		return;
 
-        }
-        break;
-        default:
-            break;
-    }
+	let conversation = {
+		id: conversationId,
+		online: data.online
+	}
+	// define lastOpenMe
+	if(data.lastOpenMe){
+		conversation.lastOpenMe = Number(data.lastOpenMe)*1000;
+	}
+	// define lastOpenApp
+	if(data.lastSeen){
+		conversation.lastOpenApp = Number(data.lastSeen)*1000;
+	}
+
+	store.dispatch(actions.updateConversationStatus(conversation));
+	store.dispatch(actions.updateMessagesStatus(52, conversationId, true));
+});
+
+// ------------ ON CONVERSATION OPEN ----------- //
+monkey.on('ConversationOpen', function(data){
+	console.log('App - ConversationOpen');
+	
+	let conversationId = data.senderId;
+	if(!store.getState().conversations[conversationId])
+		return;
+		
+	store.dispatch(actions.updateMessagesStatus(52, conversationId, false));
+});
+
+// -------------- ON GROUP REMOVE -------------- //
+monkey.on('GroupRemove', function(data){
+	console.log('App - GroupRemove');
+
+	if(store.getState().conversations[data.id]){
+		store.dispatch(actions.removeMember(data.member, data.id));
+	}
 });
 
 // MonkeyChat
 
 // MonkeyChat: Conversation
 
-function loadConversations() {
-	monkey.getAllConversations(function(err, res){
+function loadConversations(timestamp) {
+	monkey.getConversations(timestamp, CONVERSATIONS_LOAD, function(err, resConversations){
         if(err){
             console.log(err);
-        }else if(res && res.data.conversations.length > 0){
+        }else if(resConversations && resConversations.length > 0){
 	        let conversations = {};
 	        let users = {};
 	        let usersToGetInfo = {};
-	        res.data.conversations.map (conversation => {
+	        resConversations.map (conversation => {
 		        if(!Object.keys(conversation.info).length)
 		        	return;
 
@@ -339,10 +394,13 @@ function loadConversations() {
 		        let conversationTmp = {
 			    	id: conversation.id,
 			    	name: conversation.info.name == undefined ? 'Unknown' : conversation.info.name,
-			    	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
+			    	urlAvatar: conversation.info.avatar,
 			    	messages: messages,
 			    	lastMessage: messageId,
-			    	unreadMessageCounter: 0
+			    	lastModified : conversation.last_modified*1000,
+			    	unreadMessageCounter: conversation.unread,
+			    	description: null,
+			    	loading: false
 		    	}
 
 		    	// define group conversation
@@ -375,7 +433,9 @@ function loadConversations() {
 		        // define usersToGetInfo to array
 		        let ids = [];
 		        Object.keys(usersToGetInfo).map(id => {
-			        ids.push(id);
+			        if (id !== '' && id !== 'null'){
+						ids.push(id);
+			        }
 		        })
 
 		        // get user info
@@ -413,21 +473,20 @@ function loadConversations() {
 }
 
 function createConversation(conversationId, mokMessage){
-
 	if(store.getState().users[conversationId] == null){
 		monkey.getInfoById(conversationId, function(err, data){
 			if(err){
 	            console.log(err);
 	        }else if(data){
 				if(isConversationGroup(conversationId)){
-					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.info.name, data.members_info, data.members)));
+					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.info.name, data.info.avatar, data.members_info, data.members)));
 				}else{
 					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.name)));
 				}
 			}
 		});
 	}else{
-		store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, store.getState().users[mokMessage.senderId].name)));
+		store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, store.getState().users[mokMessage.senderId].name, store.getState().users[conversationId].urlAvatar)));
 	}
 }
 
@@ -489,8 +548,8 @@ function createMessage(message) {
 			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
-			message.datetimeCreation = mokMessage.datetimeCreation*1000;
-			message.datetimeOrder = mokMessage.datetimeOrder;
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
 			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
@@ -498,8 +557,8 @@ function createMessage(message) {
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
-			message.datetimeCreation = mokMessage.datetimeCreation*1000;
-			message.datetimeOrder = mokMessage.datetimeOrder;
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
 			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
@@ -507,8 +566,8 @@ function createMessage(message) {
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
-			message.datetimeCreation = mokMessage.datetimeCreation*1000;
-			message.datetimeOrder = mokMessage.datetimeOrder;
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
 			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
@@ -516,8 +575,8 @@ function createMessage(message) {
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: Number(message.length)}, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
-			message.datetimeCreation = mokMessage.datetimeCreation*1000;
-			message.datetimeOrder = mokMessage.datetimeOrder;
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
 			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
@@ -549,8 +608,8 @@ function defineBubbleMessage(mokMessage){
 	let message = {
     	id: mokMessage.id.toString(),
     	oldId: mokMessage.oldId,
-    	datetimeCreation: mokMessage.datetimeCreation*1000,
-		datetimeOrder: mokMessage.datetimeOrder,
+    	datetimeCreation: Number(mokMessage.datetimeCreation*1000),
+		datetimeOrder: Number(mokMessage.datetimeOrder*1000),
 		recipientId: mokMessage.recipientId,
 		senderId: mokMessage.senderId,
 		status: 50,
