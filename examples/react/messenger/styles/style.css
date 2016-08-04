@@ -22,3 +22,13 @@ body{
   height: 100%;
   overflow: hidden;
 }
+
+.mky-connect-link{
+	color : #EAF0F9;
+	cursor: pointer;
+	font-size: 15px !important;
+}
+
+.mky-connect-link:hover{
+	color : #60FFC7;
+}
