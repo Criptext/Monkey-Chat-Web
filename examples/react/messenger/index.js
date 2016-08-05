@@ -35,7 +35,8 @@ class MonkeyChat extends Component {
 			conversationId: undefined,
 			viewLoading: false,
 			panelParams : {},
-			isLoadingConversations: false
+			isLoadingConversations: false,
+			connectionStatus : 0,
 		}
 
 		this.view = {
@@ -69,7 +70,6 @@ class MonkeyChat extends Component {
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleNotifyTyping = this.handleNotifyTyping.bind(this);
-		this.handleReconnect = this.handleReconnect.bind(this);
 		this.handleLoadConversations = this.handleLoadConversations.bind(this);
 	}
 
@@ -108,9 +108,11 @@ class MonkeyChat extends Component {
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
 				panelParams = {this.state.panelParams}
+				asidePanelParams = {this.state.panelParams}
 				onNotifyTyping = {this.handleNotifyTyping}
 				onLoadMoreConversations = {this.handleLoadConversations}
-				isLoadingConversations = {this.state.isLoadingConversations}/>
+				isLoadingConversations = {this.state.isLoadingConversations}
+				connectionStatus = {this.state.connectionStatus}/>
 		)
 	}
 	
@@ -147,7 +149,7 @@ class MonkeyChat extends Component {
 		if(store.getState().conversations[conversation.id] && store.getState().conversations[conversation.id].unreadMessageCounter != 0){
 			store.dispatch(actions.updateConversationUnreadCounter(conversation, 0));
 		}
-		if(this.state.conversationId){
+		if(this.state.conversationId && conversation.id != conversationSelectedId){
 			monkey.closeConversation(this.state.conversationId);
 		}
 		this.setState({conversationId: conversation.id});
@@ -282,12 +284,10 @@ class MonkeyChat extends Component {
 		}
 	}
 
-	handleReconnect(){
-		if(monkey.status == DISCONNECTED){
-			monkey.startConnection(store.getState().users.userSession.id);
-		}
+	handleLoadConversations(timestamp){
+		loadConversations(timestamp/1000);
 	}
-
+	
 }
 
 function render() {
@@ -358,12 +358,6 @@ monkey.on('Exit', function(event) {
 	conversationSelectedId = 0;
 });
 
-// -------------- ON STATUS CHANGE --------------- //
-monkey.on('StatusChange', function(data){
-	console.log('App - StatusChange ' + data);
-
-});
-
 // --------------- ON MESSAGE ----------------- //
 monkey.on('Message', function(mokMessage){
 	console.log('App - Message');
@@ -388,18 +382,19 @@ monkey.on('StatusChange', function(data){
 	var params = {};
 	var panelParams = {};
 
-	switch(monkey.status){
+	switch(data){
 		case OFFLINE:
-			params = {backgroundColor : "red", color : 'white', show : true, message : "No Internet Connection"};
+			params = {backgroundColor : "red", color : 'white', show : true, message : "No Internet Connection", fontSize : '15px'};
 			break;
 		case DISCONNECTED:
-			params = {backgroundColor : "black", color : 'white', show : true, message : "You Have a Session in another tab! Refresh the page to use Criptext Here!"};
+			var reconnectDiv = <div style={{fontSize : '15px'}}>You Have a Session somewhere else! <span className="mky-connect-link" onClick={ () => {monkey.startConnection()} } >Connect Here!</span></div>
+			params = {backgroundColor : "black", color : 'white', show : true, message : reconnectDiv};
 			break;
 		case CONNECTING:
-			params = {backgroundColor : "#FF9900", color : 'black', show : true, message : "Connecting..."};
+			params = {backgroundColor : "#FF9900", color : 'black', show : true, message : "Connecting...", fontSize : '15px'};
 			break;
 		case CONNECTED:
-			params = {backgroundColor : "#429A38", color : 'white', show : false, message : "Connected!!"};
+			params = {backgroundColor : "#429A38", color : 'white', show : false, message : "Connected!!", fontSize : '15px'};
 			break;
 		default:
 			params = {};
@@ -409,7 +404,8 @@ monkey.on('StatusChange', function(data){
 	panelParams = params;
 
 	monkeyChatInstance.setState({
-		panelParams : panelParams
+		panelParams : panelParams,
+		connectionStatus : data
 	})
 });
 
@@ -462,8 +458,8 @@ monkey.on('Acknowledge', function(data){
 });
 
 // ------- ON CONVERSATION OPEN RESPONSE ------- //
-monkey.on('ConversationOpenResponse', function(data){
-	console.log('App - ConversationOpenResponse');
+monkey.on('ConversationStatusChange', function(data){
+	console.log('App - ConversationStatusChange');
 
 	let conversationId = conversationSelectedId;
 	if(!store.getState().conversations[conversationId])
@@ -536,6 +532,7 @@ function loadConversations(timestamp) {
 		        let messages = {};
 		        let messageId = null;
 		        if (conversation.last_message.protocolType != 207){
+		        	conversation.last_message.datetimeOrder = conversation.last_message.datetimeCreation;
 		        	let message = defineBubbleMessage(conversation.last_message);
 		        	if(message){
 			        	messages[message.id] = message;
@@ -785,6 +782,10 @@ function defineMessage(mokMessage) {
 	if(!conversation){ // handle does not exits conversations
 		createConversation(conversationId, mokMessage);
 		return;
+	}else{
+		if(conversation.messages[mokMessage.id] != null){
+			return;
+		}
 	}
 	
 	let message = defineBubbleMessage(mokMessage);
@@ -795,7 +796,7 @@ function defineMessage(mokMessage) {
 			message.status = 52;
 		}
 		
-		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused){
+		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused && message.senderId != store.getState().users.userSession.id){
 			pendingConversations++;
 			document.getElementById('mky-title').innerHTML = pendingConversations + " Pending Conversations";
 		}
