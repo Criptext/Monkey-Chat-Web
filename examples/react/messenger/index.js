@@ -36,7 +36,7 @@ class MonkeyChat extends Component {
 			viewLoading: false,
 			panelParams : {},
 			isLoadingConversations: false,
-			connectionStatus : 0,
+			connectionStatus: 0,
 		}
 
 		this.view = {
@@ -277,17 +277,14 @@ class MonkeyChat extends Component {
 
 		return user;
 	}
-
+	
+	/* Notification */
+	
 	handleNotifyTyping(conversationId, isTyping){
 		if(!isConversationGroup(conversationId)){
 			monkey.sendTemporalNotification(conversationId, {type : isTyping ? 21 : 20}, null);
 		}
 	}
-
-	handleLoadConversations(timestamp){
-		loadConversations(timestamp/1000);
-	}
-	
 }
 
 function render() {

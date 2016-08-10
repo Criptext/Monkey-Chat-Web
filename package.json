@@ -10,8 +10,8 @@
   ],
   "main": "./dist/monkeyChat.js",
   "scripts": {
-    "test": "webpack --progress --colors --watch",
-    "start": "webpack --progress --colors"
+	"build": "webpack -p --config ./webpack.production.config.js --progress --colors",
+    "test": "webpack --progress --colors --watch"
   },
   "author": "Criptext Inc.",
   "license": "ISC",
@@ -41,7 +41,7 @@
     "react": "15.2.1",
     "react-dom": "15.2.1",
     "react-google-maps": "4.10.1",
-    "react-monkey-ui": "2.0.35",
+    "react-monkey-ui": "file:react-monkey-ui-2.0.40.tgz",
     "redux": "3.5.2"
   }
 }
