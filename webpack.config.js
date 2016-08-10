@@ -3,7 +3,8 @@ var path = require('path');
 
 var config = {
 	entry: {
-		monkeyChat: './monkeychat.js'
+		monkeyChat: './monkeychat.js',
+		monkeyChatEnterprise: './monkeyChatEnterprise.js'
 	},
 	output: {
     	path: path.join(__dirname, 'dist'),
