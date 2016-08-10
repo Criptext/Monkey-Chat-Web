@@ -9,15 +9,13 @@ import { applyMiddleware, createStore, compose } from 'redux'
 import reducer from './reducers'
 import * as actions from './actions'
 
-const monkey = new Monkey ();
-
 const middlewares = [];
 if (process.env.NODE_ENV === 'development') {
 	const createLogger = require('redux-logger');
 	const logger = createLogger();
 	middlewares.push(logger);
 }
-
+const monkey = new Monkey ();
 const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
 
 const OFFLINE = 0;
@@ -38,7 +36,7 @@ class MonkeyChat extends React.Component {
 			conversation: undefined,
 			conversationId: undefined,
 			loading: false,
-			connectionStatus : 0,
+			connectionStatus: 0,
 		}
 		
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -46,7 +44,16 @@ class MonkeyChat extends React.Component {
 		this.handleMessage = this.handleMessage.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
-
+	}
+	
+	componentWillMount() {
+		if(monkey.getUser() != null){
+			this.setState({loading: true});
+			var user = monkey.getUser();
+			monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
+				this.setState({viewLoading: false});
+			});
+		}
 	}
 	
 	componentWillReceiveProps(nextProps) {
@@ -54,12 +61,6 @@ class MonkeyChat extends React.Component {
 			this.setState({conversationId: nextProps.store.conversations[Object.keys(nextProps.store.conversations)[0]].id});
 		}
 		if(nextProps.store.users.userSession && this.state.loading){ // handle stop loading when foun user session
-			this.setState({loading: false});
-		}
-	}
-	
-	componentWillMount() {
-		if(monkey.getUser() != null){
 			this.setState({loading: false});
 		}
 	}
@@ -87,7 +88,8 @@ class MonkeyChat extends React.Component {
 	handleUserSession(user) {
 		this.setState({loading: true});
 		
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], true, MONKEY_DEBUG_MODE, false, false, (error, success) => {
+		// monkey create monkeyId dynamically, when user doesn't have monkeyId.
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			this.setState({viewLoading: false});
 			if(error){
 				monkey.logout();
@@ -95,7 +97,7 @@ class MonkeyChat extends React.Component {
 			}else{
 				store.dispatch(actions.addUserSession(user));	
 			}
-		}); // monkey create monkeyId dynamically, when user doesn't have monkeyId.
+		});
 	}
 	
 	/* Conversation */
@@ -409,8 +411,6 @@ monkey.on('GroupRemove', function(data){
 	}
 });
 
-
-
 // MonkeyChat
 
 // MonkeyChat: Conversation
@@ -645,6 +645,7 @@ function createMessage(message) {
 	
 	switch (message.bubbleType){
 		case 'text': { // bubble text
+			let push = createPush(message.recipientId, message.bubbleType);
 			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -654,6 +655,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'image': { // bubble image
+			let push = createPush(message.recipientId, message.bubbleType);
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -663,6 +665,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'file': { // bubble file
+			let push = createPush(message.recipientId, message.bubbleType);
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -672,6 +675,7 @@ function createMessage(message) {
 			break;
 		}
 		case 'audio': { // bubble audio
+			let push = createPush(message.recipientId, message.bubbleType);
 			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, null);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
@@ -908,7 +912,7 @@ function apiCriptextCall(params, type, endpoint, callback){
 
 // MonkeyChat: Push
 
-function createPush(conversationId, pushKey) {
+function createPush(conversationId, bubbleType) {
 
 	const username = store.getState().users.userSession.name;
     let pushLocalization;
@@ -917,75 +921,43 @@ function createPush(conversationId, pushKey) {
 
     if (!isConversationGroup(conversationId)) {
 	    locArgs = [username];
-        switch(pushKey) {
-            case 1: // text message
+        switch(bubbleType) {
+            case 'text': // text message
                 pushLocalization = 'pushtextKey';
                 text = username+' sent you a message';
                 break;
-            case 2: // private text message
-                pushLocalization = 'pushprivatetextKey';
-                text = username+' sent you a private message';
-                break;
-            case 3: // audio message
+            case 'audio': // audio message
                 pushLocalization = 'pushaudioKey';
                 text = username+' sent you an audio';
                 break;
-            case 4: // private audio message
-                pushLocalization = 'pushprivateaudioKey';
-                text = username+' sent you a private audio';
-                break;
-            case 5: // image message
+            case 'image': // image message
                 pushLocalization = 'pushimageKey';
                 text = username+' sent you an image';
                 break;
-            case 6: // private image message
-                pushLocalization = 'pushprivateimageKey';
-                text = username+' sent you a private image';
-                break;
-            case 7: // file message
+            case 'file': // file message
                 pushLocalization = 'pushfileKey';
                 text = username+' sent you a file';
-                break;
-            case 8: // contact message
-                pushLocalization = 'pushcontactKey';
-                text = username+' sent you a contact';
                 break;
         }
     }else{ // to group
 	    var groupName = store.getState().conversations[conversationId].name;
 	    locArgs = [username, groupName];
-        switch(pushKey){
-            case 1: // text message
+        switch(bubbleType){
+            case 'text': // text message
                 pushLocalization = 'grouppushtextKey';
                 text = username+' sent a message to';
                 break;
-            case 2: // private text message
-                pushLocalization = 'grouppushprivatetextKey';
-                text = username+' sent a private message to';
-                break;
-            case 3: // audio message
+            case 'audio': // audio message
                 pushLocalization = 'grouppushaudioKey';
                 text = username+' sent an audio to';
                 break;
-            case 4: // private audio message
-                pushLocalization = 'grouppushprivateaudioKey';
-                text = username+' sent a private audio to';
-                break;
-            case 5: // image message
+            case 'image': // image message
                 pushLocalization = 'grouppushimageKey';
                 text = username+' sent an image to';
                 break;
-            case 6: // private image message
-                pushLocalization = 'grouppushprivateimageKey';
-                text = username+' sent a private image to';
-                break;
-            case 7: // file message
+            case 'file': // file message
                 pushLocalization = 'pushfileKey';
                 text = username+' sent you a file to';
-                break;
-            case 8: // contact message
-                pushLocalization = 'grouppushcontactKey';
-                text = username+' sent a contact to';
                 break;
         }
     }
