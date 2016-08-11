@@ -2,7 +2,7 @@ var webpack = require('webpack');
 var path = require('path');
 
 var config = {
-	devtool: 'eval',
+	devtool: 'cheap-module-source-map',
 	entry: {
 		monkeyChat: './monkeychat.js',
 		monkeyChatEnterprise: './monkeyChatEnterprise.js'
@@ -39,9 +39,13 @@ var config = {
   	plugins: [
 	    new webpack.DefinePlugin({
 			'process.env': {
-				'NODE_ENV': JSON.stringify('development')
+				'NODE_ENV': JSON.stringify('production')
 			}
-		})
+		}),
+		new webpack.optimize.UglifyJsPlugin({
+			minimize: true,
+			compress: { warnings: false }
+	    })
 	]
 };
 
