@@ -25,7 +25,8 @@ class MonkeyChat extends Component {
 		super(props);
 		this.state = {
 			conversationId: undefined,
-			loading: false
+			viewLoading: false,
+			membersOnline : []
 		}
 		
 		this.view = {
@@ -41,15 +42,20 @@ class MonkeyChat extends Component {
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 		this.handleConversationClosed = this.handleConversationClosed.bind(this);
 		this.handleConversationDelete = this.handleConversationDelete.bind(this);
+		this.handleConversationLoadInfo = this.handleConversationLoadInfo.bind(this);
 		this.handleMessagesLoad = this.handleMessagesLoad.bind(this);
 		this.handleMessage = this.handleMessage.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
+		this.handleRenameGroup = this.handleRenameGroup.bind(this);
+		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
+		this.handleMakeMemberAdmin = this.handleMakeMemberAdmin.bind(this);
+		this.handleRemoveMember = this.handleRemoveMember.bind(this);
 	}
 
 	componentWillMount() {
 		if(monkey.getUser() != null){
-			this.setState({loading: true});
+			this.setState({viewLoading: true});
 			var user = monkey.getUser();
 			monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
 				this.setState({viewLoading: false});
@@ -58,27 +64,28 @@ class MonkeyChat extends Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		if(nextProps.store.users.userSession && this.state.loading){ // handle stop loading when foun user session
-			this.setState({loading: false});
+		if(nextProps.store.users.userSession && this.state.viewLoading){ // handle stop loading when foun user session
+			this.setState({viewLoading: false});
 		}
 	}
 	
 	render() {
 		return (
-			<MonkeyUI view={this.view}
-				viewLoading={this.state.loading}
-				userSession={this.props.store.users.userSession}
-				onUserSession={this.handleUserSession}
-				onUserSessionLogout={this.handleUserSessionLogout}
-				conversations={this.props.store.conversations}
-				conversation={this.props.store.conversations[this.state.conversationId]}
-				onConversationOpened={this.handleConversationOpened}
-				onConversationClosed={this.handleConversationClosed}
-				onConversationDelete={this.handleConversationDelete}
-				onMessagesLoad={this.handleMessagesLoad}
-				onMessage={this.handleMessage}
-				onMessageDownloadData={this.handleMessageDownloadData}
-				onMessageGetUser={this.handleMessageGetUser}/>
+			<MonkeyUI view = {this.view}
+				viewLoading = {this.state.viewLoading}
+				userSession = {this.props.store.users.userSession}
+				onUserSession = {this.handleUserSession}
+				onUserSessionLogout = {this.handleUserSessionLogout}
+				conversations = {this.props.store.conversations}
+				conversation = {this.props.store.conversations[this.state.conversationId]}
+				onConversationOpened = {this.handleConversationOpened}
+				onConversationClosed = {this.handleConversationClosed}
+				onConversationDelete = {this.handleConversationDelete}
+				onConversationLoadInfo = {this.handleConversationLoadInfo}
+				onMessagesLoad = {this.handleMessagesLoad}
+				onMessage = {this.handleMessage}
+				onMessageDownloadData = {this.handleMessageDownloadData}
+				onMessageGetUser = {this.handleMessageGetUser}/>
 		)
 	}
 	
@@ -88,7 +95,7 @@ class MonkeyChat extends Component {
 	// user.monkeyId = 'imvie0trlgpl8ug5a9oirudi';
 	// user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
 	handleUserSession(user) {
-		this.setState({loading: true});
+		this.setState({viewLoading: true});
 		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			this.setState({viewLoading: false});
@@ -143,7 +150,141 @@ class MonkeyChat extends Component {
 		});
 		monkey.closeConversation(conversation.id);
 	}
+	
+	handleConversationLoadInfo(){
+		var objectInfo = {};
+		var userIsAdmin = false;
+		objectInfo.users = [];
+		let users = store.getState().users;
+		let conversations = store.getState().conversations;
+		let conversation = store.getState().conversations[conversationSelectedId];
 
+
+		objectInfo.name = conversation.name;
+		objectInfo.avatar = conversation.urlAvatar;
+
+		if(isConversationGroup(conversationSelectedId)){
+			conversation.members.forEach( (member) => {
+				if(!member){
+					return;
+				}
+				let user = users[member];
+				if(this.state.membersOnline.indexOf(user.id) > -1 || users.userSession.id == user.id){
+					user.description = "Online";
+				}else{
+					user.description = "Offline";
+				}
+
+				if(conversation.admin && conversation.admin.indexOf(user.id) > -1){
+					user.rol = "Admin";
+					if(user.id == users.userSession.id){
+						userIsAdmin = true;
+					}
+				}else{
+					user.rol = null;
+				}
+
+				objectInfo.users.push(user);
+			})
+			objectInfo.title = "Group Info";
+			objectInfo.subTitle = "Participants";
+
+				objectInfo.actions = [
+					{action : 'Delete Member', func : this.handleRemoveMember, confirm : true}, 
+					{action : 'Make Admin', func : this.handleMakeMemberAdmin, confirm : true}
+				]
+				objectInfo.canAdd = false;
+				objectInfo.renameGroup = this.handleRenameGroup;
+
+			objectInfo.button = {
+				text : "Exit Group",
+				func : this.handleConversationExitButton,
+			}
+
+		}else{
+			objectInfo.title = "User Info";
+			objectInfo.subTitle = "Conversations With " + conversation.name;
+			Object.keys(conversations).forEach(key => {
+				if(conversations[key].members && conversations[key].members.indexOf(conversation.id) > -1){
+					objectInfo.users.push({avatar : conversations[key].urlAvatar, name : conversations[key].name, description : conversations[key].members.length + " Loaded Messages"})
+				}
+			})
+		}
+		
+		return objectInfo;
+	}
+	
+	handleRenameGroup(conversationId, newName){
+		if(newName.length <= 3){
+			return;
+		}
+		let conversation = store.getState().conversations[conversationId];
+		if(!conversation){
+			return;
+		}
+		monkey.editGroupInfo(conversation.id, {name : newName}, function(err, data){
+			if(err){
+				return;
+			}
+			console.log(data)
+			store.dispatch(actions.updateConversationName(conversation, data.name));
+		});
+	}
+	
+	handleConversationExitButton(conversationId) {
+		let conversations = store.getState().conversations;
+		let conversation = conversations[conversationId];
+		monkey.removeMemberFromGroup(conversation.id, store.getState().users.userSession.id, (err, data) => {
+			if(!err){
+				var nextConversationId = null;
+				var conversationArray = this.createArray(conversations);
+				for(var i = 0; i < conversationArray.length; i++){
+					if(conversationArray[i].id == conversation.id){
+						if(conversationArray[i+1]){
+							nextConversationId = conversationArray[i+1].id
+						}else if(conversationArray[i-1]){
+							nextConversationId = conversationArray[i-1].id
+						}
+						break;
+					}
+				}
+				this.setState({conversationId: nextConversationId});
+				conversationSelectedId = nextConversationId;
+				store.dispatch(actions.deleteConversation(conversation));
+			}
+		});
+	}
+	
+	createArray(conversations) {
+		let conversationarray = [];
+		for(var x in conversations){
+		  conversationarray.push(conversations[x]);
+		}
+
+		if(typeof this.options.conversationSort == "function"){
+			conversationarray.sort(this.options.conversationSort);
+		}
+		return conversationarray;
+	}
+	
+	handleRemoveMember(memberId, conversationId){
+		monkey.removeMemberFromGroup(conversationId, memberId, null);
+	}
+	
+	handleMakeMemberAdmin(memberId, conversationId){
+		let conversation = store.getState().conversations[conversationId];
+		if(!conversation || conversation.admin.indexOf(memberId) > -1){
+			return;
+		}
+		monkey.editGroupInfo(conversationId, {admin : conversation.admin + "," + memberId}, function(err, data){
+			if(err){
+				return;
+			}
+			console.log(data)
+			store.dispatch(actions.updateConversationAdmin(conversation, data.admin));
+		});
+	}
+	
 	/* Message */
 	
 	handleMessage(message) {
@@ -400,7 +541,8 @@ function loadConversations(timestamp) {
 			    	lastModified : conversation.last_modified*1000,
 			    	unreadMessageCounter: conversation.unread,
 			    	description: null,
-			    	loading: false
+			    	loading: false,
+			    	admin: conversation.info.admin
 		    	}
 
 		    	// define group conversation
@@ -450,6 +592,7 @@ function loadConversations(timestamp) {
 						    	userTmp = {
 							    	id: user.monkey_id,
 							    	name: user.name == undefined ? 'Unknown' : user.name,
+							    	avatar: user.avatar
 							    }
 							    users[userTmp.id] = userTmp;
 					        });
@@ -481,7 +624,7 @@ function createConversation(conversationId, mokMessage){
 				if(isConversationGroup(conversationId)){
 					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.info.name, data.info.avatar, data.members_info, data.members)));
 				}else{
-					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.name)));
+					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.name, data.avatar)));
 				}
 			}
 		});
@@ -490,7 +633,7 @@ function createConversation(conversationId, mokMessage){
 	}
 }
 
-function defineConversation(conversationId, mokMessage, name, members_info, members){
+function defineConversation(conversationId, mokMessage, name, urlAvatar, members_info, members){
 	// define message
 	let messages = {};
 	let messageId = null;
@@ -509,7 +652,7 @@ function defineConversation(conversationId, mokMessage, name, members_info, memb
 	let conversation = {
 		id: conversationId,
     	name: name,
-    	urlAvatar: 'http://cdn.criptext.com/MonkeyUI/images/userdefault.png',
+    	urlAvatar: urlAvatar,
     	messages: messages,
     	lastMessage: messageId,
     	unreadMessageCounter: unreadMessageCounter,

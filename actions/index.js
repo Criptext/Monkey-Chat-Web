@@ -7,6 +7,8 @@ export const ADD_CONVERSATION = 'ADD_CONVERSATION'
 export const ADD_CONVERSATIONS = 'ADD_CONVERSATIONS'
 export const DELETE_CONVERSATIONS = 'DELETE_CONVERSATIONS'
 export const UPDATE_CONVERSATION_STATUS = 'UPDATE_CONVERSATION_STATUS'
+export const UPDATE_CONVERSATION_ADMIN = 'UPDATE_CONVERSATION_ADMIN'
+export const UPDATE_CONVERSATION_NAME = 'UPDATE_CONVERSATION_NAME'
 export const UPDATE_CONVERSATION_UNREAD_COUNTER = 'UPDATE_CONVERSATION_UNREAD_COUNTER'
 export const UPDATE_CONVERSATION_LOADING = 'UPDATE_CONVERSATION_LOADING'
 export const DELETE_CONVERSATION = 'DELETE_CONVERSATION'
@@ -71,6 +73,22 @@ export const updateConversationStatus = (conversation) => {
 	return {
 		type: UPDATE_CONVERSATION_STATUS,
 		conversation: conversation
+	}
+}
+
+export const updateConversationName = (conversation, name) => {
+	return {
+		type: UPDATE_CONVERSATION_NAME,
+		conversation: conversation,
+		name : name
+	}
+}
+
+export const updateConversationAdmin = (conversation, admins) => {
+	return {
+		type: UPDATE_CONVERSATION_ADMIN,
+		conversation: conversation,
+		admin : admins
 	}
 }
 

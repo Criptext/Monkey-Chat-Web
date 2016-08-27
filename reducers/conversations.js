@@ -3,6 +3,8 @@ import { ADD_CONVERSATION,
 	ADD_CONVERSATIONS,
 	DELETE_CONVERSATIONS,
 	UPDATE_CONVERSATION_STATUS,
+	UPDATE_CONVERSATION_ADMIN,
+	UPDATE_CONVERSATION_NAME,
 	UPDATE_CONVERSATION_UNREAD_COUNTER,
 	UPDATE_CONVERSATION_LOADING,
 	REMOVE_MEMBER,
@@ -46,6 +48,22 @@ const conversations = (state = {}, action) => {
 		}
 		
 		case UPDATE_CONVERSATION_STATUS: {
+			const conversationId = action.conversation.id;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+
+		case UPDATE_CONVERSATION_NAME: {
+			const conversationId = action.conversation.id;
+			return {
+				...state,
+				[conversationId]: conversation(state[conversationId], action)
+			}
+		}
+
+		case UPDATE_CONVERSATION_ADMIN: {
 			const conversationId = action.conversation.id;
 			return {
 				...state,
@@ -127,6 +145,7 @@ const conversations = (state = {}, action) => {
 		
 		case DELETE_MESSAGE: {
 			const conversationId = action.conversationId;
+
 			return {
 				...state,
 				[conversationId]: conversation(state[conversationId], action)
@@ -172,6 +191,29 @@ const conversation = (state, action) => {
 					...state,
 					online: action.conversation.online
 				}
+			}
+		}
+
+		case UPDATE_CONVERSATION_NAME: {
+			console.log(action);
+			return {
+				...state,
+				name: action.name
+			}
+		}
+
+		case UPDATE_CONVERSATION_ADMIN: {
+			console.log(action);
+			return {
+				...state,
+				admin: action.admin
+			}
+		}
+
+		case UPDATE_CONVERSATION_UNREAD_COUNTER: {
+			return {
+				...state,
+				unreadMessageCounter: action.unreadCounter
 			}
 		}
 
@@ -264,8 +306,28 @@ const conversation = (state, action) => {
 		}
 		
 		case DELETE_MESSAGE: {
+
+			if(!state.lastMessage){
+				return state;
+			}
+
+			var lastMessageId = null;
+			var maxTimestamp = 0;
+
+			if(state.lastMessage == action.message.id){
+				Object.keys(state.messages).forEach(function(mId){
+					if(state.messages[mId].datetimeOrder > maxTimestamp && mId != action.message.id){
+						maxTimestamp = state.messages[mId].datetimeOrder;
+						lastMessageId = state.messages[mId].id;
+					}
+				})
+			}else{
+				lastMessageId = state.lastMessage;
+			}
+
 			return {
 				...state,
+				lastMessage: lastMessageId,
 				messages: messages(state.messages, action),
 			}
 		}
@@ -410,3 +472,4 @@ const message = (state, action) => {
 }
 
 export default conversations;
+
