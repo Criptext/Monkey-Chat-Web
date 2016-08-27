@@ -37,6 +37,7 @@ class MonkeyChat extends Component {
 			panelParams : {},
 			isLoadingConversations: false,
 			connectionStatus: 0,
+			membersOnline : []
 		}
 
 		this.view = {
@@ -65,12 +66,17 @@ class MonkeyChat extends Component {
 		this.handleConversationClosed = this.handleConversationClosed.bind(this);
 		this.handleConversationDelete = this.handleConversationDelete.bind(this);
 		this.handleConversationExit = this.handleConversationExit.bind(this);
+		this.handleConversationLoadInfo = this.handleConversationLoadInfo.bind(this);
 		this.handleMessagesLoad = this.handleMessagesLoad.bind(this);
 		this.handleMessage = this.handleMessage.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleNotifyTyping = this.handleNotifyTyping.bind(this);
 		this.handleLoadConversations = this.handleLoadConversations.bind(this);
+		this.handleRenameGroup = this.handleRenameGroup.bind(this);
+		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
+		this.handleMakeMemberAdmin = this.handleMakeMemberAdmin.bind(this);
+		this.handleRemoveMember = this.handleRemoveMember.bind(this);
 	}
 
 	componentWillMount() {
@@ -103,6 +109,7 @@ class MonkeyChat extends Component {
 				onConversationClosed={this.handleConversationClosed}
 				onConversationDelete={this.handleConversationDelete}
 				onConversationExit={this.handleConversationExit}
+				onConversationLoadInfo = {this.handleConversationLoadInfo}
 				onMessagesLoad={this.handleMessagesLoad}
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
@@ -202,6 +209,140 @@ class MonkeyChat extends Component {
 	
 	handleLoadConversations(timestamp){
 		loadConversations(timestamp/1000);
+	}
+	
+	handleConversationLoadInfo(){
+		var objectInfo = {};
+		var userIsAdmin = false;
+		objectInfo.users = [];
+		let users = store.getState().users;
+		let conversations = store.getState().conversations;
+		let conversation = store.getState().conversations[conversationSelectedId];
+
+
+		objectInfo.name = conversation.name;
+		objectInfo.avatar = conversation.urlAvatar;
+
+		if(isConversationGroup(conversationSelectedId)){
+			conversation.members.forEach( (member) => {
+				if(!member){
+					return;
+				}
+				let user = users[member];
+				if(this.state.membersOnline.indexOf(user.id) > -1 || users.userSession.id == user.id){
+					user.description = "Online";
+				}else{
+					user.description = "Offline";
+				}
+
+				if(conversation.admin && conversation.admin.indexOf(user.id) > -1){
+					user.rol = "Admin";
+					if(user.id == users.userSession.id){
+						userIsAdmin = true;
+					}
+				}else{
+					user.rol = null;
+				}
+
+				objectInfo.users.push(user);
+			})
+			objectInfo.title = "Group Info";
+			objectInfo.subTitle = "Participants";
+
+				objectInfo.actions = [
+					{action : 'Delete Member', func : this.handleRemoveMember, confirm : true}, 
+					{action : 'Make Admin', func : this.handleMakeMemberAdmin, confirm : true}
+				]
+				objectInfo.canAdd = false;
+				objectInfo.renameGroup = this.handleRenameGroup;
+
+			objectInfo.button = {
+				text : "Exit Group",
+				func : this.handleConversationExitButton,
+			}
+
+		}else{
+			objectInfo.title = "User Info";
+			objectInfo.subTitle = "Conversations With " + conversation.name;
+			Object.keys(conversations).forEach(key => {
+				if(conversations[key].members && conversations[key].members.indexOf(conversation.id) > -1){
+					objectInfo.users.push({avatar : conversations[key].urlAvatar, name : conversations[key].name, description : conversations[key].members.length + " Loaded Messages"})
+				}
+			})
+		}
+		
+		return objectInfo;
+	}
+	
+	handleRenameGroup(conversationId, newName){
+		if(newName.length <= 3){
+			return;
+		}
+		let conversation = store.getState().conversations[conversationId];
+		if(!conversation){
+			return;
+		}
+		monkey.editGroupInfo(conversation.id, {name : newName}, function(err, data){
+			if(err){
+				return;
+			}
+			console.log(data)
+			store.dispatch(actions.updateConversationName(conversation, data.name));
+		});
+	}
+	
+	handleConversationExitButton(conversationId) {
+		let conversations = store.getState().conversations;
+		let conversation = conversations[conversationId];
+		monkey.removeMemberFromGroup(conversation.id, store.getState().users.userSession.id, (err, data) => {
+			if(!err){
+				var nextConversationId = null;
+				var conversationArray = this.createArray(conversations);
+				for(var i = 0; i < conversationArray.length; i++){
+					if(conversationArray[i].id == conversation.id){
+						if(conversationArray[i+1]){
+							nextConversationId = conversationArray[i+1].id
+						}else if(conversationArray[i-1]){
+							nextConversationId = conversationArray[i-1].id
+						}
+						break;
+					}
+				}
+				this.setState({conversationId: nextConversationId});
+				conversationSelectedId = nextConversationId;
+				store.dispatch(actions.deleteConversation(conversation));
+			}
+		});
+	}
+	
+	createArray(conversations) {
+		let conversationarray = [];
+		for(var x in conversations){
+		  conversationarray.push(conversations[x]);
+		}
+
+		if(typeof this.options.conversationSort == "function"){
+			conversationarray.sort(this.options.conversationSort);
+		}
+		return conversationarray;
+	}
+	
+	handleRemoveMember(memberId, conversationId){
+		monkey.removeMemberFromGroup(conversationId, memberId, null);
+	}
+	
+	handleMakeMemberAdmin(memberId, conversationId){
+		let conversation = store.getState().conversations[conversationId];
+		if(!conversation || conversation.admin.indexOf(memberId) > -1){
+			return;
+		}
+		monkey.editGroupInfo(conversationId, {admin : conversation.admin + "," + memberId}, function(err, data){
+			if(err){
+				return;
+			}
+			console.log(data)
+			store.dispatch(actions.updateConversationAdmin(conversation, data.admin));
+		});
 	}
 	
 	/* Message */
@@ -547,7 +688,8 @@ function loadConversations(timestamp) {
 			    	lastModified : conversation.last_modified*1000,
 			    	unreadMessageCounter: conversation.unread,
 			    	description: null,
-			    	loading: false
+			    	loading: false,
+			    	admin: conversation.info.admin
 		    	}
 
 		    	// define group conversation
@@ -567,7 +709,7 @@ function loadConversations(timestamp) {
 			    	// add user into users
 			    	let userTmp = {
 				    	id: conversation.id,
-				    	name: conversation.info.name == undefined ? 'Unknown' : conversation.info.name,
+				    	name: conversation.info.name == undefined ? 'Unknown' : conversation.info.name
 			    	}
 			    	users[userTmp.id] = userTmp;
 			    	// delete user from usersToGetInfo
@@ -600,6 +742,7 @@ function loadConversations(timestamp) {
 						    	userTmp = {
 							    	id: user.monkey_id,
 							    	name: user.name == undefined ? 'Unknown' : user.name,
+							    	avatar: user.avatar
 							    }
 							    users[userTmp.id] = userTmp;
 					        });
