@@ -51,12 +51,23 @@ class MonkeyChat extends Component {
 					delete: true
 				}
 			},
-			conversationSort : function(conversation1, conversation2){
+			conversationSort: function(conversation1, conversation2){
+				var noLastMessage1, noLastMessage2;
 			    if( !conversation1.messages || Object.keys(conversation1.messages).length == 0 || !conversation1.lastMessage || conversation1.messages[conversation1.lastMessage] == null )
-			        return 1;
+			        noLastMessage1 = true;
+			        
 			    if( !conversation2.messages || Object.keys(conversation2.messages).length == 0 || !conversation2.lastMessage || conversation2.messages[conversation2.lastMessage] == null )
-			        return -1;
-			    return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.messages[conversation1.lastMessage].datetimeCreation;
+			        noLastMessage2 = true;
+
+			    if(noLastMessage1 && noLastMessage2){
+			    	return conversation2.lastModified - conversation1.lastModified;
+			    }else if(noLastMessage2){
+			    	return conversation2.lastModified - conversation1.messages[conversation1.lastMessage].datetimeCreation;
+			    }else if(noLastMessage1){
+			    	return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.lastModified;
+			    }else{
+			    	return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.messages[conversation1.lastMessage].datetimeCreation;
+				}
 			}
 		}
 		
@@ -194,10 +205,12 @@ class MonkeyChat extends Component {
 				if(nextConversation){
 					monkey.sendOpenToUser(nextConversation.id);
 					if(active){
+						conversationSelectedId = nextConversation.id;
 						this.setState({conversationId: nextConversation.id});
 					}
 				}else{
 					if(active){
+						conversationSelectedId = 0;
 						this.setState({conversationId: undefined});
 					}
 				}
@@ -249,18 +262,20 @@ class MonkeyChat extends Component {
 			objectInfo.title = "Group Info";
 			objectInfo.subTitle = "Participants";
 
+			if(conversation.admin && conversation.admin.indexOf(users.userSession.id) > -1){
 				objectInfo.actions = [
 					{action : 'Delete Member', func : this.handleRemoveMember, confirm : true}, 
 					{action : 'Make Admin', func : this.handleMakeMemberAdmin, confirm : true}
 				]
 				objectInfo.canAdd = false;
 				objectInfo.renameGroup = this.handleRenameGroup;
-
+			}
+			
 			objectInfo.button = {
 				text : "Exit Group",
 				func : this.handleConversationExitButton,
 			}
-
+			
 		}else{
 			objectInfo.title = "User Info";
 			objectInfo.subTitle = "Conversations With " + conversation.name;
@@ -296,7 +311,7 @@ class MonkeyChat extends Component {
 		let conversation = conversations[conversationId];
 		monkey.removeMemberFromGroup(conversation.id, store.getState().users.userSession.id, (err, data) => {
 			if(!err){
-				var nextConversationId = null;
+				var nextConversationId = 0;
 				var conversationArray = this.createArray(conversations);
 				for(var i = 0; i < conversationArray.length; i++){
 					if(conversationArray[i].id == conversation.id){
@@ -308,6 +323,7 @@ class MonkeyChat extends Component {
 						break;
 					}
 				}
+				monkey.openConversation(conversation.id);
 				this.setState({conversationId: nextConversationId});
 				conversationSelectedId = nextConversationId;
 				store.dispatch(actions.deleteConversation(conversation));
