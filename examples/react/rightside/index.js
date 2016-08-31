@@ -37,6 +37,33 @@ class MonkeyChat extends Component {
 			}
 		}
 		
+		this.options = {
+			deleteConversation: {
+				permission: {
+					exitGroup: true,
+					delete: true
+				}
+			},
+			conversationSort: function(conversation1, conversation2){
+				var noLastMessage1, noLastMessage2;
+			    if( !conversation1.messages || Object.keys(conversation1.messages).length == 0 || !conversation1.lastMessage || conversation1.messages[conversation1.lastMessage] == null )
+			        noLastMessage1 = true;
+			        
+			    if( !conversation2.messages || Object.keys(conversation2.messages).length == 0 || !conversation2.lastMessage || conversation2.messages[conversation2.lastMessage] == null )
+			        noLastMessage2 = true;
+
+			    if(noLastMessage1 && noLastMessage2){
+			    	return conversation2.lastModified - conversation1.lastModified;
+			    }else if(noLastMessage2){
+			    	return conversation2.lastModified - conversation1.messages[conversation1.lastMessage].datetimeCreation;
+			    }else if(noLastMessage1){
+			    	return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.lastModified;
+			    }else{
+			    	return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.messages[conversation1.lastMessage].datetimeCreation;
+				}
+			}
+		}
+		
 		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
@@ -47,6 +74,8 @@ class MonkeyChat extends Component {
 		this.handleMessage = this.handleMessage.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
+		this.handleNotifyTyping = this.handleNotifyTyping.bind(this);
+		this.handleLoadConversations = this.handleLoadConversations.bind(this);
 		this.handleRenameGroup = this.handleRenameGroup.bind(this);
 		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
 		this.handleMakeMemberAdmin = this.handleMakeMemberAdmin.bind(this);
@@ -151,6 +180,31 @@ class MonkeyChat extends Component {
 		monkey.closeConversation(conversation.id);
 	}
 	
+	handleConversationExit(conversation, nextConversation, active, setConversationSelected) {
+		monkey.removeMemberFromGroup(conversation.id, store.getState().users.userSession.id, (err, data) => {
+			if(!err){
+				if(nextConversation){
+					monkey.sendOpenToUser(nextConversation.id);
+					if(active){
+						conversationSelectedId = nextConversation.id;
+						this.setState({conversationId: nextConversation.id});
+					}
+				}else{
+					if(active){
+						conversationSelectedId = 0;
+						this.setState({conversationId: undefined});
+					}
+				}
+				store.dispatch(actions.deleteConversation(conversation));
+			}
+			setConversationSelected();
+		});
+	}
+	
+	handleLoadConversations(timestamp){
+		loadConversations(timestamp/1000);
+	}
+	
 	handleConversationLoadInfo(){
 		var objectInfo = {};
 		var userIsAdmin = false;
@@ -189,18 +243,20 @@ class MonkeyChat extends Component {
 			objectInfo.title = "Group Info";
 			objectInfo.subTitle = "Participants";
 
+			if(conversation.admin && conversation.admin.indexOf(users.userSession.id) > -1){
 				objectInfo.actions = [
 					{action : 'Delete Member', func : this.handleRemoveMember, confirm : true}, 
 					{action : 'Make Admin', func : this.handleMakeMemberAdmin, confirm : true}
 				]
 				objectInfo.canAdd = false;
 				objectInfo.renameGroup = this.handleRenameGroup;
-
+			}
+			
 			objectInfo.button = {
 				text : "Exit Group",
 				func : this.handleConversationExitButton,
 			}
-
+			
 		}else{
 			objectInfo.title = "User Info";
 			objectInfo.subTitle = "Conversations With " + conversation.name;
@@ -236,7 +292,7 @@ class MonkeyChat extends Component {
 		let conversation = conversations[conversationId];
 		monkey.removeMemberFromGroup(conversation.id, store.getState().users.userSession.id, (err, data) => {
 			if(!err){
-				var nextConversationId = null;
+				var nextConversationId = 0;
 				var conversationArray = this.createArray(conversations);
 				for(var i = 0; i < conversationArray.length; i++){
 					if(conversationArray[i].id == conversation.id){
@@ -248,6 +304,7 @@ class MonkeyChat extends Component {
 						break;
 					}
 				}
+				monkey.openConversation(conversation.id);
 				this.setState({conversationId: nextConversationId});
 				conversationSelectedId = nextConversationId;
 				store.dispatch(actions.deleteConversation(conversation));
@@ -344,7 +401,15 @@ class MonkeyChat extends Component {
 	handleMessageGetUser(userId){
 		return store.getState().users[userId] ? store.getState().users[userId] : {};
 	}
-
+	
+	/* Notification */
+	
+	handleNotifyTyping(conversationId, isTyping){
+		if(!isConversationGroup(conversationId)){
+			monkey.sendTemporalNotification(conversationId, {type : isTyping ? 21 : 20}, null);
+		}
+	}
+	
 /*
 	conversationToSet() {
 		let newConversation = dataConversation;
