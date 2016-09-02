@@ -24,10 +24,12 @@ const CONNECTING = 2;
 const CONNECTED = 3;
 const colorUsers = ["#6f067b","#00a49e","#b3007c","#b4d800","#e20068","#00b2eb","#ec870e","#84b0b9","#3a6a74","#bda700","#826aa9","#af402a","#733610","#020dd8","#7e6565","#cd7967","#fd78a7","#009f62","#336633","#e99c7a","#000000"];
 
-var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, COMPANY_NAME, CONVERSATION_ID;
+var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, CONVERSATION_ID;
 var pendingMessages;
 var monkeyChatInstance;
 var mky_focused = true;
+var firstTimeLogIn = true;
+var initialTitle = "";
 
 class MonkeyChat extends React.Component {
 	constructor(props){
@@ -37,28 +39,57 @@ class MonkeyChat extends React.Component {
 			conversationId: undefined,
 			loading: false,
 			connectionStatus: 0,
+			membersOnline : []
 		}
-		
+
 		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 		this.handleMessage = this.handleMessage.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
+		this.handleConversationLoadInfo = this.handleConversationLoadInfo.bind(this);
+		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
+
+		if(document.getElementById('mky-title')){
+			initialTitle = document.getElementById('mky-title').innerHTML;
+		}
 	}
 	
 	componentWillMount() {
 		if(monkey.getUser() != null){
 			this.setState({loading: true});
-			var user = monkey.getUser();
-			monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
-				this.setState({viewLoading: false});
-			});
 		}
 	}
 	
 	componentWillReceiveProps(nextProps) {
 		if(Object.keys(nextProps.store.conversations).length && this.state.conversationId == undefined){ // handle define only one conversation
-			this.setState({conversationId: nextProps.store.conversations[Object.keys(nextProps.store.conversations)[0]].id});
+			var conversationId = nextProps.store.conversations[Object.keys(nextProps.store.conversations)[0]].id
+			this.setState({conversationId: conversationId});
+			if(!nextProps.store.conversations[conversationId].lastMessage && typeof WIDGET_CUSTOMS == 'object' && WIDGET_CUSTOMS.welcomeText){
+				var userIds = Object.keys(nextProps.store.users);
+				userIds.splice(userIds.indexOf(nextProps.store.users.userSession.id), 1);
+				userIds.splice(userIds.indexOf('userSession'), 1);
+				var mokMessage = {
+					datetimeCreation: Date.now()/1000,
+					datetimeOrder: Date.now()/1000,
+					id:"abc123",
+					protocolCommand:200,
+					protocolType:1,
+					readByUser:false,
+					recipientId:conversationId,
+					senderId:userIds[Math.floor(Math.random()*userIds.length)],
+					text: WIDGET_CUSTOMS.welcomeText.replace("<name>", nextProps.store.users.userSession.name)
+				}
+				defineMessage(mokMessage);
+			}
+
+			if(isConversationGroup(conversationId)){
+				let conversation = store.getState().conversations[conversationId];
+				let members = listMembers(conversation.members);
+				conversation['description'] = members;
+				console.log(conversation);
+				store.dispatch(actions.updateConversationStatus(conversation));
+			}
 		}
 		if(nextProps.store.users.userSession && this.state.loading){ // handle stop loading when foun user session
 			this.setState({loading: false});
@@ -79,7 +110,8 @@ class MonkeyChat extends React.Component {
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser} 
-				onLoadMoreConversations = {this.handleLoadConversations} />
+				onLoadMoreConversations = {this.handleLoadConversations} 
+				onConversationLoadInfo = {this.handleConversationLoadInfo}/>
 		)
 	}
 	
@@ -128,13 +160,6 @@ class MonkeyChat extends React.Component {
 					res.map( mokMessage => {
 						let message = defineBubbleMessage(mokMessage);
 						if(message) {
-							// define status							
-/*
-							if(message.datetimeCreation <= lastOpenMe) {
-								message.status = 52;
-							}
-*/
-							
 							messages[message.id] = message;	
 						}
 					});
@@ -176,6 +201,69 @@ class MonkeyChat extends React.Component {
 
 		return user;
 	}
+
+	handleConversationLoadInfo(){
+		var objectInfo = {};
+		var userIsAdmin = false;
+		objectInfo.users = [];
+		let users = store.getState().users;
+		let conversations = store.getState().conversations;
+		let conversation = store.getState().conversations[this.state.conversationId];
+
+
+		objectInfo.name = conversation.name;
+		objectInfo.avatar = conversation.urlAvatar;
+
+		if(isConversationGroup(this.state.conversationId)){
+			conversation.members.forEach( (member) => {
+				if(!member){
+					return;
+				}
+				let user = users[member];
+				if(this.state.membersOnline.indexOf(user.id) > -1 || users.userSession.id == user.id){
+					user.description = "Online";
+				}else{
+					user.description = "Offline";
+				}
+
+				if(conversation.admin && conversation.admin.indexOf(user.id) > -1){
+					user.rol = "Admin";
+					if(user.id == users.userSession.id){
+						userIsAdmin = true;
+					}
+				}else{
+					user.rol = null;
+				}
+
+				objectInfo.users.push(user);
+			})
+			objectInfo.title = "Group Info";
+			objectInfo.subTitle = "Participants";
+
+			objectInfo.button = {
+				text : "Salir",
+				func : this.handleConversationExitButton,
+			}
+		}else{
+			objectInfo.title = "User Info";
+			objectInfo.subTitle = "Conversations With " + conversation.name;
+			Object.keys(conversations).forEach(key => {
+				if(conversations[key].members && conversations[key].members.indexOf(conversation.id) > -1){
+					objectInfo.users.push({avatar : conversations[key].urlAvatar, name : conversations[key].name, description : conversations[key].members.length + " Loaded Messages"})
+				}
+			})
+		}
+		
+		return objectInfo;
+	}
+
+	handleConversationExitButton(){
+		firstTimeLogIn = true;
+		this.setState({conversationId: null});
+		monkey.logout();
+		store.dispatch(actions.deleteUserSession());
+		store.dispatch(actions.deleteConversations());
+	}
 }
 
 function render() {
@@ -185,7 +273,7 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUser, debugmode, viewchat, customStyles, companyName){
+window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUser, debugmode, viewchat, customStyles, customs){
 	
 	IDDIV = divIDTag;
 	MONKEY_APP_ID = appid;
@@ -194,11 +282,12 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUs
 	MONKEY_DEBUG_MODE = debugmode;
 	VIEW = viewchat;
 	STYLES = customStyles != null ? customStyles : {};
-	COMPANY_NAME = companyName;
+	WIDGET_CUSTOMS = customs;
 	
 	if(initalUser != null){
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, [], false, MONKEY_DEBUG_MODE, false, false);
 	}else if(monkey.getUser() != null){
+		firstTimeLogIn = false;
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
 	}
 
@@ -208,7 +297,9 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUs
 window.onfocus = function(){
 	pendingMessages = 0;
 	mky_focused = true;
-	document.getElementById('mky-title').innerHTML = "Criptext Widget";
+	if(document.getElementById('mky-title')){
+		document.getElementById('mky-title').innerHTML = initialTitle;
+	}
 };
 window.onblur = function(){
 	mky_focused = false;
@@ -219,7 +310,7 @@ window.onblur = function(){
 			pendingMessages = myConversations[key].unreadMessageCounter;
 		}
 	})
-	if(pendingMessages){
+	if(pendingMessages && document.getElementById('mky-title')){
 		document.getElementById('mky-title').innerHTML = pendingMessages + " Pending Messages";
 	}
 	
@@ -232,15 +323,16 @@ window.onblur = function(){
 monkey.on('Connect', function(event) {
 	let user = event;
 	console.log(user);
-	if(!store.getState().users.userSession){
-		user.id = event.monkeyId;
-		store.dispatch(actions.addUserSession(user));
-	}else if(!store.getState().users.userSession.id){
+	if(!store.getState().users.userSession || !store.getState().users.userSession.id){
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}
 	if(!Object.keys(store.getState().conversations).length){
-		getConversationByCompany(user.id, user);
+		if(firstTimeLogIn){
+			getConversationByCompany(user.id, user);
+		}else{
+			loadConversations(user);
+		}
 	}else{
 		monkey.getPendingMessages();
 	}
@@ -376,8 +468,17 @@ monkey.on('ConversationStatusChange', function(data){
 
 	let conversation = {
 		id: conversationId,
-		online: data.online
 	}
+
+	if(typeof data.online !== "boolean" && isConversationGroup(conversationId)){
+		monkeyChatInstance.setState({
+			membersOnline : data.online.split(","),
+		});
+		return;
+	}else if(data.online && !isConversationGroup(conversationId)){
+		conversation.description = "online";
+	}
+
 	// define lastOpenMe
 	if(data.lastOpenMe){
 		conversation.lastOpenMe = Number(data.lastOpenMe)*1000;
@@ -394,7 +495,7 @@ monkey.on('ConversationStatusChange', function(data){
 // ------------ ON CONVERSATION OPEN ----------- //
 monkey.on('ConversationOpen', function(data){
 	console.log('App - ConversationOpen');
-	
+
 	let conversationId = data.senderId;
 	if(!store.getState().conversations[conversationId])
 		return;
@@ -442,9 +543,6 @@ function loadConversations(user) {
 		        resConversation.map (conversation => {
 			        if(!Object.keys(conversation.info).length)
 			        	return;
-			        
-			        if(conversation.id !== CONVERSATION_ID) // launch only with the conversation defined
-			        	return;
 			        	
 			        // define message
 			        let messages = {};
@@ -484,7 +582,7 @@ function loadConversations(user) {
 						        usersToGetInfo[id] = id;
 					        }
 				        });
-					    conversationTmp.name = COMPANY_NAME;
+					    conversationTmp.name = typeof WIDGET_CUSTOMS == "string" ? WIDGET_CUSTOMS : WIDGET_CUSTOMS.name;
 				    	
 			        }else{ // define personal conversation 
 				        conversationTmp.lastOpenMe = undefined,
@@ -495,7 +593,8 @@ function loadConversations(user) {
 				    	let userTmp = {
 					    	id: conversation.id,
 					    	name: conversation.info.name == undefined ? 'Unknown' : conversation.info.name,
-					    	color : colorUsers[(usersSize++)%(colorUsers.length)] 
+					    	color : colorUsers[(usersSize++)%(colorUsers.length)],
+					    	avatar : conversation.info.avatar ? conversation.info.avatar : 'https://cdn.criptext.com/MonkeyUI/images/userdefault.png'
 				    	}
 				    	users[userTmp.id] = userTmp;
 				    	// delete user from usersToGetInfo
@@ -526,6 +625,7 @@ function loadConversations(user) {
 							    	userTmp = {
 								    	id: user.monkey_id,
 								    	name: user.name == undefined ? 'Unknown' : user.name,
+								    	avatar : user.avatar ? user.avatar : 'https://cdn.criptext.com/MonkeyUI/images/userdefault.png',
 								    	color : colorUsers[(usersSize++)%colorUsers.length] 
 								    }
 								    users[userTmp.id] = userTmp;
@@ -552,39 +652,6 @@ function loadConversations(user) {
 	        }
 	    });
 	}
-}
-
-function createConversation(user){
-	let conversationId = CONVERSATION_ID;
-
-	monkey.getInfoById(conversationId, function(err, data){
-		if(err){
-			console.log(err);
-		}else if(data){
-			console.log(data);
-			if(isConversationGroup(conversationId)){
-				let info = {name: 'Support: '+user.name}
-				createGroupConversation(data.members, info);
-			}else{
-				store.dispatch(actions.addConversation(defineConversation(conversationId, null, data.name)));
-			}
-		} 
-    });
-
-    if(!mky_focused){
-		pendingMessages++;
-		document.getElementById('mky-title').innerHTML = pendingMessages + " Pending Messages";
-	}
-}
-
-function createGroupConversation(members, info){
-	monkey.createGroup(members, info, null, null, function(err, data){ // create new group
-		if(err){
-			console.log(err);
-		}else{
-			store.dispatch(actions.addConversation(defineConversation(data.group_id, null, COMPANY_NAME, data.members_info, data.members)));
-		}
-	});
 }
 
 function defineConversation(conversationId, mokMessage, name, members_info, members){
@@ -701,7 +768,7 @@ function defineMessage(mokMessage) {
 	var notification_text = "";
 
 	if(!conversation) { // handle does not exits conversations
-		createConversation(conversationId, mokMessage);
+		//createConversation(conversationId, mokMessage);
 		return;
 	}else{
 		if(conversation.messages[mokMessage.id] != null){
@@ -718,7 +785,7 @@ function defineMessage(mokMessage) {
 			message.status = 52;
 		}
 */
-		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused){
+		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused && document.getElementById('mky-title')){
 			
 			pendingMessages++;
 			document.getElementById('mky-title').innerHTML = pendingMessages + " Pending Messages";
@@ -970,4 +1037,22 @@ function createPush(conversationId, bubbleType) {
         }
     }
     return monkey.generateLocalizedPush(pushLocalization, locArgs, text);
+}
+
+function listMembers(members){
+	var list;
+	if(typeof members == "string"){
+		list = members.split(',');
+	}else{
+		list = members;
+	}
+	var names = [];
+	var users = store.getState().users;
+
+	list.map(function(id) {
+		if(users[id] && users[id].name){
+			names.push(users[id].name.split(" ")[0]);
+		}
+    })
+	return names.join(', ');
 }
