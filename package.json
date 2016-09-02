@@ -37,11 +37,11 @@
     "webpack": "1.13.1"
   },
   "dependencies": {
-    "monkey-sdk": "0.5.17",
+    "monkey-sdk": "^0.5.30",
     "react": "15.2.1",
     "react-dom": "15.2.1",
     "react-google-maps": "4.10.1",
-    "react-monkey-ui": "^2.0.42",
+    "react-monkey-ui": "^2.1.2",
     "redux": "3.5.2"
   }
 }
