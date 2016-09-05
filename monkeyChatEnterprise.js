@@ -24,7 +24,7 @@ const CONNECTING = 2;
 const CONNECTED = 3;
 const colorUsers = ["#6f067b","#00a49e","#b3007c","#b4d800","#e20068","#00b2eb","#ec870e","#84b0b9","#3a6a74","#bda700","#826aa9","#af402a","#733610","#020dd8","#7e6565","#cd7967","#fd78a7","#009f62","#336633","#e99c7a","#000000"];
 
-var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, CONVERSATION_ID;
+var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, ENCRYPTED, CONVERSATION_ID;
 var pendingMessages;
 var monkeyChatInstance;
 var mky_focused = true;
@@ -160,6 +160,11 @@ class MonkeyChat extends React.Component {
 					res.map( mokMessage => {
 						let message = defineBubbleMessage(mokMessage);
 						if(message) {
+							/*
+							//define status	
+							if(message.datetimeCreation <= lastOpenMe) {
+-								message.status = 52;
+-							}*/
 							messages[message.id] = message;	
 						}
 					});
@@ -273,7 +278,7 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUser, debugmode, viewchat, customStyles, customs){
+window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUser, debugmode, encrypted, viewchat, customStyles, customs){
 	
 	IDDIV = divIDTag;
 	MONKEY_APP_ID = appid;
@@ -283,6 +288,11 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUs
 	VIEW = viewchat;
 	STYLES = customStyles != null ? customStyles : {};
 	WIDGET_CUSTOMS = customs;
+	if(encrypted){
+		ENCRYPTED = true;
+	}else{
+		ENCRYPTED = false;
+	}
 	
 	if(initalUser != null){
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, [], false, MONKEY_DEBUG_MODE, false, false);
@@ -363,10 +373,15 @@ monkey.on('Message', function(mokMessage){
 monkey.on('MessageUnsend', function(mokMessage){
 	console.log('App - MessageUnsend');
 	
-	let conversationId = mokMessage.recipientId;
+	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId
+	let conversation = store.getState().conversations[conversationId];
+	if(!conversation || !conversation.messages[mokMessage.id]){
+		return;
+	}
 	let message = {
 		id: mokMessage.id
 	}
+
 	store.dispatch(actions.deleteMessage(message, conversationId));
 });
 
@@ -520,10 +535,10 @@ function getConversationByCompany(monkeyId, user) {
 	let params = { monkey_id: monkeyId,
 				   access_token: ACCESS_TOKEN,
 				   name : user.name};
+				   
 	getConversationId(params, function(data){
 		if (data != null){
 			CONVERSATION_ID = data.data.group_id;
-			console.log(data);
 			loadConversations(user);
 		}else{
 			console.log('error');
@@ -564,7 +579,8 @@ function loadConversations(user) {
 				    	lastMessage: messageId,
 						unreadMessageCounter: 0,
 						description: null,
-						loading: false
+						loading: false,
+						admin: conversation.info.admin
 			    	}
 			    	
 			    	// avatar
@@ -715,48 +731,63 @@ function createMessage(message) {
 			let push = createPush(message.recipientId, message.bubbleType);
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
-			let mokMessage = monkey.sendEncryptedMessage(message.text, message.recipientId, null, push);
+			let mokMessage = monkey.sendText(message.text, message.recipientId, ENCRYPTED, null, push);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
-			message.datetimeCreation = mokMessage.datetimeCreation*1000;
-			message.datetimeOrder = mokMessage.datetimeOrder*1000;
-			store.dispatch(actions.addMessage(message, message.recipientId));
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
 		case 'image': { // bubble image
 			let push = createPush(message.recipientId, message.bubbleType);
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
+			let mokMessage = null;
+			if(ENCRYPTED){
+				mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
+			}else{
+				mokMessage = monkey.sendFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
+			}
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
-			message.datetimeCreation = mokMessage.datetimeCreation*1000;
-			message.datetimeOrder = mokMessage.datetimeOrder*1000;
-			store.dispatch(actions.addMessage(message, message.recipientId));
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
 		case 'file': { // bubble file
 			let push = createPush(message.recipientId, message.bubbleType);
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, push);
+			let mokMessage = null;
+			if(ENCRYPTED){
+				mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, push);
+			}else{
+				mokMessage = monkey.sendFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, push);
+			}
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
-			message.datetimeCreation = mokMessage.datetimeCreation*1000;
-			message.datetimeOrder = mokMessage.datetimeOrder*1000;
-			store.dispatch(actions.addMessage(message, message.recipientId));
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
 		case 'audio': { // bubble audio
 			let push = createPush(message.recipientId, message.bubbleType);
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
-			let mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, push);
+			let mokMessage = null;
+			if(ENCRYPTED){
+				mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, push);
+			}else{
+				mokMessage = monkey.sendFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, push);
+			}
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
-			message.datetimeCreation = mokMessage.datetimeCreation*1000;
-			message.datetimeOrder = mokMessage.datetimeOrder*1000;
-			store.dispatch(actions.addMessage(message, message.recipientId));
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
 	}
@@ -850,12 +881,12 @@ function defineBubbleMessage(mokMessage){
 		    	message.preview = 'File';
 		    	message.filesize = mokMessage.props.size;
 	    	}else{
-		    	return "";
+		    	return '';
 	    	}
     	}
     		break;
     	case 207:{
-			return "";
+			return '';
 		}
     	default:
     		break;
@@ -913,24 +944,58 @@ function toDownloadMessageData(mokMessage){
 			});
 			break;
 		case 4: // file
+			let message = {
+				id: mokMessage.id,
+				data: "loading",
+				error: false
+			};
+			store.dispatch(actions.updateMessageData(message, conversationId));
 			monkey.downloadFile(mokMessage, function(err, data){
-				let message = {
-					id: mokMessage.id,
-					data: null,
-					error: true
-				};
 				if(err){
 		            console.log(err);
 		        }else{
 			        console.log('App - file downloaded');
-					let src = `data:${mokMessage.props.mime_type};base64,${data}`;
-					message.data = src;
-					message.error = false;
+					//let src = `data:${mokMessage.props.mime_type};base64,${data}`;
+					var blob = base64toBlob(data, mokMessage.props.mime_type);
+					var url = URL.createObjectURL(blob);
+					var link = document.createElement("a");
+					link.download = mokMessage.props.filename;
+					link.href = url;
+					document.body.appendChild(link);
+					link.click();
+			        document.body.removeChild(link);
+	  
 		        }
+		        let message = {
+					id: mokMessage.id,
+					data: null,
+					error: false
+				};
 		        store.dispatch(actions.updateMessageData(message, conversationId));
 			});
 			break;
 	}
+}
+
+function base64toBlob(base64Data, contentType) {
+    contentType = contentType || '';
+    var sliceSize = 1024;
+    var byteCharacters = atob(base64Data);
+    var bytesLength = byteCharacters.length;
+    var slicesCount = Math.ceil(bytesLength / sliceSize);
+    var byteArrays = new Array(slicesCount);
+
+    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+        var begin = sliceIndex * sliceSize;
+        var end = Math.min(begin + sliceSize, bytesLength);
+
+        var bytes = new Array(end - begin);
+        for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
+            bytes[i] = byteCharacters[offset].charCodeAt(0);
+        }
+        byteArrays[sliceIndex] = new Uint8Array(bytes);
+    }
+    return new Blob(byteArrays, { type: contentType });
 }
 
 // API Criptext
