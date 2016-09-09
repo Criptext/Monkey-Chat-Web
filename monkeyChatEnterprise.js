@@ -87,7 +87,6 @@ class MonkeyChat extends React.Component {
 				let conversation = store.getState().conversations[conversationId];
 				let members = listMembers(conversation.members);
 				conversation['description'] = members;
-				console.log(conversation);
 				store.dispatch(actions.updateConversationStatus(conversation));
 			}
 		}
@@ -242,16 +241,16 @@ class MonkeyChat extends React.Component {
 
 				objectInfo.users.push(user);
 			})
-			objectInfo.title = "Group Info";
-			objectInfo.subTitle = "Participants";
+			objectInfo.title = 'Group Info';
+			objectInfo.subTitle = 'Participants';
 
 			objectInfo.button = {
-				text : "Salir",
+				text : 'Sign out',
 				func : this.handleConversationExitButton,
 			}
 		}else{
-			objectInfo.title = "User Info";
-			objectInfo.subTitle = "Conversations With " + conversation.name;
+			objectInfo.title = 'User Info';
+			objectInfo.subTitle = 'Conversations With ' + conversation.name;
 			Object.keys(conversations).forEach(key => {
 				if(conversations[key].members && conversations[key].members.indexOf(conversation.id) > -1){
 					objectInfo.users.push({avatar : conversations[key].urlAvatar, name : conversations[key].name, description : conversations[key].members.length + " Loaded Messages"})
@@ -278,7 +277,7 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUser, debugmode, encrypted, viewchat, customStyles, customs){
+window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUser, debugmode, viewchat, customStyles, customs, encrypted){
 	
 	IDDIV = divIDTag;
 	MONKEY_APP_ID = appid;
@@ -288,10 +287,10 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUs
 	VIEW = viewchat;
 	STYLES = customStyles != null ? customStyles : {};
 	WIDGET_CUSTOMS = customs;
-	if(encrypted){
-		ENCRYPTED = true;
+	if(typeof encrypted === 'boolean'){
+		ENCRYPTED = encrypted;
 	}else{
-		ENCRYPTED = false;
+		ENCRYPTED = true;
 	}
 	
 	if(initalUser != null){
@@ -332,7 +331,6 @@ window.onblur = function(){
 // --------------- ON CONNECT ----------------- //
 monkey.on('Connect', function(event) {
 	let user = event;
-	console.log(user);
 	if(!store.getState().users.userSession || !store.getState().users.userSession.id){
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
@@ -350,13 +348,11 @@ monkey.on('Connect', function(event) {
 
 // -------------- ON DISCONNECT --------------- //
 monkey.on('Disconnect', function(event){
-	console.log('App - Disconnect');
 	
 });
 
 // --------------- ON EXIT ----------------- //
 monkey.on('Exit', function(event) {
-	console.log('App - Exit');
 	monkey.logout();
 	store.dispatch(actions.deleteUserSession());
 	store.dispatch(actions.deleteConversations());
@@ -365,13 +361,11 @@ monkey.on('Exit', function(event) {
 
 // --------------- ON MESSAGE ----------------- //
 monkey.on('Message', function(mokMessage){
-	console.log('App - Message');
 	defineMessage(mokMessage);
 });
 
 // ------------ ON MESSAGE UNSEND -------------- //
 monkey.on('MessageUnsend', function(mokMessage){
-	console.log('App - MessageUnsend');
 	
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId
 	let conversation = store.getState().conversations[conversationId];
@@ -387,7 +381,6 @@ monkey.on('MessageUnsend', function(mokMessage){
 
 // -------------- ON STATUS CHANGE --------------- //
 monkey.on('StatusChange', function(data){
-	console.log('App - StatusChange ' + data);
 
 	var params = {};
 	var panelParams = {};
@@ -425,7 +418,6 @@ monkey.on('StatusChange', function(data){
 
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('Notification', function(data){
-	console.log('App - Notification');
 	
 	let paramsType = Number(data.params.type);
 	let conversationId = data.senderId;
@@ -457,7 +449,6 @@ monkey.on('Notification', function(data){
 
 // -------------- ON ACKNOWLEDGE --------------- //
 monkey.on('Acknowledge', function(data){
-	console.log('App - Acknowledge');
 	
 	let conversationId = data.senderId;
 	if(!store.getState().conversations[conversationId])
@@ -475,7 +466,6 @@ monkey.on('Acknowledge', function(data){
 
 // ------- ON CONVERSATION OPEN RESPONSE ------- //
 monkey.on('ConversationStatusChange', function(data){
-	console.log('App - ConversationOpenResponse');
 
 	let conversationId = CONVERSATION_ID;
 	if(!store.getState().conversations[conversationId])
@@ -509,7 +499,6 @@ monkey.on('ConversationStatusChange', function(data){
 
 // ------------ ON CONVERSATION OPEN ----------- //
 monkey.on('ConversationOpen', function(data){
-	console.log('App - ConversationOpen');
 
 	let conversationId = data.senderId;
 	if(!store.getState().conversations[conversationId])
@@ -520,7 +509,6 @@ monkey.on('ConversationOpen', function(data){
 
 // -------------- ON GROUP REMOVE -------------- //
 monkey.on('GroupRemove', function(data){
-	console.log('App - GroupRemove');
 
 	if(store.getState().conversations[data.id]){
 		store.dispatch(actions.removeMember(data.member, data.id));
@@ -665,12 +653,13 @@ function loadConversations(user) {
 	        
 	        }else{
 		        console.log('error get all conversation');
+		        monkeyChatInstance.handleConversationExitButton();
 	        }
 	    });
 	}
 }
 
-function defineConversation(conversationId, mokMessage, name, members_info, members){
+function defineConversation(conversationId, mokMessage, name, members_info, members, admin){
 	// define message
 	let messages = {};
 	let messageId = null;
@@ -699,6 +688,7 @@ function defineConversation(conversationId, mokMessage, name, members_info, memb
 	// define group conversation
 	if(members_info){
 		conversation.description = '';
+		conversation.admin = admin;
 		conversation.members = members;
 
 		// get user info
@@ -826,7 +816,7 @@ function defineMessage(mokMessage) {
 
 		if( (!conversation.lastMessage || conversation.messages[conversation.lastMessage].datetimeOrder < message.datetimeOrder) && store.getState().users.userSession.id != mokMessage.senderId && !mky_focused){
 			monkey.closePush(conversation.lastMessage);
-			if (conversation.id.substring(0, 2) == "G:") {
+			if (isConversationGroup(conversation.id)) {
 			    notification_text = store.getState().users[message.senderId].name + ' has sent a message to ' + conversation.name + '!';
 			}else{
 				notification_text = store.getState().users[message.senderId].name + ' has sent You a message!';
@@ -913,7 +903,6 @@ function toDownloadMessageData(mokMessage){
 				if(err){
 		            console.log(err);
 		        }else{
-			        console.log('App - audio downloaded');
 					let mime = 'audio/mpeg';
 			        if(mokMessage.props.mime_type){
 				        mime = mokMessage.props.mime_type;
@@ -935,7 +924,6 @@ function toDownloadMessageData(mokMessage){
 				if(err){
 		            console.log(err);
 		        }else{
-			        console.log('App - image downloaded');
 					let src = `data:${mokMessage.props.mime_type};base64,${data}`;
 					message.data = src;
 					message.error = false;
@@ -944,36 +932,30 @@ function toDownloadMessageData(mokMessage){
 			});
 			break;
 		case 4: // file
-			let message = {
-				id: mokMessage.id,
-				data: "loading",
-				error: false
-			};
-			store.dispatch(actions.updateMessageData(message, conversationId));
 			monkey.downloadFile(mokMessage, function(err, data){
-				if(err){
-		            console.log(err);
-		        }else{
-			        console.log('App - file downloaded');
-					//let src = `data:${mokMessage.props.mime_type};base64,${data}`;
-					var blob = base64toBlob(data, mokMessage.props.mime_type);
-					var url = URL.createObjectURL(blob);
-					var link = document.createElement("a");
-					link.download = mokMessage.props.filename;
-					link.href = url;
-					document.body.appendChild(link);
-					link.click();
-			        document.body.removeChild(link);
-	  
-		        }
-		        let message = {
+				let message = {
 					id: mokMessage.id,
 					data: null,
-					error: false
+					error: true
 				};
+	
+				if(err){
+		            return console.log(err);
+		        }
+	
+		        console.log('App - file downloaded');
+				//let src = `data:${mokMessage.props.mime_type};base64,${data}`;
+				var blob = base64toBlob(data, mokMessage.props.mime_type);
+				var url = URL.createObjectURL(blob);
+		        message.data = url;
+				message.error = false;
+				message.isDownloading = false;
 		        store.dispatch(actions.updateMessageData(message, conversationId));
+				store.dispatch(actions.updateMessageDataStatus(message, conversationId));
+
 			});
-			break;
+
+		break;
 	}
 }
 
@@ -1120,4 +1102,8 @@ function listMembers(members){
 		}
     })
 	return names.join(', ');
+}
+
+window.getMonkey = function(){
+  return monkey;
 }
