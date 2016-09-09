@@ -62,11 +62,11 @@ class MonkeyChat extends Component {
 			    if(noLastMessage1 && noLastMessage2){
 			    	return conversation2.lastModified - conversation1.lastModified;
 			    }else if(noLastMessage2){
-			    	return conversation2.lastModified - conversation1.messages[conversation1.lastMessage].datetimeCreation;
+			    	return conversation2.lastModified - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
 			    }else if(noLastMessage1){
-			    	return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.lastModified;
+			    	return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - conversation1.lastModified;
 			    }else{
-			    	return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.messages[conversation1.lastMessage].datetimeCreation;
+			    	return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
 				}
 			}
 		}
@@ -798,7 +798,7 @@ function createConversation(conversationId, mokMessage){
 	            console.log(err);
 	        }else if(data){
 				if(isConversationGroup(conversationId)){
-					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.info.name, data.info.avatar, data.members_info, data.members)));
+					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.info.name, data.info.avatar, data.members_info, data.members, data.info.admin)));
 				}else{
 					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.name, data.avatar)));
 				}
@@ -814,7 +814,7 @@ function createConversation(conversationId, mokMessage){
 	}
 }
 
-function defineConversation(conversationId, mokMessage, name, urlAvatar, members_info, members){
+function defineConversation(conversationId, mokMessage, name, urlAvatar, members_info, members, admin){
 	// define message
 	let messages = {};
 	let messageId = null;
@@ -846,6 +846,7 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
 	// define group conversation
 	if(members_info){
 		conversation.description = '';
+		conversation.admin = admin;
 		conversation.members = members;
 
 		// get user info
@@ -865,14 +866,13 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
     	conversation.online = undefined;
 	}
 
-	if (conversation.id.substring(0, 2) == "G:") {
+	if (isConversationGroup(conversation.id)) {
 	    notification_text = store.getState().users[message.senderId].name + ' has sent a message to ' + conversation.name + '!';
 	}else{
 		notification_text = store.getState().users[message.senderId].name + ' has sent You a message!';
 	}
 
 	if(store.getState().users.userSession.id != mokMessage.senderId && !mky_focused){
-		console.log('NOTIFY CONVERSATION');
 		monkey.createPush(notification_text, message.preview, 4000, messageId, conversation.urlAvatar, function(){
 			monkey.closePush(messageId);
 			window.focus();
@@ -969,8 +969,7 @@ function defineMessage(mokMessage) {
 
 		if( (!conversation.lastMessage || conversation.messages[conversation.lastMessage].datetimeOrder < message.datetimeOrder) && store.getState().users.userSession.id != mokMessage.senderId && !mky_focused){
 			monkey.closePush(conversation.lastMessage);
-			console.log('NOTIFY MESSAGE');
-			if (conversation.id.substring(0, 2) == "G:") {
+			if (isConversationGroup(conversation.id)) {
 			    notification_text = store.getState().users[message.senderId].name + ' has sent a message to ' + conversation.name + '!';
 			}else{
 				notification_text = store.getState().users[message.senderId].name + ' has sent You a message!';
@@ -1095,15 +1094,20 @@ function toDownloadMessageData(mokMessage){
 				data: null,
 				error: true
 			};
+
 			if(err){
-	            console.log(err);
-	        }else{
-		        console.log('App - file downloaded');
-				let src = `data:${mokMessage.props.mime_type};base64,${data}`;
-				message.data = src;
-				message.error = false;
+	            return console.log(err);
 	        }
+
+	        console.log('App - file downloaded');
+			//let src = `data:${mokMessage.props.mime_type};base64,${data}`;
+			var blob = base64toBlob(data, mokMessage.props.mime_type);
+			var url = URL.createObjectURL(blob);
+	        message.data = url;
+			message.error = false;
+			message.isDownloading = false;
 	        store.dispatch(actions.updateMessageData(message, conversationId));
+			store.dispatch(actions.updateMessageDataStatus(message, conversationId));
 		});
 		break;
 	}
