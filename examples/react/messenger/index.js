@@ -116,7 +116,7 @@ class MonkeyChat extends Component {
 				userSession={this.props.store.users.userSession}
 				onUserSession={this.handleUserSession}
 				onUserSessionLogout={this.handleUserSessionLogout}
-				onUsernameEdit = {this.handleUserSessionEdit}
+				onUserSessionEdit = {this.handleUserSessionEdit}
 				conversations={this.props.store.conversations}
 				conversation={this.props.store.conversations[this.state.conversationId]}
 				onConversationOpened={this.handleConversationOpened}
@@ -163,14 +163,11 @@ class MonkeyChat extends Component {
 	}
 	
 	handleUserSessionEdit(newName){
-		if(newName.length <= 3){
+		if(newName.length <= 1){
 			return;
 		}
-		var myId = store.getState().users.userSession.id;
-
-		store.dispatch(actions.updateUserSession({name : newName}))
-
-		monkey.editUserInfo({name : newName}, function(err, data){
+		store.dispatch(actions.updateUserSession({ name: newName }))
+		monkey.editUserInfo({ name: newName }, function(err, data){
 			if(err){
 				return;
 			}
@@ -512,10 +509,10 @@ monkey.on('Connect', function(event) {
 	
 	let user = event;
 	if(!store.getState().users.userSession){
-		user.id = event.monkeyId;
+		user.id = user.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}else if(!store.getState().users.userSession.id){
-		user.id = event.monkeyId;
+		user.id = user.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}
 	if(!Object.keys(store.getState().conversations).length){
@@ -638,9 +635,15 @@ monkey.on('Acknowledge', function(data){
 	let message = {
 		id: data.newId,
 		oldId: data.oldId,
-		status: Number(data.status),
 		recipientId: data.recipientId
 	}
+	
+	if(isConversationGroup(conversationId)){
+		message.status = 50;
+	}else{
+		message.status = Number(data.status);
+	}
+	
 	store.dispatch(actions.updateMessageStatus(message, conversationId));
 });
 
