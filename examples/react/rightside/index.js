@@ -1,12 +1,10 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import MonkeyUI from 'react-monkey-ui'
+import { MonkeyUI, isConversationGroup } from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
-import { isConversationGroup } from './../../../utils/monkey-utils.js'
-import * as vars from './../../../utils/monkey-const.js'
 import { applyMiddleware, createStore, compose } from 'redux'
-import reducer from './../../../reducers'
-import * as actions from './../../../actions'
+import { reducer, actions } from 'redux-monkey-chat'
+import * as vars from './utils/monkey-const.js'
 
 const middlewares = [];
 if (process.env.NODE_ENV === 'development') {
@@ -19,6 +17,7 @@ const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {co
 const CONVERSATIONS_LOAD = 15;
 
 var conversationSelectedId = 0;
+var monkeyChatInstance;
 
 class MonkeyChat extends Component {
 	constructor(props){
@@ -26,6 +25,8 @@ class MonkeyChat extends Component {
 		this.state = {
 			conversationId: undefined,
 			viewLoading: false,
+			conversationsLoading: true,
+			isLoadingConversations: false,
 			membersOnline : []
 		}
 		
@@ -55,11 +56,11 @@ class MonkeyChat extends Component {
 			    if(noLastMessage1 && noLastMessage2){
 			    	return conversation2.lastModified - conversation1.lastModified;
 			    }else if(noLastMessage2){
-			    	return conversation2.lastModified - conversation1.messages[conversation1.lastMessage].datetimeCreation;
+			    	return conversation2.lastModified - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
 			    }else if(noLastMessage1){
-			    	return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.lastModified;
+			    	return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - conversation1.lastModified;
 			    }else{
-			    	return conversation2.messages[conversation2.lastMessage].datetimeCreation - conversation1.messages[conversation1.lastMessage].datetimeCreation;
+			    	return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
 				}
 			}
 		}
@@ -102,19 +103,23 @@ class MonkeyChat extends Component {
 		return (
 			<MonkeyUI view = {this.view}
 				viewLoading = {this.state.viewLoading}
+				options = {this.options}
 				userSession = {this.props.store.users.userSession}
 				onUserSession = {this.handleUserSession}
 				onUserSessionLogout = {this.handleUserSessionLogout}
 				conversations = {this.props.store.conversations}
+				conversationsLoading={this.state.conversationsLoading}
 				conversation = {this.props.store.conversations[this.state.conversationId]}
 				onConversationOpened = {this.handleConversationOpened}
 				onConversationClosed = {this.handleConversationClosed}
 				onConversationDelete = {this.handleConversationDelete}
 				onConversationLoadInfo = {this.handleConversationLoadInfo}
+				onLoadMoreConversations = {this.handleLoadConversations}
 				onMessagesLoad = {this.handleMessagesLoad}
 				onMessage = {this.handleMessage}
 				onMessageDownloadData = {this.handleMessageDownloadData}
-				onMessageGetUser = {this.handleMessageGetUser}/>
+				onMessageGetUser = {this.handleMessageGetUser}
+				isLoadingConversations = {this.state.isLoadingConversations}/>
 		)
 	}
 	
@@ -203,6 +208,10 @@ class MonkeyChat extends Component {
 	
 	handleLoadConversations(timestamp){
 		loadConversations(timestamp/1000);
+	}
+	
+	handleShowConversationsLoading(value){
+		this.setState({conversationsLoading: value});
 	}
 	
 	handleConversationLoadInfo(){
@@ -420,7 +429,7 @@ class MonkeyChat extends Component {
 }
 
 function render() {
-	ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementById('my-chat'));
+	monkeyChatInstance = ReactDOM.render(<MonkeyChat store={store.getState()}/>, document.getElementById('my-chat'));
 }
 
 render();
@@ -434,10 +443,10 @@ monkey.on('Connect', function(event){
 	
 	let user = event;
 	if(!store.getState().users.userSession){
-		user.id = event.monkeyId;
+		user.id = user.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}else if(!store.getState().users.userSession.id){
-		user.id = event.monkeyId;
+		user.id = user.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}
 	if(!Object.keys(store.getState().conversations).length){
@@ -565,7 +574,12 @@ monkey.on('GroupRemove', function(data){
 	console.log('App - GroupRemove');
 
 	if(store.getState().conversations[data.id]){
-		store.dispatch(actions.removeMember(data.member, data.id));
+		if(data.member != store.getState().users.userSession.id){
+			return store.dispatch(actions.removeMember(data.member, data.id));
+		}
+
+		monkeyChatInstance.handleConversationRemove(data.id);
+		
 	}
 });
 
@@ -574,16 +588,23 @@ monkey.on('GroupRemove', function(data){
 // MonkeyChat: Conversation
 
 function loadConversations(timestamp) {
+	if(!monkeyChatInstance.state.conversationsLoading){
+		monkeyChatInstance.setState({ isLoadingConversations: true });
+	}
 	monkey.getConversations(timestamp, CONVERSATIONS_LOAD, function(err, resConversations){
         if(err){
             console.log(err);
+            monkeyChatInstance.setState({ isLoadingConversations: false });
+			monkeyChatInstance.handleShowConversationsLoading(false);
         }else if(resConversations && resConversations.length > 0){
 	        let conversations = {};
 	        let users = {};
 	        let usersToGetInfo = {};
 	        resConversations.map (conversation => {
-		        if(!Object.keys(conversation.info).length)
+		        if(!Object.keys(conversation.info).length){
+		        	monkeyChatInstance.setState({ isLoadingConversations: false});
 		        	return;
+	        	}
 
 		        // define message
 		        let messages = {};
@@ -668,6 +689,8 @@ function loadConversations(timestamp) {
 			        }
 			        store.dispatch(actions.addConversations(conversations));
 			        monkey.getPendingMessages();
+			        monkeyChatInstance.setState({ isLoadingConversations: false });
+			        monkeyChatInstance.handleShowConversationsLoading(false);
 		        });
 	        }else{
 		        if(Object.keys(users).length){
@@ -675,7 +698,12 @@ function loadConversations(timestamp) {
 		        }
 		        store.dispatch(actions.addConversations(conversations));
 		        monkey.getPendingMessages();
+		        monkeyChatInstance.setState({ isLoadingConversations: false });
+		        monkeyChatInstance.handleShowConversationsLoading(false);
 	        }
+        }else{
+	        monkeyChatInstance.setState({ isLoadingConversations: false });
+	        monkeyChatInstance.handleShowConversationsLoading(false);
         }
     });
 }
