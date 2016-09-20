@@ -1,12 +1,10 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import MonkeyUI from 'react-monkey-ui'
+import { MonkeyUI, isConversationGroup } from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
-import { isConversationGroup } from './../../../utils/monkey-utils.js'
-import * as vars from './../../../utils/monkey-const.js'
 import { applyMiddleware, createStore, compose } from 'redux'
-import reducer from './../../../reducers'
-import * as actions from './../../../actions'
+import { reducer, actions } from 'redux-monkey-chat'
+import * as vars from './utils/monkey-const.js'
 
 const middlewares = [];
 if (process.env.NODE_ENV === 'development') {
@@ -69,6 +67,10 @@ class MonkeyChat extends Component {
 			    }else{
 			    	return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
 				}
+			},
+			bubbleWithOptions: {
+				incoming: false,
+				outgoing: true
 			}
 		}
 		
@@ -116,7 +118,7 @@ class MonkeyChat extends Component {
 				userSession={this.props.store.users.userSession}
 				onUserSession={this.handleUserSession}
 				onUserSessionLogout={this.handleUserSessionLogout}
-				onUsernameEdit = {this.handleUserSessionEdit}
+				onUserSessionEdit = {this.handleUserSessionEdit}
 				conversations={this.props.store.conversations}
 				conversation={this.props.store.conversations[this.state.conversationId]}
 				onConversationOpened={this.handleConversationOpened}
@@ -139,12 +141,9 @@ class MonkeyChat extends Component {
 	
 	/* User */
 	
-	// user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
-	// user.monkeyId = 'imvie0trlgpl8ug5a9oirudi';
-	// user.monkeyId = 'idkh61jqs9ia151u7edhd7vi';
 	handleUserSession(user) {
 		this.setState({viewLoading: true});
-		user.monkeyId = 'if9ynf7looscygpvakhxs9k9';
+		user.monkeyId = vars.userTest;
 		monkey.init(vars.MONKEY_APP_ID, vars.MONKEY_APP_KEY, user, [], false, vars.MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			this.setState({viewLoading: false});
 			if(error){
@@ -163,14 +162,11 @@ class MonkeyChat extends Component {
 	}
 	
 	handleUserSessionEdit(newName){
-		if(newName.length <= 3){
+		if(newName.length <= 1){
 			return;
 		}
-		var myId = store.getState().users.userSession.id;
-
-		store.dispatch(actions.updateUserSession({name : newName}))
-
-		monkey.editUserInfo({name : newName}, function(err, data){
+		store.dispatch(actions.updateUserSession({ name: newName }))
+		monkey.editUserInfo({ name: newName }, function(err, data){
 			if(err){
 				return;
 			}
@@ -386,6 +382,10 @@ class MonkeyChat extends Component {
 		});
 	}
 	
+	handleShowConversationsLoading(value){
+		this.setState({conversationsLoading: value});
+	}
+	
 	/* Message */
 	
 	handleMessage(message) {
@@ -512,10 +512,10 @@ monkey.on('Connect', function(event) {
 	
 	let user = event;
 	if(!store.getState().users.userSession){
-		user.id = event.monkeyId;
+		user.id = user.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}else if(!store.getState().users.userSession.id){
-		user.id = event.monkeyId;
+		user.id = user.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}
 	if(!Object.keys(store.getState().conversations).length){
@@ -638,9 +638,15 @@ monkey.on('Acknowledge', function(data){
 	let message = {
 		id: data.newId,
 		oldId: data.oldId,
-		status: Number(data.status),
 		recipientId: data.recipientId
 	}
+	
+	if(isConversationGroup(conversationId)){
+		message.status = 50;
+	}else{
+		message.status = Number(data.status);
+	}
+	
 	store.dispatch(actions.updateMessageStatus(message, conversationId));
 });
 

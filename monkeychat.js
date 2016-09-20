@@ -1,13 +1,10 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import MonkeyUI from 'react-monkey-ui'
+import { MonkeyUI, isConversationGroup } from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
-import { isConversationGroup } from './utils/monkey-utils.js'
-import * as vars from './utils/monkey-const.js'
-
 import { createStore } from 'redux'
-import reducer from './reducers'
-import * as actions from './actions'
+import { reducer, actions } from 'redux-monkey-chat'
+import * as vars from './utils/monkey-const.js'
 
 const monkey = new Monkey ();
 const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });

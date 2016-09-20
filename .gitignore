@@ -4,9 +4,12 @@ utils/monkey-const.js
 tabChat_dev.html
 examples/react/messenger/node_modules
 examples/react/messenger/bundle
+examples/react/messenger/utils/monkey-const.js
 examples/react/individualchat/node_modules
 examples/react/individualchat/bundle
+examples/react/individualchat/utils/monkey-const.js
 examples/react/rightside/node_modules
 examples/react/rightside/bundle
+examples/react/rightside/utils/monkey-const.js
 .DS_Store
 *.DS_Store*
