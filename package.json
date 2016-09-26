@@ -36,7 +36,7 @@
     "webpack": "1.13.1"
   },
   "dependencies": {
-    "monkey-sdk": "0.7.1",
+    "monkey-sdk": "0.7.4",
     "react": "15.2.1",
     "react-dom": "15.2.1",
     "react-google-maps": "4.10.1",
