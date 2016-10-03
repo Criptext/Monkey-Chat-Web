@@ -21,7 +21,6 @@ const CONNECTED = 3;
 const SYNCING = 4;
 const CONVERSATIONS_LOAD = 15;
 const MESSAGES_LOAD = 20;
-
 const colorUsers = ['#6f067b','#00a49e','#b3007c','#b4d800','#e20068','#00b2eb','#ec870e','#84b0b9','#3a6a74','#bda700','#826aa9','#af402a','#733610','#020dd8','#7e6565','#cd7967','#fd78a7','#009f62','#336633','#e99c7a','#000000'];
 var conversationSelectedId = 0;
 var monkeyChatInstance;
@@ -96,7 +95,7 @@ class MonkeyChat extends Component {
 	}
 	
 	componentWillReceiveProps(nextProps) {
-		if(nextProps.store.users.userSession && this.state.loading){ // handle stop loading when found user session
+		if(nextProps.store.users.userSession && this.state.viewLoading){ // handle stop loading when found user session
 			this.setState({viewLoading: false});
 		}
 	}
@@ -1212,9 +1211,9 @@ function defineBubbleMessage(mokMessage){
 
 				message.bubbleType = 'contact';
 				message.data = {
-					name : card.fn || 'Unknown',
-					tel : (card.tel && card.tel[0]) ? card.tel[0].value : null,
-					photo : card.photo ? card.photo[0].value : null
+					name: card.fn || 'Unknown',
+					tel: (card.tel && card.tel[0]) ? card.tel[0].value : null,
+					photo: card.photo ? card.photo[0].value : null
 				};
 				message.preview = 'Contact'
 
