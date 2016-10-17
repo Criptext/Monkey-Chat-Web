@@ -15,7 +15,7 @@
     "react-dom": "15.2.1",
     "react-monkey-ui": "2.1.3-beta.20",
     "redux": "3.5.2",
-    "redux-monkey-chat": "1.0.2"
+    "redux-monkey-chat": "1.0.3"
   },
   "devDependencies": {
     "babel-eslint": "6.1.2",
