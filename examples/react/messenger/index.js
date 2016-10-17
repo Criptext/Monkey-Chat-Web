@@ -1138,7 +1138,7 @@ function createMessage(message) {
 	}
 }
 
-function defineMessage(mokMessage) {
+function defineMessage(mokMessage, syncing) {
 	let conversationId = store.getState().users.userSession.id == mokMessage.recipientId ? mokMessage.senderId : mokMessage.recipientId;
 	var conversation = store.getState().conversations[conversationId];
 	var notification_text = '';
@@ -1166,13 +1166,13 @@ function defineMessage(mokMessage) {
 		}
 
 		if(message.senderId != store.getState().users.userSession.id){
-			store.dispatch(actions.addMessage(message, conversationId, true));
+			store.dispatch(actions.addMessage(message, conversationId, syncing ? false : true));
 		}else{
 			store.dispatch(actions.addMessage(message, conversationId, false));
 			store.dispatch(actions.updateConversationUnreadCounter(store.getState().conversations[conversationId], 0));
 		}
 
-		if( (!conversation.lastMessage || conversation.messages[conversation.lastMessage].datetimeOrder < message.datetimeOrder) && store.getState().users.userSession.id != mokMessage.senderId && !mky_focused){
+		if( (!conversation.lastMessage || conversation.messages[conversation.lastMessage].datetimeOrder < message.datetimeOrder) && store.getState().users.userSession.id != mokMessage.senderId && !mky_focused && !syncing){
 			monkey.closePush(conversation.lastMessage);
 			if (isConversationGroup(conversation.id)) {
 			    notification_text = store.getState().users[message.senderId].name + ' has sent a message to ' + conversation.name + '!';

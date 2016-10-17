@@ -853,10 +853,8 @@ function defineMessage(mokMessage, syncing) {
 		}
 */
 		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused && document.getElementById('mky-title') && !syncing){
-			
 			pendingMessages++;
 			document.getElementById('mky-title').innerHTML = pendingMessages + ' Pending Messages';
-		
 		}
 		store.dispatch(actions.addMessage(message, conversationId, false));
 
