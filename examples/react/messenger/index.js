@@ -620,7 +620,7 @@ window.onblur = function(){
 		document.getElementById('mky-title').innerHTML = pendingConversations + ' Pending Conversations'
 	}
 
-	if(conversationSelectedId){
+	if(store.getState().conversations[conversationSelectedId]){
 		store.dispatch(actions.updateConversationUnreadCounter(store.getState().conversations[conversationSelectedId], 0));
 		monkey.closeConversation(conversationSelectedId);
 	}
@@ -731,6 +731,9 @@ monkey.on('StatusChange', function(data){
 monkey.on('Notification', function(data){
 	console.log('App - Notification');
 	
+	if(!data.params || !data.params.type){
+		return;
+	}
 	let paramsType = Number(data.params.type);
 	let conversationId = data.senderId;
 	if(!store.getState().conversations[conversationId]){

@@ -436,6 +436,9 @@ monkey.on('StatusChange', function(data){
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('Notification', function(data){
 	
+	if(!data.params || !data.params.type){
+		return;
+	}
 	let paramsType = Number(data.params.type);
 	let conversationId = data.senderId;
 	if(!store.getState().conversations[conversationId]){
