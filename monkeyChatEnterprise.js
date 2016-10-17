@@ -436,6 +436,9 @@ monkey.on('StatusChange', function(data){
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('Notification', function(data){
 	
+	if(!data.params || !data.params.type){
+		return;
+	}
 	let paramsType = Number(data.params.type);
 	let conversationId = data.senderId;
 	if(!store.getState().conversations[conversationId]){
@@ -853,10 +856,8 @@ function defineMessage(mokMessage, syncing) {
 		}
 */
 		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused && document.getElementById('mky-title') && !syncing){
-			
 			pendingMessages++;
 			document.getElementById('mky-title').innerHTML = pendingMessages + ' Pending Messages';
-		
 		}
 		store.dispatch(actions.addMessage(message, conversationId, false));
 
