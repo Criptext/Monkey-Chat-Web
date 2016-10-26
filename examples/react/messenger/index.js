@@ -783,7 +783,7 @@ monkey.on('Acknowledge', function(data){
 // ------- ON CONVERSATION OPEN RESPONSE ------- //
 monkey.on('ConversationStatusChange', function(data){
 	console.log('App - ConversationStatusChange');
-	console.log(data);
+
 	let conversationId = conversationSelectedId;
 	if(!store.getState().conversations[conversationId])
 		return;
@@ -875,9 +875,8 @@ function loadConversations(timestamp, firstTime) {
 	        let users = {};
 	        let usersToGetInfo = {};
 	        resConversations.map (conversation => {
-		        if(!Object.keys(conversation.info).length){
-		        	monkeyChatInstance.setState({ isLoadingConversations: false });
-		        	return;
+		        if(!conversation.info || !Object.keys(conversation.info).length){
+		        	conversation.info = {};
 		        }
 
 		        // define message
@@ -895,7 +894,7 @@ function loadConversations(timestamp, firstTime) {
 		        // define conversation
 		        let conversationTmp = {
 			    	id: conversation.id,
-			    	name: conversation.info.name == undefined ? 'Unknown' : conversation.info.name,
+			    	name: conversation.info.name || 'Unknown',
 			    	urlAvatar: conversation.info.avatar,
 			    	messages: messages,
 			    	lastMessage: messageId,
@@ -903,7 +902,7 @@ function loadConversations(timestamp, firstTime) {
 			    	unreadMessageCounter: conversation.unread,
 			    	description: null,
 			    	loading: false,
-			    	admin: conversation.info.admin
+			    	admin: conversation.info.admin || ''
 		    	}
 
 		    	// define group conversation
@@ -924,7 +923,7 @@ function loadConversations(timestamp, firstTime) {
 			    	// add user into users
 			    	let userTmp = {
 				    	id: conversation.id,
-				    	name: conversation.info.name == undefined ? 'Unknown' : conversation.info.name
+				    	name: conversation.info.name || 'Unknown',
 			    	}
 			    	users[userTmp.id] = userTmp;
 			    	// delete user from usersToGetInfo
@@ -997,8 +996,11 @@ function createConversation(conversationId, mokMessage){
 			if(err){
 	            console.log(err);
 	        }else if(data){
+		        if(!data.info){
+			        data.info = {}
+		        }
 				if(isConversationGroup(conversationId)){
-					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.info.name, data.info.avatar, data.members_info, data.members, data.info.admin)));
+					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.info.name || 'Unknown', data.info.avatar, data.members_info, data.members, data.info.admin || '')));
 				}else{
 					store.dispatch(actions.addConversation(defineConversation(conversationId, mokMessage, data.name, data.avatar)));
 				}
