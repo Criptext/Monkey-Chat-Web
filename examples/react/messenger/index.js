@@ -315,7 +315,7 @@ class MonkeyChat extends Component {
 			objectInfo.subTitle = 'Conversations With ' + conversation.name;
 			Object.keys(conversations).forEach(key => {
 				if(conversations[key].members && conversations[key].members.indexOf(conversation.id) > -1){
-					objectInfo.users.push({avatar : conversations[key].urlAvatar, name : conversations[key].name, description : conversations[key].members.length + ' Loaded Messages'})
+					objectInfo.users.push({avatar: conversations[key].urlAvatar, name: conversations[key].name, description: conversations[key].members.length + ' Loaded Messages'})
 				}
 			})
 		}
@@ -633,11 +633,12 @@ monkey.on('Connect', function(event) {
 	console.log('App - Connect');
 	
 	let user = event;
+	user.urlAvatar = event.avatar;
 	if(!store.getState().users.userSession){
-		user.id = user.monkeyId;
+		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}else if(!store.getState().users.userSession.id){
-		user.id = user.monkeyId;
+		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
 	}
 	if(!Object.keys(store.getState().conversations).length){
@@ -849,7 +850,7 @@ monkey.on('GroupAdd', function(data){
         let userTmp = {
 	    	id: data.member,
 	    	name: userInfo.name == undefined ? 'Unknown' : user.name,
-	    	avatar: userInfo.avatar ? userInfo.avatar : 'https://cdn.criptext.com/MonkeyUI/images/userdefault.png'
+	    	urlAvatar: userInfo.avatar ? userInfo.avatar : 'https://cdn.criptext.com/MonkeyUI/images/userdefault.png'
 	    }
 	    users[userTmp.id] = userTmp;
 		store.dispatch(actions.addUsersContact(users));
@@ -954,7 +955,7 @@ function loadConversations(timestamp, firstTime) {
 						    	userTmp = {
 							    	id: user.monkey_id,
 							    	name: user.name == undefined ? 'Unknown' : user.name,
-							    	avatar: user.avatar
+							    	urlAvatar: user.avatar
 							    }
 							    if(!store.getState().users[user.monkey_id]){
 							    	users[userTmp.id] = userTmp;
@@ -1060,7 +1061,7 @@ function defineConversation(conversationId, mokMessage, name, urlAvatar, members
 			userTmp = {
 		    	id: user.monkey_id,
 		    	name: user.name == undefined ? 'Unknown' : user.name,
-		    	avatar: user.avatar
+		    	urlAvatar: user.avatar
 		    }
 		    users[userTmp.id] = userTmp;
 		});
