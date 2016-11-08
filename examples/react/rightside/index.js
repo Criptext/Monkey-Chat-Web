@@ -26,8 +26,7 @@ class MonkeyChat extends Component {
 			conversationId: undefined,
 			viewLoading: false,
 			conversationsLoading: true,
-			isLoadingConversations: false,
-			membersOnline : []
+			isLoadingConversations: false
 		}
 		
 		this.view = {
@@ -38,38 +37,10 @@ class MonkeyChat extends Component {
 			}
 		}
 		
-		this.options = {
-			deleteConversation: {
-				permission: {
-					exitGroup: true,
-					delete: true
-				}
-			},
-			conversationSort: function(conversation1, conversation2){
-				var noLastMessage1, noLastMessage2;
-			    if( !conversation1.messages || Object.keys(conversation1.messages).length == 0 || !conversation1.lastMessage || conversation1.messages[conversation1.lastMessage] == null )
-			        noLastMessage1 = true;
-			        
-			    if( !conversation2.messages || Object.keys(conversation2.messages).length == 0 || !conversation2.lastMessage || conversation2.messages[conversation2.lastMessage] == null )
-			        noLastMessage2 = true;
-
-			    if(noLastMessage1 && noLastMessage2){
-			    	return conversation2.lastModified - conversation1.lastModified;
-			    }else if(noLastMessage2){
-			    	return conversation2.lastModified - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
-			    }else if(noLastMessage1){
-			    	return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - conversation1.lastModified;
-			    }else{
-			    	return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
-				}
-			}
-		}
-		
 		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 		this.handleConversationClosed = this.handleConversationClosed.bind(this);
-		this.handleConversationDelete = this.handleConversationDelete.bind(this);
 		this.handleConversationLoadInfo = this.handleConversationLoadInfo.bind(this);
 		this.handleMessagesLoad = this.handleMessagesLoad.bind(this);
 		this.handleMessage = this.handleMessage.bind(this);
@@ -81,6 +52,23 @@ class MonkeyChat extends Component {
 		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
 		this.handleMakeMemberAdmin = this.handleMakeMemberAdmin.bind(this);
 		this.handleRemoveMember = this.handleRemoveMember.bind(this);
+		
+		/* options */
+		this.handleSortConversations = this.handleSortConversations.bind(this);
+		this.handleConversationDelete = this.handleConversationDelete.bind(this);
+		this.options = {
+			conversation: {
+				onSort: this.handleSortConversations,
+				optionsToDelete: {
+					onExitGroup: undefined,
+					onDelete: this.handleConversationDelete
+				}
+			},
+			message: {
+				optionsToIncoming: undefined,
+				optionsToOutgoing: undefined
+			}
+		}
 	}
 
 	componentWillMount() {
@@ -108,17 +96,16 @@ class MonkeyChat extends Component {
 				onUserSession = {this.handleUserSession}
 				onUserSessionLogout = {this.handleUserSessionLogout}
 				conversations = {this.props.store.conversations}
-				conversationsLoading={this.state.conversationsLoading}
 				conversation = {this.props.store.conversations[this.state.conversationId]}
+				conversationsLoading={this.state.conversationsLoading}
 				onConversationOpened = {this.handleConversationOpened}
 				onConversationClosed = {this.handleConversationClosed}
-				onConversationDelete = {this.handleConversationDelete}
 				onConversationLoadInfo = {this.handleConversationLoadInfo}
-				onLoadMoreConversations = {this.handleLoadConversations}
 				onMessagesLoad = {this.handleMessagesLoad}
 				onMessage = {this.handleMessage}
 				onMessageDownloadData = {this.handleMessageDownloadData}
 				onMessageGetUser = {this.handleMessageGetUser}
+				onLoadMoreConversations = {this.handleLoadConversations}
 				isLoadingConversations = {this.state.isLoadingConversations}/>
 		)
 	}
@@ -147,6 +134,25 @@ class MonkeyChat extends Component {
 	
 	/* Conversation */
 	
+	handleSortConversations(conversation1, conversation2) {
+		let noLastMessage1, noLastMessage2;
+		if( !conversation1.messages || Object.keys(conversation1.messages).length == 0 || !conversation1.lastMessage || conversation1.messages[conversation1.lastMessage] == null )
+			noLastMessage1 = true;
+			        
+	    if( !conversation2.messages || Object.keys(conversation2.messages).length == 0 || !conversation2.lastMessage || conversation2.messages[conversation2.lastMessage] == null )
+			noLastMessage2 = true;
+
+		if(noLastMessage1 && noLastMessage2){
+			return conversation2.lastModified - conversation1.lastModified;
+	    }else if(noLastMessage2){
+		    return conversation2.lastModified - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
+	    }else if(noLastMessage1){
+			return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - conversation1.lastModified;
+	    }else{
+			return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
+		}
+	}
+	
 	handleConversationOpened(conversation) {
 		monkey.sendOpenToUser(conversation.id);
 		
@@ -155,6 +161,12 @@ class MonkeyChat extends Component {
 		}
 		this.setState({conversationId: conversation.id});
 		conversationSelectedId = conversation.id;
+		
+		if(isConversationGroup(conversation.id)){
+			let members = listMembers(store.getState().conversations[conversationSelectedId].members);
+			conversation['description'] = members;
+			store.dispatch(actions.updateConversationStatus(conversation));
+		}
 	}
 	
 	handleConversationClosed() {
