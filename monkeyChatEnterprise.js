@@ -45,6 +45,7 @@ class MonkeyChat extends React.Component {
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
 		this.handleConversationLoadInfo = this.handleConversationLoadInfo.bind(this);
 		this.handleMessage = this.handleMessage.bind(this);
+		this.handleNotifyTyping = this.handleNotifyTyping.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
@@ -110,7 +111,8 @@ class MonkeyChat extends React.Component {
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
 				panelParams = {this.state.panelParams}
-				onLoadMoreConversations = {this.handleLoadConversations}/>
+				onLoadMoreConversations = {this.handleLoadConversations}
+				onNotifyTyping = {this.handleNotifyTyping}/>
 		)
 	}
 	
@@ -277,6 +279,12 @@ class MonkeyChat extends React.Component {
 		store.dispatch(actions.deleteUserSession());
 		store.dispatch(actions.deleteConversations());
 	}
+
+	/* Notification */
+	
+	handleNotifyTyping(conversationId, isTyping){
+		monkey.sendTemporalNotification(conversationId, {type : isTyping ? 21 : 20}, null);
+	}
 }
 
 function render() {
@@ -434,36 +442,135 @@ monkey.on('StatusChange', function(data){
 });
 
 // ------------- ON NOTIFICATION --------------- //
-monkey.on('Notification', function(data){
-	
+monkey.on('Notification', function(data){	
+	console.log('App - Notification');
+
 	if(!data.params || !data.params.type){
 		return;
 	}
 	let paramsType = Number(data.params.type);
-	let conversationId = data.senderId;
-	if(!store.getState().conversations[conversationId]){
-    	return;
-	}
 
-	switch(paramsType) {
-		case 20: {
-				let conversation = {
-					id: conversationId,
-					description: null
-				}
-				store.dispatch(actions.updateConversationStatus(conversation));
-			break;
+	if(isConversationGroup(data.recipientId)){
+		if(!store.getState().conversations[data.recipientId]){
+	    	return;
 		}
-		case 21: {
-				let conversation = {
-					id: conversationId,
-					description: 'typing...'
+		let targetConversation = store.getState().conversations[data.recipientId];
+		let users = store.getState().users;
+		let membersTyping = targetConversation.membersTyping;
+		let conversationId = data.senderId;
+		switch(paramsType) {
+			case 20: {
+
+				if(membersTyping == null){
+					return;	
 				}
-				store.dispatch(actions.updateConversationStatus(conversation));
-			break;
+				
+				if(membersTyping.indexOf(data.senderId) > -1){
+					membersTyping.splice(membersTyping.indexOf(data.senderId), 1);
+
+					var descText = "";
+					membersTyping.forEach( (monkey_id) => {
+						descText += users[monkey_id].name.split(" ")[0] + ", "
+					})
+					if(descText != ""){
+						descText = descText.replace(/,\s*$/, "");
+						if(membersTyping.length > 1){
+							descText += ' are typing...'
+						}else{
+							descText += ' is typing...'
+						}
+						
+					}else{
+						var members = listMembers(targetConversation.members);
+						descText = members;
+					}
+					let conversation = {
+						id: data.recipientId,
+						description: descText,
+						membersTyping: membersTyping,
+						preview: membersTyping.length > 0 ? users[membersTyping[membersTyping - 1]].name.split(" ")[0] + ' is typing...' : null
+					}
+					store.dispatch(actions.updateConversationStatus(conversation));
+				}
+
+				break;
+			}
+			case 21: {
+
+				if(membersTyping == null){
+					membersTyping = [];
+					membersTyping.push(data.senderId);
+					let conversation = {
+						id: data.recipientId,
+						description: users[data.senderId].name.split(" ")[0] + ' is typing...',
+						membersTyping: membersTyping,
+						preview: users[data.senderId].name.split(" ")[0] + ' is typing...'
+					}
+					return store.dispatch(actions.updateConversationStatus(conversation));
+				}
+
+				if(membersTyping.indexOf(data.senderId) <= -1){
+					membersTyping.push(data.senderId);
+					var descText = "";
+					membersTyping.forEach( (monkey_id) => {
+						descText += users[monkey_id].name.split(" ")[0] + ", "
+					})
+					if(descText != ""){
+						descText = descText.replace(/,\s*$/, "");
+						if(membersTyping.length > 1){
+							descText += ' are typing...'
+						}else{
+							descText += ' is typing...'
+						}
+					}else{
+						var members = listMembers(targetConversation.members);
+						descText = members;
+					}
+					let conversation = {
+						id: data.recipientId,
+						description: descText,
+						membersTyping: membersTyping,
+						preview: users[data.senderId].name.split(" ")[0] + ' is typing...'
+					}
+					store.dispatch(actions.updateConversationStatus(conversation));
+				}
+		
+				break;
+			}
+			default:
+	            break;
 		}
-		default:
-            break;
+		
+	}else{
+		let conversationId = data.senderId;
+		if(!store.getState().conversations[conversationId]){
+	    	return;
+		}
+		switch(paramsType) {
+			case 20: {
+
+					let conversation = {
+						id: conversationId,
+						description: null,
+						membersTyping: [],
+						preview: null
+					}
+					store.dispatch(actions.updateConversationStatus(conversation));
+				break;
+			}
+			case 21: {
+					let conversation = {
+						id: conversationId,
+						description: 'typing...',
+						membersTyping: [conversationId],
+						preview: 'typing...'
+					}
+					store.dispatch(actions.updateConversationStatus(conversation));
+				break;
+			}
+			default:
+	            break;
+		}
 	}
 });
 
