@@ -40,7 +40,7 @@
     "react": "15.2.1",
     "react-dom": "15.2.1",
     "react-google-maps": "4.10.1",
-    "react-monkey-ui": "2.1.4",
+    "react-monkey-ui": "file:react-monkey-ui-2.1.4.tgz",
     "redux": "3.5.2",
     "redux-monkey-chat": "1.0.5"
   }
