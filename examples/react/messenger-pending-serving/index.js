@@ -76,6 +76,8 @@ class MonkeyChat extends Component {
 					onExitGroup: this.handleConversationExit,
 					onDelete: this.handleConversationDelete
 				},
+				header1: 'Serving',
+				header2: 'Pending',
 				onEnd: this.handleEndConversation
 			},
 			message: {
@@ -112,6 +114,7 @@ class MonkeyChat extends Component {
 				onUserSessionLogout={this.handleUserSessionLogout}
 				onUserSessionEdit = {this.handleUserSessionEdit}
 				conversations={this.props.store.conversations}
+				alternateConversations={this.props.store.conversations}
 				conversation={this.props.store.conversations[this.state.conversationId]}
 				onConversationOpened={this.handleConversationOpened}
 				onConversationClosed={this.handleConversationClosed}
