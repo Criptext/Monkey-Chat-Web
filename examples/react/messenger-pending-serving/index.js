@@ -64,6 +64,7 @@ class MonkeyChat extends Component {
 		
 		/* options */
 		this.handleSortConversations = this.handleSortConversations.bind(this);
+		this.handleEndConversation = this.handleEndConversation.bind(this);
 		this.handleConversationDelete = this.handleConversationDelete.bind(this);
 		this.handleConversationExit = this.handleConversationExit.bind(this);
 		this.handleMessageOptionsOutgoing = this.handleMessageOptionsOutgoing.bind(this);
@@ -74,14 +75,14 @@ class MonkeyChat extends Component {
 				optionsToDelete: {
 					onExitGroup: this.handleConversationExit,
 					onDelete: this.handleConversationDelete
-				}
+				},
+				onEnd: this.handleEndConversation
 			},
 			message: {
 				optionsToIncoming: undefined,
 				optionsToOutgoing: this.handleMessageOptionsOutgoing
 			}
 		}
-		
 	}
 
 	componentWillMount() {
@@ -182,6 +183,10 @@ class MonkeyChat extends Component {
 	    }else{
 			return Math.max(conversation2.messages[conversation2.lastMessage].datetimeCreation, conversation2.lastModified) - Math.max(conversation1.messages[conversation1.lastMessage].datetimeCreation, conversation1.lastModified);
 		}
+	}
+	
+	handleEndConversation(conversation) {
+		console.log(conversation)
 	}
 	
 	handleConversationOpened(conversation) {
