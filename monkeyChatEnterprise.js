@@ -84,10 +84,14 @@ class MonkeyChat extends React.Component {
 			}
 
 			if(isConversationGroup(conversationId)){
+				
 				let conversation = store.getState().conversations[conversationId];
+				//conversation['description'] = "Esperando operador...";
 				let members = listMembers(conversation.members);
 				conversation['description'] = members;
 				store.dispatch(actions.updateConversationStatus(conversation));
+				
+				CONVERSATION_ID = conversationId;
 			}
 		}
 		if(nextProps.store.users.userSession && this.state.viewLoading){ // handle stop loading when foun user session
@@ -326,6 +330,8 @@ window.onfocus = function(){
 	if(document.getElementById('mky-title')){
 		document.getElementById('mky-title').innerHTML = initialTitle;
 	}
+
+	monkey.openConversation(CONVERSATION_ID);
 };
 window.onblur = function(){
 	mky_focused = false;
@@ -339,7 +345,7 @@ window.onblur = function(){
 	if(pendingMessages && document.getElementById('mky-title')){
 		document.getElementById('mky-title').innerHTML = pendingMessages + ' Pending Messages';
 	}
-	
+	monkey.closeConversation(CONVERSATION_ID);
 };
 
 
@@ -594,6 +600,8 @@ monkey.on('Acknowledge', function(data){
 // ------- ON CONVERSATION OPEN RESPONSE ------- //
 monkey.on('ConversationStatusChange', function(data){
 
+	console.log('App - ConversationStatusChange');
+
 	let conversationId = CONVERSATION_ID;
 	if(!store.getState().conversations[conversationId])
 		return;
@@ -794,6 +802,7 @@ function loadConversations(user) {
 				        }
 				        store.dispatch(actions.addConversations(conversations));
 				        monkey.getPendingMessages();
+				        monkey.openConversation(CONVERSATION_ID);
 			        });
 		        }else{
 			        if(Object.keys(users).length){
@@ -801,6 +810,7 @@ function loadConversations(user) {
 			        }
 			        store.dispatch(actions.addConversations(conversations));
 			        monkey.getPendingMessages();
+			        monkey.openConversation(CONVERSATION_ID);
 				}
 	        
 	        }else{
