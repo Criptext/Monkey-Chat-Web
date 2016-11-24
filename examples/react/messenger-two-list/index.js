@@ -38,8 +38,8 @@ class MonkeyChat extends Component {
 			panelParams: {},
 			connectionStatus: 0,
 			messageSelectedInfo: null,
-			pendingConversations: null,
-			servingConversations: null
+			individualConversations: null,
+			groupConversations: null
 		}
 
 		this.view = {
@@ -79,8 +79,8 @@ class MonkeyChat extends Component {
 					onExitGroup: this.handleConversationExit,
 					onDelete: this.handleConversationDelete
 				},
-				header1: 'Serving',
-				header2: 'Pending',
+				header1: 'Individual',
+				header2: 'Group',
 				onEnd: this.handleEndConversation
 			},
 			message: {
@@ -116,8 +116,8 @@ class MonkeyChat extends Component {
 				onUserSession={this.handleUserSession}
 				onUserSessionLogout={this.handleUserSessionLogout}
 				onUserSessionEdit = {this.handleUserSessionEdit}
-				conversations={this.state.servingConversation}
-				alternateConversations={this.state.pendingConversation}
+				conversations={this.state.individualConversations}
+				alternateConversations={this.state.groupConversations}
 				conversation={this.props.store.conversations[this.state.conversationId]}
 				onConversationOpened={this.handleConversationOpened}
 				onConversationClosed={this.handleConversationClosed}
@@ -196,6 +196,7 @@ class MonkeyChat extends Component {
 	}
 	
 	handleConversationOpened(conversation) {
+		
 		monkey.openConversation(conversation.id);
 		if(store.getState().conversations[conversationSelectedId] && store.getState().conversations[conversationSelectedId].unreadMessageCounter != 0){
 			if(conversationSelectedId != conversation.id){
@@ -434,25 +435,22 @@ class MonkeyChat extends Component {
 	
 	handleConversationFilter() {
 		let conversations = store.getState().conversations;
-		let pendingConversation = {};
-		let servingConversation = {};
+		let individualConversation = {};
+		let groupConversation = {};
 		
 		Object.keys(conversations).map( conversationId => {
 			let conversation = conversations[conversationId];
-			if(!conversation.info){
-				conversation.info.status = 2;
-			}
 			
-			if(conversation.info.status == 0) { // pending
-				pendingConversations[conversation.id] = conversation;
-			}else if(conversation.info.status == 1) { // serving
-				servingConversation[conversation.id] = conversation;
+			if(isConversationGroup(conversation.id)){
+				groupConversation[conversation.id] = conversation;
+			}else{
+				individualConversation[conversation.id] = conversation;
 			}
 		});
 		
 		this.setState({
-			pendingConversations: pendingConversation,
-			servingConversations: servingConversation
+			individualConversations: individualConversation,
+			groupConversations: groupConversation
 		});
 	}
 	

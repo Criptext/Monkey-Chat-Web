@@ -1190,7 +1190,7 @@ function base64toBlob(base64Data, contentType) {
 // API Criptext
 
 function getConversationId(params, onSuccess) {
-	apiCriptextCall(params,'POST','/service/group/add',function(err, response){
+	apiCriptextCall(params,'POST','/enterprise/group/add',function(err, response){
         if(err){
             return onError(err);
         }
