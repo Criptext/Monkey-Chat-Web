@@ -10,12 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "monkey-sdk": "0.8.2",
+    "monkey-sdk": "0.8.3",
     "react": "15.2.1",
     "react-dom": "15.2.1",
     "react-monkey-ui": "2.2.0-beta.1",
     "redux": "3.5.2",
-    "redux-monkey-chat": "1.0.3"
+    "redux-monkey-chat": "1.0.6-beta.2"
   },
   "devDependencies": {
     "babel-eslint": "6.1.2",
