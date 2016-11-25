@@ -673,6 +673,31 @@ monkey.on('GroupAdd', function(data){
 	
 })
 
+// ----------- ON GROUP INFO UPDATE ----------- //
+monkey.on('GroupInfoUpdate', function(data){
+	
+	if(!store.getState().conversations[data.id]){
+		return;
+	}
+	
+	if(data){
+		console.log(data);
+		console.log("GroupInfoUpdate - status:"+data.info.status);
+		let conversationTmp = {
+			id: CONVERSATION_ID,
+			info: data.info
+		}
+		store.dispatch(actions.updateConversationInfo(conversationTmp));
+
+		if(data.info.status == "2"){
+			let conversation = store.getState().conversations[CONVERSATION_ID];
+			conversation['description'] = "Conversation ended, write to start again.";
+			store.dispatch(actions.updateConversationStatus(conversation));
+		}
+	}
+
+});
+
 // MonkeyChat
 
 // MonkeyChat: Conversation
@@ -727,7 +752,8 @@ function loadConversations(user) {
 						unreadMessageCounter: 0,
 						description: null,
 						loading: false,
-						admin: conversation.info.admin
+						admin: conversation.info.admin,
+						info: conversation.info
 			    	}
 			    	
 			    	// avatar
@@ -821,7 +847,7 @@ function loadConversations(user) {
 	}
 }
 
-function defineConversation(conversationId, mokMessage, name, members_info, members, admin){
+function defineConversation(conversationId, mokMessage, name, info, members_info, members, admin){
 	// define message
 	let messages = {};
 	let messageId = null;
@@ -847,7 +873,8 @@ function defineConversation(conversationId, mokMessage, name, members_info, memb
     	lastModified: mokMessage.datetimeCreation*1000,
     	unreadMessageCounter: unreadMessageCounter,
     	description: null,
-    	loading: false
+    	loading: false,
+    	info: info
 	}
 
 	// define group conversation
@@ -946,6 +973,40 @@ function createMessage(message) {
 			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
+	}
+
+	var info = store.getState().conversations[CONVERSATION_ID].info;
+	console.log("Creating message - status:"+info.status);
+	
+	//If conversetion info status is served, we updated to pending
+	if(info.status == "2"){
+		
+		info.status = "0";
+		let conversationTmp = {
+			id: CONVERSATION_ID,
+			info: info
+		}
+		//Update info in redux
+		store.dispatch(actions.updateConversationInfo(conversationTmp));
+
+		//Update the description
+		let conversation = store.getState().conversations[CONVERSATION_ID];
+		let members = listMembers(conversation.members);
+		conversation['description'] = members;
+		store.dispatch(actions.updateConversationStatus(conversation));
+		
+		//Update status in server
+		let params = { monkeyId: monkey.getUser().monkeyId,
+				   groupId: CONVERSATION_ID,
+				   status: 0};
+		apiCriptextCall(params,'POST','/enterprise/client/status/update',function(err, response){
+	        if(err){
+	            console.log(err);
+	            return;
+	        }
+	        console.log("Response status update");
+	        console.log(response);
+	    });
 	}
 }
 
