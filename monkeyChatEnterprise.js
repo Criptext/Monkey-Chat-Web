@@ -77,7 +77,7 @@ class MonkeyChat extends React.Component {
 					protocolType:1,
 					readByUser:false,
 					recipientId:conversationId,
-					senderId:userIds[Math.floor(Math.random()*userIds.length)],
+					senderId: -1,
 					text: WIDGET_CUSTOMS.welcomeText.replace('<name>', nextProps.store.users.userSession.name)
 				}
 				defineMessage(mokMessage);
@@ -150,6 +150,7 @@ class MonkeyChat extends React.Component {
 	}
 	
 	handleConversationLoadInfo(){
+		console.log("load info");
 		var objectInfo = {};
 		var userIsAdmin = false;
 		objectInfo.users = [];
@@ -166,7 +167,14 @@ class MonkeyChat extends React.Component {
 				if(!member){
 					return;
 				}
+
 				let user = users[member];
+
+				if(conversation.info && conversation.info.currentOperator){
+					if(conversation.info.currentOperator != user.id && users.userSession.id != user.id){
+						return;
+					}
+				}
 				
 				if(typeof conversation.online == 'boolean'){
 					if(!conversation.online){
@@ -261,7 +269,7 @@ class MonkeyChat extends React.Component {
 	handleMessageGetUser(userId){
 		let user = store.getState().users[userId];
 		if(!user){
-			user = {};
+			user = {name : " "};
 		}
 		let conversation = store.getState().conversations[this.state.conversationId];
 		if(conversation && isConversationGroup(conversation.id)){
@@ -463,84 +471,31 @@ monkey.on('Notification', function(data){
 		let targetConversation = store.getState().conversations[data.recipientId];
 		let users = store.getState().users;
 		let membersTyping = targetConversation.membersTyping;
-		let conversationId = data.senderId;
+		let userId = data.senderId;
 		switch(paramsType) {
 			case 20: {
-
-				if(membersTyping == null){
-					return;	
-				}
-				
-				if(membersTyping.indexOf(data.senderId) > -1){
-					membersTyping.splice(membersTyping.indexOf(data.senderId), 1);
-
-					var descText = "";
-					membersTyping.forEach( (monkey_id) => {
-						descText += users[monkey_id].name.split(" ")[0] + ", "
-					})
-					if(descText != ""){
-						descText = descText.replace(/,\s*$/, "");
-						if(membersTyping.length > 1){
-							descText += ' are typing...'
-						}else{
-							descText += ' is typing...'
-						}
-						
-					}else{
-						var members = listMembers(targetConversation.members);
-						descText = members;
-					}
+				if(userId == targetConversation.info.currentOperator){
 					let conversation = {
 						id: data.recipientId,
-						description: descText,
-						membersTyping: membersTyping,
-						preview: membersTyping.length > 0 ? users[membersTyping[membersTyping - 1]].name.split(" ")[0] + ' is typing...' : null
+						description: "Online",
+						membersTyping: [],
+						preview: null
 					}
 					store.dispatch(actions.updateConversationStatus(conversation));
 				}
-
+					
 				break;
 			}
 			case 21: {
-
-				if(membersTyping == null){
-					membersTyping = [];
-					membersTyping.push(data.senderId);
+				if(userId == targetConversation.info.currentOperator){
 					let conversation = {
 						id: data.recipientId,
-						description: users[data.senderId].name.split(" ")[0] + ' is typing...',
-						membersTyping: membersTyping,
-						preview: users[data.senderId].name.split(" ")[0] + ' is typing...'
-					}
-					return store.dispatch(actions.updateConversationStatus(conversation));
-				}
-
-				if(membersTyping.indexOf(data.senderId) <= -1){
-					membersTyping.push(data.senderId);
-					var descText = "";
-					membersTyping.forEach( (monkey_id) => {
-						descText += users[monkey_id].name.split(" ")[0] + ", "
-					})
-					if(descText != ""){
-						descText = descText.replace(/,\s*$/, "");
-						if(membersTyping.length > 1){
-							descText += ' are typing...'
-						}else{
-							descText += ' is typing...'
-						}
-					}else{
-						var members = listMembers(targetConversation.members);
-						descText = members;
-					}
-					let conversation = {
-						id: data.recipientId,
-						description: descText,
-						membersTyping: membersTyping,
-						preview: users[data.senderId].name.split(" ")[0] + ' is typing...'
+						description: 'Typing...',
+						membersTyping: [userId],
+						preview: 'Typing...'
 					}
 					store.dispatch(actions.updateConversationStatus(conversation));
 				}
-		
 				break;
 			}
 			default:
@@ -606,9 +561,16 @@ monkey.on('ConversationStatusChange', function(data){
 	if(!store.getState().conversations[conversationId])
 		return;
 
+	let targetConversation = store.getState().conversations[conversationId];
 	let conversation = {
 		id: conversationId,
 		online: data.online
+	}
+
+	if(typeof data.online == "string" && data.online.indexOf(targetConversation.info.currentOperator) > -1 && targetConversation.info.status != "2"){
+		targetConversation.description = "Online"
+	}else if(targetConversation.info.currentOperator && targetConversation.info.status != "2"){
+		targetConversation.description = "Offline"
 	}
 
 	// define lastOpenMe
@@ -675,7 +637,7 @@ monkey.on('GroupAdd', function(data){
 
 // ----------- ON GROUP INFO UPDATE ----------- //
 monkey.on('GroupInfoUpdate', function(data){
-	
+	console.log("App - Info Update");
 	if(!store.getState().conversations[data.id]){
 		return;
 	}
@@ -689,6 +651,11 @@ monkey.on('GroupInfoUpdate', function(data){
 		}
 		store.dispatch(actions.updateConversationInfo(conversationTmp));
 
+		if(data.info.status == "1"){
+			let conversation = store.getState().conversations[CONVERSATION_ID];
+			conversation['description'] = "Online";
+			store.dispatch(actions.updateConversationStatus(conversation));
+		}
 		if(data.info.status == "2"){
 			let conversation = store.getState().conversations[CONVERSATION_ID];
 			conversation['description'] = "Conversation ended, write to start again.";
