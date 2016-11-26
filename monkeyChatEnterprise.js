@@ -567,12 +567,6 @@ monkey.on('ConversationStatusChange', function(data){
 		online: data.online
 	}
 
-	if(typeof data.online == "string" && data.online.indexOf(targetConversation.info.currentOperator) > -1 && targetConversation.info.status != "2"){
-		targetConversation.description = "Online"
-	}else if(targetConversation.info.currentOperator && targetConversation.info.status != "2"){
-		targetConversation.description = "Offline"
-	}
-
 	// define lastOpenMe
 	if(data.lastOpenMe){
 		conversation.lastOpenMe = Number(data.lastOpenMe)*1000;
@@ -583,6 +577,14 @@ monkey.on('ConversationStatusChange', function(data){
 	}
 
 	store.dispatch(actions.updateConversationStatus(conversation));
+
+	if(typeof data.online == "string" && data.online.indexOf(targetConversation.info.currentOperator) > -1 && targetConversation.info.status != "2"){
+		conversation.description = "Online"
+		store.dispatch(actions.updateConversationStatus(conversation));
+	}else if(targetConversation.info.currentOperator && targetConversation.info.status != "2"){
+		conversation.description = "Offline"
+		store.dispatch(actions.updateConversationStatus(conversation));
+	}
 	// store.dispatch(actions.updateMessagesStatus(52, conversationId, true));
 });
 
@@ -1000,13 +1002,13 @@ function defineMessage(mokMessage, syncing) {
 			message.status = 52;
 		}
 */
-		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused && document.getElementById('mky-title') && !syncing){
+		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused && document.getElementById('mky-title') && !syncing && message.senderId != -1){
 			pendingMessages++;
 			document.getElementById('mky-title').innerHTML = pendingMessages + ' Pending Messages';
 		}
 		store.dispatch(actions.addMessage(message, conversationId, false));
 
-		if( (!conversation.lastMessage || conversation.messages[conversation.lastMessage].datetimeOrder < message.datetimeOrder) && store.getState().users.userSession.id != mokMessage.senderId && !mky_focused && !syncing){
+		if(message.senderId != -1 && (!conversation.lastMessage || conversation.messages[conversation.lastMessage].datetimeOrder < message.datetimeOrder) && store.getState().users.userSession.id != mokMessage.senderId && !mky_focused && !syncing){
 			monkey.closePush(conversation.lastMessage);
 			if (isConversationGroup(conversation.id)) {
 			    notification_text = store.getState().users[message.senderId].name + ' has sent a message to ' + conversation.name + '!';
