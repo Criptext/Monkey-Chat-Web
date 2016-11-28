@@ -164,6 +164,13 @@ class MonkeyChat extends React.Component {
 		objectInfo.avatar = conversation.urlAvatar;
 
 		if(isConversationGroup(this.state.conversationId)){
+			//add default group of company
+			objectInfo.users.push({
+				avatar: conversation.urlAvatar,
+				name: conversation.name,
+				description: conversation.description
+			});
+
 			conversation.members.forEach( (member) => {
 				if(!member){
 					return;
@@ -171,32 +178,20 @@ class MonkeyChat extends React.Component {
 
 				let user = users[member];
 
-				if(conversation.info && conversation.info.currentOperator){
-					if(conversation.info.currentOperator != user.id && users.userSession.id != user.id){
-						return;
-					}
+				//only let my user be there
+				if(users.userSession.id != user.id){
+					return;
 				}
 
-				if(typeof conversation.online == 'boolean'){
-					if(!conversation.online){
-						user.description = 'Offline';
-					}
+				if (monkey.status == monkey.enums.Status.ONLINE) {
+					user.description = "Online";
 				}else{
-					user.description = (conversation.online.indexOf(user.id) > -1 || users.userSession.id == user.id) ? 'Online' : 'Offline'
-				}
-
-				if(conversation.admin && conversation.admin.indexOf(user.id) > -1){
-					user.rol = 'Admin';
-					if(user.id == users.userSession.id){
-						userIsAdmin = true;
-					}
-				}else{
-					user.rol = null;
+					user.description = "Offline";
 				}
 
 				objectInfo.users.push(user);
 			})
-			objectInfo.users = [];
+
 			objectInfo.title = 'Group Info';
 			objectInfo.subTitle = 'Participants';
 
