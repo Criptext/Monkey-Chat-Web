@@ -163,7 +163,7 @@ class MonkeyChat extends Component {
 		conversationSelectedId = conversation.id;
 		
 		if(isConversationGroup(conversation.id)){
-			let members = listMembers(store.getState().conversations[conversationSelectedId].members);
+			let members = listMembers(store.getState().conversations[conversation.id].members);
 			conversation['description'] = members;
 			store.dispatch(actions.updateConversationStatus(conversation));
 		}
@@ -961,9 +961,19 @@ function toDownloadMessageData(mokMessage){
 }
 
 function listMembers(members){
-	var list = [];
-		this.props.conversationSelected.members.map(function(member) {
-			list.push(member.name);
-        })
-	return list.join(', ');
+	var list;
+	if(typeof members == 'string'){
+		list = members.split(',');
+	}else{
+		list = members;
+	}
+	var names = [];
+	var users = store.getState().users;
+
+	list.map(function(id) {
+		if(users[id] && users[id].name){
+			names.push(users[id].name);
+		}
+    })
+	return names.join(', ');
 }
