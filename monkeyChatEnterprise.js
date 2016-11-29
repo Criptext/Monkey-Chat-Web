@@ -103,6 +103,7 @@ class MonkeyChat extends React.Component {
 		return (
 			<MonkeyUI view={VIEW}
 				styles={STYLES}
+				showConversations={false}
 				viewLoading={this.state.viewLoading}
 				userSession={this.props.store.users.userSession}
 				onUserSession={this.handleUserSession}
@@ -635,7 +636,7 @@ monkey.on('GroupAdd', function(data){
 		store.dispatch(actions.addMember(data.member, data.id));
 	});
 	
-})
+});
 
 // ----------- ON GROUP INFO UPDATE ----------- //
 monkey.on('GroupInfoUpdate', function(data){
@@ -1190,7 +1191,7 @@ function base64toBlob(base64Data, contentType) {
 // API Criptext
 
 function getConversationId(params, onSuccess) {
-	apiCriptextCall(params,'POST','/service/group/add',function(err, response){
+	apiCriptextCall(params,'POST','/enterprise/group/add',function(err, response){
         if(err){
             return onError(err);
         }
