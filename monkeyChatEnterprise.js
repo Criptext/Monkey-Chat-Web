@@ -30,6 +30,7 @@ var monkeyChatInstance;
 var mky_focused = true;
 var firstTimeLogIn = true;
 var initialTitle = '';
+var $ = require('jquery');
 
 class MonkeyChat extends React.Component {
 	constructor(props){
@@ -590,10 +591,28 @@ monkey.on('ConversationStatusChange', function(data){
 // ------------ ON CONVERSATION OPEN ----------- //
 monkey.on('ConversationOpen', function(data){
 
-	let conversationId = data.senderId;
-	if(!store.getState().conversations[conversationId])
+	let conversationId = data.recipientId;
+	if(!isConversationGroup(conversationId)){
+		conversationId = data.senderId;
+	}
+	
+	let conversation = store.getState().conversations[conversationId];
+	if(!conversation)
 		return;
-
+		
+	if (CONVERSATION_ID != conversationId)
+		return;
+	
+	if(isConversationGroup(conversationId)){
+		if(conversation.info.currentOperator == data.senderId){
+			let conversationTmp = {
+				id: conversationId,
+				description: 'Online'
+			}
+			store.dispatch(actions.updateConversationStatus(conversationTmp));
+		}
+	}
+	
 // 	store.dispatch(actions.updateMessagesStatus(52, conversationId, false));
 });
 
