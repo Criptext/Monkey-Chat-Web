@@ -551,15 +551,19 @@ monkey.on('Acknowledge', function(data){
 
 // ------- ON CONVERSATION OPEN RESPONSE ------- //
 monkey.on('ConversationStatusChange', function(data){
-
 	console.log('App - ConversationStatusChange');
-
+	
 	let conversationId = CONVERSATION_ID;
-	if(!store.getState().conversations[conversationId]){
+	let targetConversation = store.getState().conversations[conversationId];
+	if(!targetConversation){
 		return;
 	}
-
-	let targetConversation = store.getState().conversations[conversationId];
+	
+	//don't change message if conversation is SERVED
+	if(targetConversation.info.status == '2'){
+		return;
+	}
+	
 	let conversation = {
 		id: conversationId,
 		online: data.online
@@ -573,18 +577,11 @@ monkey.on('ConversationStatusChange', function(data){
 	if(data.lastSeen){
 		conversation.lastSeen = Number(data.lastSeen)*1000;
 	}
-
-	store.dispatch(actions.updateConversationStatus(conversation));
-
-	//don't change message if conversation is SERVED
-	if(targetConversation.info.status == "2"){
-		return;
-	}
-
-	if (typeof data.online == 'boolean' && !data.online) {
-		conversation.description = "Offline";
+	
+	if (typeof data.online == 'string' && data.online.indexOf(targetConversation.info.currentOperator) !== -1){
+		conversation.description = 'Online';	
 	}else{
-		conversation.description = "Online";
+		conversation.description = 'Offline';
 	}
 
 	store.dispatch(actions.updateConversationStatus(conversation));
@@ -644,26 +641,21 @@ monkey.on('GroupInfoUpdate', function(data){
 	if(!store.getState().conversations[data.id]){
 		return;
 	}
+	
+	let conversationTmp = {
+		id: CONVERSATION_ID,
+		info: data.info
+	}
+	store.dispatch(actions.updateConversationInfo(conversationTmp));
 
-	if(data){
-		console.log(data);
-		console.log("GroupInfoUpdate - status:"+data.info.status);
-		let conversationTmp = {
-			id: CONVERSATION_ID,
-			info: data.info
-		}
-		store.dispatch(actions.updateConversationInfo(conversationTmp));
-
-		if(data.info.status == "1"){
-			let conversation = store.getState().conversations[CONVERSATION_ID];
-			conversation['description'] = "Online";
-			store.dispatch(actions.updateConversationStatus(conversation));
-		}
-		if(data.info.status == "2"){
-			let conversation = store.getState().conversations[CONVERSATION_ID];
-			conversation['description'] = "Conversation ended, write to start again.";
-			store.dispatch(actions.updateConversationStatus(conversation));
-		}
+	if(data.info.status == "1"){
+		let conversation = store.getState().conversations[CONVERSATION_ID];
+		conversation['description'] = "Online";
+		store.dispatch(actions.updateConversationStatus(conversation));
+	}else if(data.info.status == "2"){
+		let conversation = store.getState().conversations[CONVERSATION_ID];
+		conversation['description'] = "Conversation ended, write to start again.";
+		store.dispatch(actions.updateConversationStatus(conversation));
 	}
 
 });
