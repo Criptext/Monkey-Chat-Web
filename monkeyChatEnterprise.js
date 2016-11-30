@@ -676,6 +676,7 @@ monkey.on('GroupInfoUpdate', function(data){
 		let conversation = store.getState().conversations[CONVERSATION_ID];
 		conversation['description'] = "Online";
 		store.dispatch(actions.updateConversationStatus(conversation));
+		store.dispatch(actions.updateMessagesStatus(52, CONVERSATION_ID, false));
 	}else if(data.info.status == "2"){
 		let conversation = store.getState().conversations[CONVERSATION_ID];
 		conversation['description'] = "Conversation ended, write to start again.";
