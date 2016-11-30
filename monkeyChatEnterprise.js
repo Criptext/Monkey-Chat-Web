@@ -232,15 +232,14 @@ class MonkeyChat extends React.Component {
 	        }else if(res){
 		        if(res.length){
 			    	let messages = {};
+			    	let targetConversation = store.getState().conversations[conversationId];
 					res.map( mokMessage => {
 						let message = defineBubbleMessage(mokMessage);
 						if(message) {
-							/*
-							//define status
-							if(message.datetimeCreation <= lastOpenMe) {
--								message.status = 52;
--							}*/
-							messages[message.id] = message;
+							if(mokMessage.readBy && mokMessage.readBy.replace(targetConversation.info.client, "")){
+								message.status = 52;
+							}
+							messages[message.id] = message;	
 						}
 					});
 					let conversation = {
@@ -543,10 +542,17 @@ monkey.on('Acknowledge', function(data){
 	let message = {
 		id: data.newId,
 		oldId: data.oldId,
-// 		status: Number(data.status),
-		status: 50,
 		recipientId: data.recipientId
 	}
+
+	let targetConversation = store.getState().conversations[conversationId];
+
+	message.status = isConversationGroup(conversationId) ? 50 : Number(data.status);
+
+	if(data.readByUser && data.readByUser.includes(targetConversation.info.currentOperator)){
+		message.status = 52;
+	}
+
 	store.dispatch(actions.updateMessageStatus(message, conversationId));
 });
 
@@ -610,10 +616,9 @@ monkey.on('ConversationOpen', function(data){
 				description: 'Online'
 			}
 			store.dispatch(actions.updateConversationStatus(conversationTmp));
+			store.dispatch(actions.updateMessagesStatus(52, conversationId, false));
 		}
 	}
-	
-// 	store.dispatch(actions.updateMessagesStatus(52, conversationId, false));
 });
 
 // -------------- ON GROUP REMOVE -------------- //
@@ -718,6 +723,9 @@ function loadConversations(user) {
 			        	conversation.last_message.datetimeOrder = conversation.last_message.datetimeCreation;
 			        	let message = defineBubbleMessage(conversation.last_message);
 			        	if(message){
+			        		if(conversation.last_message.readBy){
+		        				message.status = conversation.last_message.readBy.replace(conversation.info.client, "") ? 52 : 51;
+			        		}
 				        	messages[message.id] = message;
 							messageId = message.id;
 			        	}
@@ -842,6 +850,9 @@ function defineConversation(conversationId, mokMessage, name, info, members_info
 		messageId = message.id;
 		if(store.getState().users.userSession.id != mokMessage.senderId){
 			unreadMessageCounter++;
+		}
+		if(message.readBy && message.readBy.replace(info.client, "")){
+			message.status = 52;
 		}
 	}
 
@@ -1008,12 +1019,10 @@ function defineMessage(mokMessage, syncing) {
 	let message = defineBubbleMessage(mokMessage);
 
 	if(message){
-		// define status
-/*
-		if( message.datetimeCreation <= store.getState().conversations[conversationId].lastOpenMe ){
+		if(mokMessage.readBy && mokMessage.readBy.replace(conversation.info.client, "")){
 			message.status = 52;
 		}
-*/
+
 		if(store.getState().conversations[conversationId].unreadMessageCounter <= 0 && !mky_focused && document.getElementById('mky-title') && !syncing && message.senderId != -1){
 			pendingMessages++;
 			document.getElementById('mky-title').innerHTML = pendingMessages + ' Pending Messages';
