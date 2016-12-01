@@ -39,7 +39,8 @@ class MonkeyChat extends React.Component {
 			conversationId: undefined,
 			viewLoading: false,
 			panelParams: {},
-			connectionStatus: 0
+			connectionStatus: 0,
+			askReconnect: false
 		}
 
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -53,6 +54,17 @@ class MonkeyChat extends React.Component {
 
 		if(document.getElementById('mky-title')){
 			initialTitle = document.getElementById('mky-title').innerHTML;
+		}
+		
+		/* options */
+		this.handleReconnect = this.handleReconnect.bind(this);
+		this.options = {
+			window: {
+				reconnect: {
+					onReconnect: this.handleReconnect,
+// 					description: 'La sesión con su operador ha concluido'
+				}
+			}
 		}
 	}
 
@@ -73,11 +85,11 @@ class MonkeyChat extends React.Component {
 				var mokMessage = {
 					datetimeCreation: Date.now()/1000,
 					datetimeOrder: Date.now()/1000,
-					id:'abc123',
-					protocolCommand:200,
-					protocolType:1,
-					readByUser:false,
-					recipientId:conversationId,
+					id: 'abc123',
+					protocolCommand: 200,
+					protocolType: 1,
+					readByUser: false,
+					recipientId: conversationId,
 					senderId: -1,
 					text: WIDGET_CUSTOMS.welcomeText.replace('<name>', nextProps.store.users.userSession.name)
 				}
@@ -104,6 +116,7 @@ class MonkeyChat extends React.Component {
 		return (
 			<MonkeyUI view={VIEW}
 				styles={STYLES}
+				options = {this.options}
 				showConversations={false}
 				viewLoading={this.state.viewLoading}
 				userSession={this.props.store.users.userSession}
@@ -118,8 +131,50 @@ class MonkeyChat extends React.Component {
 				onMessageGetUser={this.handleMessageGetUser}
 				panelParams = {this.state.panelParams}
 				onLoadMoreConversations = {this.handleLoadConversations}
-				onNotifyTyping = {this.handleNotifyTyping}/>
+				onNotifyTyping = {this.handleNotifyTyping}
+				askReconnect = {this.state.askReconnect}/>
 		)
+	}
+
+	/* Window */
+	handleReconnect() {
+		console.log('reconnect');
+		
+		var info = store.getState().conversations[CONVERSATION_ID].info;
+		console.log("Creating message - status:"+info.status);
+	
+		//If conversetion info status is served, we updated to pending
+		if(info.status == "2"){
+	
+			info.status = "0";
+			let conversationTmp = {
+				id: CONVERSATION_ID,
+				info: info
+			}
+			//Update info in redux
+			store.dispatch(actions.updateConversationInfo(conversationTmp));
+	
+			//Update the description
+			let conversation = store.getState().conversations[CONVERSATION_ID];
+			let members = listMembers(conversation.members);
+			conversation['description'] = members;
+			store.dispatch(actions.updateConversationStatus(conversation));
+	
+			//Update status in server
+			let params = { monkeyId: monkey.getUser().monkeyId,
+					   groupId: CONVERSATION_ID,
+					   status: 0};
+			apiCriptextCall(params,'POST','/enterprise/client/status/update',(err, response) => {
+		        if(err){
+		            console.log(err);
+		            return;
+		        }else{
+			        this.setState({ askReconnect: false });
+			        console.log("Response status update");
+			        console.log(response);
+		        }
+		    });
+		}
 	}
 
 	/* User */
@@ -152,7 +207,6 @@ class MonkeyChat extends React.Component {
 	}
 
 	handleConversationLoadInfo(){
-		console.log("load info");
 		var objectInfo = {};
 		var userIsAdmin = false;
 		objectInfo.users = [];
@@ -236,6 +290,7 @@ class MonkeyChat extends React.Component {
 					res.map( mokMessage => {
 						let message = defineBubbleMessage(mokMessage);
 						if(message) {
+							//define status
 							if(mokMessage.readBy && mokMessage.readBy.replace(targetConversation.info.client, "")){
 								message.status = 52;
 							}
@@ -558,7 +613,6 @@ monkey.on('Acknowledge', function(data){
 
 // ------- ON CONVERSATION OPEN RESPONSE ------- //
 monkey.on('ConversationStatusChange', function(data){
-	console.log('App - ConversationStatusChange');
 	
 	let conversationId = CONVERSATION_ID;
 	let targetConversation = store.getState().conversations[conversationId];
@@ -661,7 +715,7 @@ monkey.on('GroupAdd', function(data){
 
 // ----------- ON GROUP INFO UPDATE ----------- //
 monkey.on('GroupInfoUpdate', function(data){
-	console.log("App - Info Update");
+
 	if(!store.getState().conversations[data.id]){
 		return;
 	}
@@ -672,14 +726,15 @@ monkey.on('GroupInfoUpdate', function(data){
 	}
 	store.dispatch(actions.updateConversationInfo(conversationTmp));
 
-	if(data.info.status == "1"){
+	if(data.info.status == '1'){
 		let conversation = store.getState().conversations[CONVERSATION_ID];
-		conversation['description'] = "Online";
+		conversation['description'] = 'Online';
 		store.dispatch(actions.updateConversationStatus(conversation));
 		store.dispatch(actions.updateMessagesStatus(52, CONVERSATION_ID, false));
-	}else if(data.info.status == "2"){
+	}else if(data.info.status == '2'){
+		monkeyChatInstance.setState({ askReconnect: true });
 		let conversation = store.getState().conversations[CONVERSATION_ID];
-		conversation['description'] = "Conversation ended, write to start again.";
+		conversation['description'] = 'Conversation ended, write to start again.';
 		store.dispatch(actions.updateConversationStatus(conversation));
 	}
 
@@ -773,14 +828,19 @@ function loadConversations(user) {
 				    	let userTmp = {
 					    	id: conversation.id,
 					    	name: conversation.info.name == undefined ? 'Unknown' : conversation.info.name,
-					    	color : colorUsers[(usersSize++)%(colorUsers.length)],
-					    	avatar : conversation.info.avatar ? conversation.info.avatar : 'https://cdn.criptext.com/MonkeyUI/images/userdefault.png'
+					    	color: colorUsers[(usersSize++)%(colorUsers.length)],
+					    	avatar: conversation.info.avatar ? conversation.info.avatar : 'https://cdn.criptext.com/MonkeyUI/images/userdefault.png'
 				    	}
 				    	users[userTmp.id] = userTmp;
 				    	// delete user from usersToGetInfo
 				    	delete usersToGetInfo[userTmp.id];
 			        }
 			        conversations[conversationTmp.id] = conversationTmp;
+			        
+			        if(conversation.info.status == '2'){
+				        monkeyChatInstance.setState({ askReconnect: true });
+			        }
+			        
 		        })
 
 		        if(Object.keys(usersToGetInfo).length){
@@ -967,40 +1027,7 @@ function createMessage(message) {
 			break;
 		}
 	}
-
-	var info = store.getState().conversations[CONVERSATION_ID].info;
-	console.log("Creating message - status:"+info.status);
-
-	//If conversetion info status is served, we updated to pending
-	if(info.status == "2"){
-
-		info.status = "0";
-		let conversationTmp = {
-			id: CONVERSATION_ID,
-			info: info
-		}
-		//Update info in redux
-		store.dispatch(actions.updateConversationInfo(conversationTmp));
-
-		//Update the description
-		let conversation = store.getState().conversations[CONVERSATION_ID];
-		let members = listMembers(conversation.members);
-		conversation['description'] = members;
-		store.dispatch(actions.updateConversationStatus(conversation));
-
-		//Update status in server
-		let params = { monkeyId: monkey.getUser().monkeyId,
-				   groupId: CONVERSATION_ID,
-				   status: 0};
-		apiCriptextCall(params,'POST','/enterprise/client/status/update',function(err, response){
-	        if(err){
-	            console.log(err);
-	            return;
-	        }
-	        console.log("Response status update");
-	        console.log(response);
-	    });
-	}
+	
 }
 
 function defineMessage(mokMessage, syncing) {
