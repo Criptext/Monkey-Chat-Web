@@ -291,7 +291,7 @@ class MonkeyChat extends React.Component {
 						let message = defineBubbleMessage(mokMessage);
 						if(message) {
 							//define status
-							if(mokMessage.readBy && mokMessage.readBy.replace(targetConversation.info.client, "")){
+							if(message.datetimeCreation <= targetConversation.lastOpenMe) {
 								message.status = 52;
 							}
 							messages[message.id] = message;	
@@ -613,7 +613,7 @@ monkey.on('Acknowledge', function(data){
 
 // ------- ON CONVERSATION OPEN RESPONSE ------- //
 monkey.on('ConversationStatusChange', function(data){
-	
+
 	let conversationId = CONVERSATION_ID;
 	let targetConversation = store.getState().conversations[conversationId];
 	if(!targetConversation){
@@ -630,13 +630,29 @@ monkey.on('ConversationStatusChange', function(data){
 		online: data.online
 	}
 
-	// define lastOpenMe
-	if(data.lastOpenMe){
-		conversation.lastOpenMe = Number(data.lastOpenMe)*1000;
-	}
-	// define lastSeen
-	if(data.lastSeen){
-		conversation.lastSeen = Number(data.lastSeen)*1000;
+	if(isConversationGroup(targetConversation.id)){
+		if(data.lastSeen){
+			let minimunTimeStamp;
+			Object.keys(data.lastSeen).forEach( key => {
+				data.lastSeen[key]*=1000;
+				if(!minimunTimeStamp || data.lastSeen[key] > minimunTimeStamp){
+					minimunTimeStamp = data.lastSeen[key];
+				}
+			})
+			if(minimunTimeStamp > targetConversation.lastOpenMe){
+				conversation.lastOpenMe = minimunTimeStamp;
+			}
+			conversation.lastSeen = Object.assign({}, conversation.lastSeen, data.lastSeen);
+		}
+	}else{
+		// define lastOpenMe
+		if(data.lastOpenMe){
+			conversation.lastOpenMe = Number(data.lastOpenMe)*1000;
+		}
+		// define lastSeen
+		if(data.lastSeen){
+			conversation.lastSeen = Number(data.lastSeen)*1000;
+		}
 	}
 	
 	if (typeof data.online == 'string' && data.online.indexOf(targetConversation.info.currentOperator) !== -1){
@@ -779,8 +795,16 @@ function loadConversations(user) {
 			        	conversation.last_message.datetimeOrder = conversation.last_message.datetimeCreation;
 			        	let message = defineBubbleMessage(conversation.last_message);
 			        	if(message){
-			        		if(conversation.last_message.readBy){
-		        				message.status = conversation.last_message.readBy.replace(conversation.info.client, "") ? 52 : 51;
+			        		if(conversation.members_last_seen){
+			        			Object.keys(conversation.members_last_seen).forEach( key => {
+									conversation.members_last_seen[key]*=1000;
+									if( (!conversation.lastOpenMe || conversation.members_last_seen[key] > conversation.lastOpenMe) && key != conversation.info.client ){
+										conversation.lastOpenMe = conversation.members_last_seen[key];
+									}
+								})
+								if(conversation.lastOpenMe >= message.datetimeCreation){
+									message.status = 52;
+								}
 			        		}
 				        	messages[message.id] = message;
 							messageId = message.id;
@@ -811,6 +835,7 @@ function loadConversations(user) {
 				        conversationTmp.members = conversation.members;
 				        conversationTmp.description = '';
 				        conversationTmp.online = false;
+				        conversationTmp.lastOpenMe = conversation.lastOpenMe || null
 				        // add users into usersToGetInfo
 				        conversation.members.map( id => {
 					        if(!users[id]){
