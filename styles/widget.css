@@ -1,0 +1,122 @@
+/*
+	RECONNECT
+*/
+
+.wid-reconnect-form{
+	bottom: 90px;
+	position: absolute;
+	width: 100%;
+	height: calc(100% - 90px);
+	overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.wid-reconnect-form form{
+	text-align: center;
+}
+
+.wid-reconnect-description{
+	font-size: 12px;
+} 
+
+/*
+	QUESTION FORM
+*/
+
+.wid-check-container{
+	text-align: center;
+}
+
+.wid-overlay-check{
+	width: 24%;
+}
+
+.wid-go-back{
+    font-size: 13px;
+    padding: 0px 30px;
+    font-weight: bold;
+	color: #4C4C4C;
+}
+
+.wid-overlay-msg-title{
+    font-size: 15px;
+    padding: 0px 30px;
+    font-weight: bold;
+    color: rgb(45, 45, 45);
+}
+
+.wid-overlay-msg-subtitle{
+    font-size: 13px;
+    padding: 0px 30px;
+    font-weight: bold;
+    color: gray;
+}
+
+.wid-name-container{
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    padding: 0px 50px;
+    font-weight: bold;
+    color: rgb(45, 45, 45);
+}
+
+.wid-name-container label{
+    padding-top: 5px;
+    text-align: center;
+    flex: 0 0 auto;
+}
+
+.wid-name-container input{
+    outline: none;
+    border-style: none none solid;
+    border-bottom-width: 1px;
+    border-bottom-color: gray;
+    flex: 1 1 0%;
+    margin-left: 10px;
+}
+
+.wid-name-container input:focus{
+    outline: none;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-bottom: 1px rgb(45, 45, 45) solid !important;
+}
+
+.wid-textarea{
+    border-radius: 5px;
+    height: 132px;
+    font-size: 13px;
+    color: black;
+    margin: 30px;
+    width: calc(100% - 120px);
+    resize: vertical;
+    padding: 10px;
+}
+
+.wid-textarea{
+	outline: none;
+}
+
+.wid-input-button{
+    border: 0;
+    padding: 9px 15px;
+    font-size: 18px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 130px;
+    margin: 0 auto;
+    text-align: center;
+    background: #1088ff;
+    border-radius: 5px;
+    font-family: 'Lane', 'laneN', sans-serif;
+    color: #fff;
+    margin-top: 20px;
+    font-size: 15px;
+    border: none;
+    font-weight: bold;
+    letter-spacing: 0px;
+}

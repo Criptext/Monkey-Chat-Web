@@ -1,10 +1,15 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
+import moment from 'moment'
 import { MonkeyUI, isConversationGroup } from 'react-monkey-ui'
 import Monkey from 'monkey-sdk'
 import { applyMiddleware, createStore, compose } from 'redux'
 import { reducer, actions } from 'redux-monkey-chat'
 import * as vars from './utils/monkey-const.js'
+import Reconnect from './components/Reconnect.js'
+import QuestionForm from './components/QuestionForm.js'
+
+import styles from './styles/widget.css'
 
 const middlewares = [];
 if (process.env.NODE_ENV === 'development') {
@@ -40,7 +45,7 @@ class MonkeyChat extends React.Component {
 			viewLoading: false,
 			panelParams: {},
 			connectionStatus: 0,
-			askReconnect: false
+			overlayView: null
 		}
 
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -132,7 +137,7 @@ class MonkeyChat extends React.Component {
 				panelParams = {this.state.panelParams}
 				onLoadMoreConversations = {this.handleLoadConversations}
 				onNotifyTyping = {this.handleNotifyTyping}
-				askReconnect = {this.state.askReconnect}/>
+				overlayView = {this.state.overlayView}/>
 		)
 	}
 
@@ -169,7 +174,7 @@ class MonkeyChat extends React.Component {
 		            console.log(err);
 		            return;
 		        }else{
-			        this.setState({ askReconnect: false });
+			        this.setState({ overlayView: null });
 			        console.log("Response status update");
 			        console.log(response);
 		        }
@@ -427,6 +432,16 @@ monkey.on('Connect', function(event) {
 	}else{
 		monkey.getPendingMessages();
 	}
+
+	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail){
+		let beginTime = moment(WIDGET_CUSTOMS.period.split("-")[0], "HH:mm");
+		let endTime = moment(WIDGET_CUSTOMS.period.split("-")[1], "HH:mm");
+		let now = moment();
+		if( endTime.isBefore(now) || beginTime.isAfter(now) ){
+			let questionForm = <QuestionForm name={user.name} mail={WIDGET_CUSTOMS.mail}/>
+			monkeyChatInstance.setState({ overlayView: questionForm });
+		}
+	}
 });
 
 // -------------- ON DISCONNECT --------------- //
@@ -644,6 +659,7 @@ monkey.on('ConversationStatusChange', function(data){
 			}
 			conversation.lastSeen = Object.assign({}, conversation.lastSeen, data.lastSeen);
 		}
+
 	}else{
 		// define lastOpenMe
 		if(data.lastOpenMe){
@@ -748,7 +764,8 @@ monkey.on('GroupInfoUpdate', function(data){
 		store.dispatch(actions.updateConversationStatus(conversation));
 		store.dispatch(actions.updateMessagesStatus(52, CONVERSATION_ID, false));
 	}else if(data.info.status == '2'){
-		monkeyChatInstance.setState({ askReconnect: true });
+		let reconnect = <Reconnect onReconnect={monkeyChatInstance.handleReconnect}/>
+		monkeyChatInstance.setState({ overlayView: reconnect });
 		let conversation = store.getState().conversations[CONVERSATION_ID];
 		conversation['description'] = 'Conversation ended, write to start again.';
 		store.dispatch(actions.updateConversationStatus(conversation));
@@ -863,7 +880,8 @@ function loadConversations(user) {
 			        conversations[conversationTmp.id] = conversationTmp;
 			        
 			        if(conversation.info.status == '2'){
-				        monkeyChatInstance.setState({ askReconnect: true });
+				        let reconnect = <Reconnect onReconnect={monkeyChatInstance.handleReconnect}/>
+						monkeyChatInstance.setState({ overlayView: reconnect });
 			        }
 			        
 		        })
