@@ -8,7 +8,9 @@ class QuestionForm extends Component {
 		this.state = {
 			status: '',
 			loading : false,
-			message : ""
+			message : "",
+			errorMail : false,
+			errorText : false,
 		};
 
 		this.handleSubmitQuestion = this.handleSubmitQuestion.bind(this);
@@ -23,9 +25,10 @@ class QuestionForm extends Component {
 			<p className="wid-overlay-msg-subtitle">
 				Live support is available:<br/>
 				{this.props.beginDay} - {this.props.endDay}<br/>
-				{this.props.period}
+				{this.props.period} (EST)
 			</p>
 		</div>;
+		let textClass = 'wid-textarea' + (this.state.errorText ? " wid-input-error" : "");
 
 		switch(this.state.status){
 			case "success":
@@ -36,7 +39,7 @@ class QuestionForm extends Component {
 						<div className="wid-check-container">
 							<img src="https://cdn.criptext.com/messenger/enterprise_check.png" className="wid-overlay-check" />
 							<p className="wid-overlay-msg-subtitle">
-								Thank you! we received your message and will answer you asap!
+								Thank you! we received your message and will answer you ASAP!
 							</p>
 						</div>
 					</div>
@@ -69,11 +72,11 @@ class QuestionForm extends Component {
 							<label>
 								Email
 							</label> 
-							<input ref="mail_address" defaultValue={this.state.email}/>
+							<input ref="mail_address" onClick={ () => {this.setState({errorMail : false}) } } className={this.state.errorMail ? "wid-input-error" : null} defaultValue={this.state.email}/>
 						</div>
 						<div className="wid-textarea-container">
 							<Textarea ref='textareaInput'
-								className='wid-textarea'
+								className={textClass} 
 								placeholder='Message' 
 								value = {this.state.message}
 								onChange={this.handleOnChangeTextArea}/>
@@ -94,8 +97,22 @@ class QuestionForm extends Component {
 		event.preventDefault();
 		let email = this.refs.mail_address.value.trim();
 		let text = this.state.message.trim();
+		let invalidData = false;
 
-		if(!email || !text){
+		if(!text){
+			this.setState({
+				errorText : true,
+			})
+			invalidData = true;
+		}
+		if(!email || !email.match(/^[\w\-\+_]+(?:\.[\w\-\+_]+)*\@[\w\-\+_]+\.[\w\-\+_]+(?:\.[\w‌​\-\+_]+)*\s*$/)){
+			this.setState({
+				errorMail : true,
+			})
+			invalidData = true;
+		}
+
+		if(invalidData){
 			return;
 		}
 
@@ -109,6 +126,15 @@ class QuestionForm extends Component {
 			if(err && err.status != 200){
 	            this.setState({status : "error", loading : false})
 	        }else{
+	        	let message = {
+	        		bubbleType : "text",
+					preview : text,
+					recipientId	: this.props.rid,
+					senderId : this.props.sid,
+					status : 0,
+					text : text
+				}
+				this.props.sendMessage(message);
 		        this.setState({status : "success", loading : false})
 	        }
 	    });
@@ -116,7 +142,7 @@ class QuestionForm extends Component {
 	}
 
 	handleOnChangeTextArea(event){
-		this.setState({message: event.target.value});
+		this.setState({message: event.target.value, errorText : false});
 	}
 }
 

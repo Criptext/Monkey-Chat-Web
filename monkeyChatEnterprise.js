@@ -27,6 +27,7 @@ const CONNECTED = 3;
 const SYNCING = 4;
 const CONVERSATIONS_LOAD = 20;
 const MESSAGES_LOAD = 20;
+const EST = -240;
 const colorUsers = ['#6f067b','#00a49e','#b3007c','#b4d800','#e20068','#00b2eb','#ec870e','#84b0b9','#3a6a74','#bda700','#826aa9','#af402a','#733610','#020dd8','#7e6565','#cd7967','#fd78a7','#009f62','#336633','#e99c7a','#000000'];
 
 var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, ENCRYPTED, CONVERSATION_ID;
@@ -56,6 +57,7 @@ class MonkeyChat extends React.Component {
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
+		this.handleMessageAfterMail = this.handleMessageAfterMail.bind(this);
 
 		if(document.getElementById('mky-title')){
 			initialTitle = document.getElementById('mky-title').innerHTML;
@@ -278,6 +280,12 @@ class MonkeyChat extends React.Component {
 		createMessage(message);
 	}
 
+	handleMessageAfterMail(message) {
+		message.recipientId = CONVERSATION_ID;
+		message.senderId = store.getState().users.userSession.id;
+		createMessage(message);
+	}
+
 	handleMessagesLoad(conversationId, firstMessageId) {
 		let conversation = {
 			id: conversationId,
@@ -434,18 +442,21 @@ monkey.on('Connect', function(event) {
 	}
 
 	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail && WIDGET_CUSTOMS.days){
-		moment.tz.setDefault("America/New_York");
 		let beginTime = moment(WIDGET_CUSTOMS.period.split("-")[0], "HH:mm");
 		let endTime = moment(WIDGET_CUSTOMS.period.split("-")[1], "HH:mm");
 
 		let beginDay = Number(WIDGET_CUSTOMS.days.split("-")[0]);
 		let endDay = Number(WIDGET_CUSTOMS.days.split("-")[1]);
 
-		moment.tz.guess();
 		let now = moment();
 		let nowDay = now.day();
+		let dif = EST - now.utcOffset();
+
+		beginTime.add(dif, 'minutes');
+		endTime.add(dif, 'minutes');
+
 		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
-			let questionForm = <QuestionForm beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format("H:mmA") + " - " + endTime.format("H:mmA")} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
+			let questionForm = <QuestionForm sendMessage={monkeyChatInstance.handleMessageAfterMail} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format("H:mmA") + " - " + endTime.format("H:mmA")} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
 			monkeyChatInstance.setState({ overlayView: questionForm });
 		}
 	}
