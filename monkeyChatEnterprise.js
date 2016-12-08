@@ -433,12 +433,19 @@ monkey.on('Connect', function(event) {
 		monkey.getPendingMessages();
 	}
 
-	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail){
+	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail && WIDGET_CUSTOMS.days){
+		moment.tz.setDefault("America/New_York");
 		let beginTime = moment(WIDGET_CUSTOMS.period.split("-")[0], "HH:mm");
 		let endTime = moment(WIDGET_CUSTOMS.period.split("-")[1], "HH:mm");
+
+		let beginDay = Number(WIDGET_CUSTOMS.days.split("-")[0]);
+		let endDay = Number(WIDGET_CUSTOMS.days.split("-")[1]);
+
+		moment.tz.guess();
 		let now = moment();
-		if( endTime.isBefore(now) || beginTime.isAfter(now) ){
-			let questionForm = <QuestionForm name={user.name} mail={WIDGET_CUSTOMS.mail}/>
+		let nowDay = now.day();
+		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
+			let questionForm = <QuestionForm beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format("H:mmA") + " - " + endTime.format("H:mmA")} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
 			monkeyChatInstance.setState({ overlayView: questionForm });
 		}
 	}
