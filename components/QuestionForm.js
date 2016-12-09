@@ -18,11 +18,13 @@ class QuestionForm extends Component {
 	}
 	
 	render() {
-		let rendering = <div className="wid-send-mail-header">
-			<p className="wid-overlay-msg-title">
+		let colors = this.props.color ? this.props.color.substring(4, this.props.color.length-1).replace(/ /g, '').split(',') : null;
+		let lightColor = colors ? makeLighterColor([parseInt(colors[0], 10), parseInt(colors[1], 10), parseInt(colors[2], 10)]) : "";
+		let rendering = <div className="wid-send-mail-header" style={{background: this.props.color || ""}}>
+			<p className="wid-overlay-msg-title" style={{color : this.props.fontColor || ""}}>
 				We{"'"}re currently offline!
 			</p>
-			<p className="wid-overlay-msg-subtitle">
+			<p className="wid-overlay-msg-subtitle" style={{color: lightColor}}>
 				Live support is available:<br/>
 				{this.props.beginDay} - {this.props.endDay}<br/>
 				{this.props.period} (EST)
@@ -188,4 +190,49 @@ function apiCriptextCall(params, type, endpoint, callback){
             console.log('Unknown weather type!');
             break;
     }
+}
+
+function makeLighterColor([red, green, blue]){
+	const uRed = red / 255
+	const uGreen = green / 255
+	const uBlue = blue / 255
+	const max = Math.max(uRed, uGreen, uBlue)
+	const min = Math.min(uRed, uGreen, uBlue)
+	let hue
+	let saturation
+	let lightness = (max + min) / 2
+	
+	if (max == min) {
+    	hue = 0
+    	saturation = 0
+	} else {
+    	const delta = max - min
+    	saturation = lightness > 0.5 ?
+    	delta / (2 - max - min) :
+    	delta / (max + min)
+    
+    	let tmpHue
+    	switch (max) {
+    		case uRed: tmpHue = (uGreen - uBlue) / delta + (uGreen < uBlue ? 6 : 0); break;
+    		case uGreen: tmpHue = (uBlue - uRed) / delta + 2; break;
+    		case uBlue: tmpHue = (uRed - uGreen) / delta + 4; break;
+    	}
+    	hue = (tmpHue / 6) * 360;
+		saturation = saturation * 100;
+		
+		let lightBackground = !!Math.round(
+            (
+                red + // red
+                green + // green
+                blue // blue
+            ) / 765 // 255 * 3, so that we avg, then normalise to 1
+        );
+        if (lightBackground) {
+            lightness = lightness - 0.3;
+        } else {
+	        lightness = lightness + 0.3;
+        }
+		lightness = lightness * 100;
+	}
+	return 'hsl('+hue+','+saturation+'%,'+lightness+'%)';
 }
