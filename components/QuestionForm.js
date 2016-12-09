@@ -71,10 +71,7 @@ class QuestionForm extends Component {
 							Leave us a Message!
 						</p>
 						<div className="wid-name-container">
-							<label>
-								Email
-							</label> 
-							<input ref="mail_address" onClick={ () => {this.setState({errorMail : false}) } } className={this.state.errorMail ? "wid-input-error" : null} defaultValue={this.state.email}/>
+							<input ref="mail_address" placeholder='Email' onClick={ () => {this.setState({errorMail : false}) } } className={this.state.errorMail ? "wid-input-error" : null} defaultValue={this.state.email}/>
 						</div>
 						<div className="wid-textarea-container">
 							<Textarea ref='textareaInput'
