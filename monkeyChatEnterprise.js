@@ -456,7 +456,7 @@ monkey.on('Connect', function(event) {
 		endTime.add(dif, 'minutes');
 
 		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
-			let questionForm = <QuestionForm sendMessage={monkeyChatInstance.handleMessageAfterMail} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format("H:mmA") + " - " + endTime.format("H:mmA")} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
+			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} sendMessage={monkeyChatInstance.handleMessageAfterMail} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format("H:mmA") + " - " + endTime.format("H:mmA")} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
 			monkeyChatInstance.setState({ overlayView: questionForm });
 		}
 	}
