@@ -46,7 +46,8 @@ class MonkeyChat extends React.Component {
 			viewLoading: false,
 			panelParams: {},
 			connectionStatus: 0,
-			overlayView: null
+			overlayView: null,
+			customeLoader: this.customInitLoader
 		}
 
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -58,6 +59,7 @@ class MonkeyChat extends React.Component {
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
 		this.handleMessageAfterMail = this.handleMessageAfterMail.bind(this);
+		this.customInitLoader = this.customInitLoader.bind(this);
 
 		if(document.getElementById('mky-title')){
 			initialTitle = document.getElementById('mky-title').innerHTML;
@@ -77,7 +79,10 @@ class MonkeyChat extends React.Component {
 
 	componentWillMount() {
 		if(monkey.getUser() != null){
-			this.setState({viewLoading: true});
+			this.setState({
+				customLoader: this.customLoader,
+				viewLoading: true
+			});
 		}
 	}
 
@@ -139,7 +144,8 @@ class MonkeyChat extends React.Component {
 				panelParams = {this.state.panelParams}
 				onLoadMoreConversations = {this.handleLoadConversations}
 				onNotifyTyping = {this.handleNotifyTyping}
-				overlayView = {this.state.overlayView}/>
+				overlayView = {this.state.overlayView}
+				customLoader = {this.state.customLoader}/>
 		)
 	}
 
@@ -187,11 +193,17 @@ class MonkeyChat extends React.Component {
 	/* User */
 
 	handleUserSession(user) {
-		this.setState({viewLoading: true});
+		this.setState({
+			customLoader: this.customInitLoader,
+			viewLoading: true
+		});
 
 		// monkey create monkeyId dynamically, when user doesn't have monkeyId.
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
-			this.setState({viewLoading: false});
+			this.setState({
+				customLoader: this.customLoader,
+				viewLoading: false
+			});
 			if(error){
 				monkey.logout();
 				window.errorMsg = 'Sorry, Unable to load your data. Please wait a few minutes before trying again.'
@@ -207,7 +219,7 @@ class MonkeyChat extends React.Component {
 		monkey.sendOpenToUser(conversation.id);
 
 		if(isConversationGroup(conversation.id)){
-			let members = listMembers(store.getState().conversations[conversationSelectedId].members);
+			let members = listMembers(store.getState().conversations[conversation.id].members);
 			conversation['description'] = members;
 			store.dispatch(actions.updateConversationStatus(conversation));
 		}
@@ -362,6 +374,23 @@ class MonkeyChat extends React.Component {
 	handleNotifyTyping(conversationId, isTyping){
 		monkey.sendTemporalNotification(conversationId, {type : isTyping ? 21 : 20}, null);
 	}
+	
+	/* Loading */
+	
+	customLoader(){
+		return ( <div className='cstm-loading'>
+					<img src='https://cdn.criptext.com/Email/images/processing_email.gif'></img>
+				</div>
+		)
+	}
+	
+	customInitLoader(){
+		return ( <div className='cstm-loading'>
+					<img src='https://cdn.criptext.com/MonkeyUI/images/loading-logo-blue.gif'></img>
+					<img src='https://cdn.criptext.com/MonkeyUI/images/loading-description-blue.gif'></img>
+				</div>
+		)
+	}
 }
 
 function render() {
@@ -472,7 +501,6 @@ monkey.on('Exit', function(event) {
 	monkey.logout();
 	store.dispatch(actions.deleteUserSession());
 	store.dispatch(actions.deleteConversations());
-	conversationSelectedId = 0;
 });
 
 // --------------- ON MESSAGE ----------------- //
