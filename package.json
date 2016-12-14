@@ -10,7 +10,7 @@
   ],
   "main": "./dist/monkeyChat.js",
   "scripts": {
-    "build": "webpack -p --config ./webpack.production.config.js --progress --colors",
+    "build": "webpack --config ./webpack.production.config.js --progress --colors",
     "test": "webpack --progress --colors --watch"
   },
   "author": "Criptext Inc.",

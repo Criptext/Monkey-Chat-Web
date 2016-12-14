@@ -2,13 +2,11 @@ var webpack = require('webpack');
 var path = require('path');
 
 var config = {
-	entry: {
-		monkeyChat: './monkeychat.js',
-		monkeyChatEnterprise: './monkeyChatEnterprise.js'
-	},
+	devtool: 'cheap-module-source-map',
+	entry: './index.js',
 	output: {
-    	path: path.join(__dirname, 'dist'),
-		filename: '[name].js'
+    	path: path.join(__dirname, 'bundle'),
+		filename: 'index.js'
 	},
 	module : {
     	loaders : [{
@@ -33,21 +31,16 @@ var config = {
 	    }, {
 	        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
 	        loader: "file?name=[name].[ext]&limit=10000&mimetype=image/svg+xml"
-	    }],
-      	plugins: [
-		    new webpack.ProvidePlugin({
-		        $: "jquery"
-		    })
-		]
-  	},
-  	plugins: [
+	    }]
+	},
+	plugins: [
 	    new webpack.DefinePlugin({
 			'process.env': {
 				'NODE_ENV': JSON.stringify('production')
 			}
 		}),
 		new webpack.optimize.UglifyJsPlugin({
-			sourceMap: false,
+			minimize: true,
 			compress: { warnings: false }
 	    })
 	]

@@ -150,16 +150,15 @@ class MonkeyChat extends React.Component {
 	}
 
 	/* Window */
+	
 	handleReconnect() {
-		console.log('reconnect');
 		
 		var info = store.getState().conversations[CONVERSATION_ID].info;
-		console.log("Creating message - status:"+info.status);
 	
 		//If conversetion info status is served, we updated to pending
-		if(info.status == "2"){
+		if(info.status == '2'){
 	
-			info.status = "0";
+			info.status = '0';
 			let conversationTmp = {
 				id: CONVERSATION_ID,
 				info: info
@@ -174,7 +173,7 @@ class MonkeyChat extends React.Component {
 			store.dispatch(actions.updateConversationStatus(conversation));
 	
 			//Update status in server
-			let params = { monkeyId: monkey.getUser().monkeyId,
+			let params = { monkeyId: store.getState().users.userSession.id,
 					   groupId: CONVERSATION_ID,
 					   status: 0};
 			apiCriptextCall(params,'POST','/enterprise/client/status/update',(err, response) => {
@@ -183,8 +182,6 @@ class MonkeyChat extends React.Component {
 		            return;
 		        }else{
 			        this.setState({ overlayView: null });
-			        console.log("Response status update");
-			        console.log(response);
 		        }
 		    });
 		}
@@ -233,7 +230,6 @@ class MonkeyChat extends React.Component {
 		let conversations = store.getState().conversations;
 		let conversation = store.getState().conversations[this.state.conversationId];
 
-
 		objectInfo.name = conversation.name;
 		objectInfo.avatar = conversation.urlAvatar;
 
@@ -258,9 +254,9 @@ class MonkeyChat extends React.Component {
 				}
 
 				if (monkey.status == monkey.enums.Status.ONLINE) {
-					user.description = "Online";
+					user.description = 'Online';
 				}else{
-					user.description = "Offline";
+					user.description = 'Offline';
 				}
 
 				objectInfo.users.push(user);
@@ -346,16 +342,16 @@ class MonkeyChat extends React.Component {
 	handleMessageGetUser(userId){
 		let user = store.getState().users[userId];
 		if(!user){
-			user = {name : " "};
+			user = {name : ' '};
 		}
 		let conversation = store.getState().conversations[this.state.conversationId];
 		if(conversation && isConversationGroup(conversation.id)){
-		 	var index = conversation.members.indexOf(userId);
-		 	if(index >= 0){
-	 			user.color = colorUsers[index%(colorUsers.length)];
-		 	}else{
-		 		user.color = '#8c8c8c'
-		 	}
+			var index = conversation.members.indexOf(userId);
+			if(index >= 0){
+				user.color = colorUsers[index%(colorUsers.length)];
+			}else{
+				user.color = '#8c8c8c'
+			}
         }
 
 		return user;
@@ -417,7 +413,17 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUs
 	}
 
 	if(initalUser != null){
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, [], false, MONKEY_DEBUG_MODE, false, false);
+		monkey.logout();
+		store.dispatch(actions.deleteUserSession());
+		store.dispatch(actions.deleteConversations());
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
+			if(error){
+				monkey.logout();
+				window.errorMsg = 'Sorry, Unable to load your data. Please wait a few minutes before trying again.'
+			}else{
+				store.dispatch(actions.addUserSession(initalUser));
+			}
+		});
 	}else if(monkey.getUser() != null){
 		firstTimeLogIn = false;
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
@@ -435,6 +441,7 @@ window.onfocus = function(){
 
 	monkey.openConversation(CONVERSATION_ID);
 };
+
 window.onblur = function(){
 	mky_focused = false;
 	pendingMessages = 0;
@@ -455,7 +462,7 @@ window.onblur = function(){
 
 // --------------- ON CONNECT ----------------- //
 monkey.on('Connect', function(event) {
-	let user = event;
+	let user = Object.assign({}, event);
 	if(!store.getState().users.userSession || !store.getState().users.userSession.id){
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
@@ -471,11 +478,11 @@ monkey.on('Connect', function(event) {
 	}
 
 	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail && WIDGET_CUSTOMS.days){
-		let beginTime = moment(WIDGET_CUSTOMS.period.split("-")[0], "HH:mm");
-		let endTime = moment(WIDGET_CUSTOMS.period.split("-")[1], "HH:mm");
+		let beginTime = moment(WIDGET_CUSTOMS.period.split('-')[0], 'HH:mm');
+		let endTime = moment(WIDGET_CUSTOMS.period.split('-')[1], 'HH:mm');
 
-		let beginDay = Number(WIDGET_CUSTOMS.days.split("-")[0]);
-		let endDay = Number(WIDGET_CUSTOMS.days.split("-")[1]);
+		let beginDay = Number(WIDGET_CUSTOMS.days.split('-')[0]);
+		let endDay = Number(WIDGET_CUSTOMS.days.split('-')[1]);
 
 		let now = moment();
 		let nowDay = now.day();
@@ -485,7 +492,7 @@ monkey.on('Connect', function(event) {
 		endTime.add(dif, 'minutes');
 
 		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
-			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} sendMessage={monkeyChatInstance.handleMessageAfterMail} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format("H:mmA") + " - " + endTime.format("H:mmA")} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
+			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} sendMessage={monkeyChatInstance.handleMessageAfterMail} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
 			monkeyChatInstance.setState({ overlayView: questionForm });
 		}
 	}
@@ -530,9 +537,21 @@ monkey.on('MessageUnsend', function(mokMessage){
 
 // -------------- ON STATUS CHANGE --------------- //
 monkey.on('StatusChange', function(data){
-
+	
+	if(!monkeyChatInstance)
+		return;
+		
 	var params = {};
 	var panelParams = {};
+	
+	if (monkeyChatInstance.state.overlayView != null){
+		monkeyChatInstance.setState({
+			panelParams: panelParams,
+			connectionStatus: data
+		})
+		return;
+	}
+	
 
 	switch(data){
 		case OFFLINE:
@@ -571,80 +590,127 @@ monkey.on('StatusChange', function(data){
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('Notification', function(data){
 	console.log('App - Notification');
-
-	if(!data.params || !data.params.type){
+		
+	if(!data.params || !data.params.type)
 		return;
-	}
+	
 	let paramsType = Number(data.params.type);
-
-	if(isConversationGroup(data.recipientId)){
-		if(!store.getState().conversations[data.recipientId]){
-	    	return;
-		}
-		let targetConversation = store.getState().conversations[data.recipientId];
-		let users = store.getState().users;
-		let membersTyping = targetConversation.membersTyping;
-		let userId = data.senderId;
-		switch(paramsType) {
-			case 20: {
-				if(userId == targetConversation.info.currentOperator){
-					let conversation = {
-						id: data.recipientId,
-						description: "Online",
-						membersTyping: [],
-						preview: null
-					}
-					store.dispatch(actions.updateConversationStatus(conversation));
+	let conversationId = isConversationGroup(data.recipientId) ? data.recipientId : data.senderId;
+	let conversation = store.getState().conversations[conversationId];
+	if(!conversation)
+    	return;
+	
+	
+	let conversationTmp;
+	switch(paramsType) {
+		case 20: {
+			if(isConversationGroup(conversationId)) {
+				let membersTyping = conversation.membersTyping;
+				
+				if(membersTyping == null){
+					return;
 				}
-
-				break;
-			}
-			case 21: {
-				if(userId == targetConversation.info.currentOperator){
-					let conversation = {
-						id: data.recipientId,
-						description: 'Typing...',
-						membersTyping: [userId],
-						preview: 'Typing...'
-					}
-					store.dispatch(actions.updateConversationStatus(conversation));
+				
+				if(membersTyping.indexOf(data.senderId) == -1){
+					return;
 				}
-				break;
-			}
-			default:
-	            break;
-		}
-
-	}else{
-		let conversationId = data.senderId;
-		if(!store.getState().conversations[conversationId]){
-	    	return;
-		}
-		switch(paramsType) {
-			case 20: {
-
-					let conversation = {
-						id: conversationId,
-						description: null,
-						membersTyping: [],
-						preview: null
+				
+				let users = store.getState().users;
+				membersTyping.splice(membersTyping.indexOf(data.senderId), 1);
+				var descText = '';
+				membersTyping.forEach( (monkey_id) => {
+					descText += users[monkey_id].name.split(' ')[0] + ', '
+				})
+				if(descText != ''){
+					descText = descText.replace(/,\s*$/, '');
+					if(membersTyping.length > 1){
+						descText += ' están escribiendo...'
+					}else{
+						descText += ' está escribiendo...'
 					}
-					store.dispatch(actions.updateConversationStatus(conversation));
-				break;
+					
+				}else{
+					var members = listMembers(conversation.members);
+					descText = members;
+				}
+				conversationTmp = {
+					id: data.recipientId,
+					description: descText,
+					membersTyping: membersTyping,
+					preview: membersTyping.length > 0 ? users[membersTyping[membersTyping - 1]].name.split(' ')[0] + ' está escribiendo...' : null
+				}
+				
+			}else{
+				conversationTmp = {
+					id: conversationId,
+					description: null,
+					membersTyping: [],
+					preview: null
+				}
 			}
-			case 21: {
-					let conversation = {
-						id: conversationId,
-						description: 'typing...',
-						membersTyping: [conversationId],
-						preview: 'typing...'
-					}
-					store.dispatch(actions.updateConversationStatus(conversation));
-				break;
-			}
-			default:
-	            break;
+			
+			store.dispatch(actions.updateConversationStatus(conversationTmp));	
+			break;
 		}
+		case 21: {
+			
+			if(isConversationGroup(conversationId)) {
+				let membersTyping = conversation.membersTyping;
+				let users = store.getState().users;
+				
+				if(membersTyping == null){
+					membersTyping = [];
+					membersTyping.push(data.senderId);
+					conversationTmp = {
+						id: data.recipientId,
+						description: users[data.senderId].name.split(' ')[0] + ' está escribiendo...',
+						membersTyping: membersTyping,
+						preview: users[data.senderId].name.split(' ')[0] + ' está escribiendo...'
+					}
+					return store.dispatch(actions.updateConversationStatus(conversationTmp));
+				}
+				
+				if(membersTyping.indexOf(data.senderId) > -1){
+					return;
+				}
+				
+				membersTyping.push(data.senderId);
+				var descText = '';
+				membersTyping.forEach( (monkey_id) => {
+					descText += users[monkey_id].name.split(' ')[0] + ', '
+				})
+				if(descText != ''){
+					descText = descText.replace(/,\s*$/, '');
+					if(membersTyping.length > 1){
+						descText += ' están escribiendo...'
+					}else{
+						descText += ' está escribiendo...'
+					}
+				}else{
+					var members = listMembers(conversation.members);
+					descText = members;
+				}
+				conversationTmp = {
+					id: data.recipientId,
+					description: descText,
+					membersTyping: membersTyping,
+					preview: users[data.senderId].name.split(' ')[0] + ' está escribiendo...'
+				}
+					
+			}else{
+				conversationTmp = {
+					id: conversationId,
+					description: 'escribiendo...',
+					membersTyping: [conversationId],
+					preview: 'escribiendo...'
+				}
+			}
+			
+			store.dispatch(actions.updateConversationStatus(conversationTmp));
+			break;
+		}
+		default:
+            break;
 	}
 });
 
@@ -1001,7 +1067,7 @@ function defineConversation(conversationId, mokMessage, name, info, members_info
 		if(store.getState().users.userSession.id != mokMessage.senderId){
 			unreadMessageCounter++;
 		}
-		if(message.readBy && message.readBy.replace(info.client, "")){
+		if(message.readBy && message.readBy.replace(info.client, '')){
 			message.status = 52;
 		}
 	}
@@ -1136,7 +1202,7 @@ function defineMessage(mokMessage, syncing) {
 	let message = defineBubbleMessage(mokMessage);
 
 	if(message){
-		if(mokMessage.readBy && mokMessage.readBy.replace(conversation.info.client, "")){
+		if(mokMessage.readBy && mokMessage.readBy.replace(conversation.info.client, '')){
 			message.status = 52;
 		}
 

@@ -2,6 +2,9 @@ node_modules
 dist
 utils/monkey-const.js
 tabChat_dev.html
+examples/react/group-typing/node_modules
+examples/react/group-typing/bundle
+examples/react/group-typing/utils/monkey-const.js
 examples/react/messenger/node_modules
 examples/react/messenger/bundle
 examples/react/messenger/utils/monkey-const.js
