@@ -27,7 +27,7 @@ class QuestionForm extends Component {
 			<p className="wid-overlay-msg-subtitle" style={{color: lightColor}}>
 				Live support is available:<br/>
 				{this.props.beginDay} - {this.props.endDay}<br/>
-				{this.props.period} (EST)
+				{this.props.period}
 			</p>
 		</div>;
 		let textClass = 'wid-textarea' + (this.state.errorText ? " wid-input-error" : "");

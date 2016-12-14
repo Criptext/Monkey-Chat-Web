@@ -450,7 +450,7 @@ monkey.on('Connect', function(event) {
 
 		let now = moment();
 		let nowDay = now.day();
-		let dif = EST - now.utcOffset();
+		let dif = now.utcOffset() - EST;
 
 		beginTime.add(dif, 'minutes');
 		endTime.add(dif, 'minutes');
