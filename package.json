@@ -46,6 +46,6 @@
     "react-google-maps": "4.10.1",
     "react-monkey-ui": "2.2.0-beta.41",
     "redux": "3.5.2",
-    "redux-monkey-chat": "1.0.6-beta.2"
+    "redux-monkey-chat": "1.0.6"
   }
 }
