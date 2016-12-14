@@ -156,9 +156,9 @@ class MonkeyChat extends React.Component {
 		var info = store.getState().conversations[CONVERSATION_ID].info;
 	
 		//If conversetion info status is served, we updated to pending
-		if(info.status == "2"){
+		if(info.status == '2'){
 	
-			info.status = "0";
+			info.status = '0';
 			let conversationTmp = {
 				id: CONVERSATION_ID,
 				info: info
@@ -254,9 +254,9 @@ class MonkeyChat extends React.Component {
 				}
 
 				if (monkey.status == monkey.enums.Status.ONLINE) {
-					user.description = "Online";
+					user.description = 'Online';
 				}else{
-					user.description = "Offline";
+					user.description = 'Offline';
 				}
 
 				objectInfo.users.push(user);
@@ -342,7 +342,7 @@ class MonkeyChat extends React.Component {
 	handleMessageGetUser(userId){
 		let user = store.getState().users[userId];
 		if(!user){
-			user = {name : " "};
+			user = {name : ' '};
 		}
 		let conversation = store.getState().conversations[this.state.conversationId];
 		if(conversation && isConversationGroup(conversation.id)){
@@ -478,11 +478,11 @@ monkey.on('Connect', function(event) {
 	}
 
 	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail && WIDGET_CUSTOMS.days){
-		let beginTime = moment(WIDGET_CUSTOMS.period.split("-")[0], "HH:mm");
-		let endTime = moment(WIDGET_CUSTOMS.period.split("-")[1], "HH:mm");
+		let beginTime = moment(WIDGET_CUSTOMS.period.split('-')[0], 'HH:mm');
+		let endTime = moment(WIDGET_CUSTOMS.period.split('-')[1], 'HH:mm');
 
-		let beginDay = Number(WIDGET_CUSTOMS.days.split("-")[0]);
-		let endDay = Number(WIDGET_CUSTOMS.days.split("-")[1]);
+		let beginDay = Number(WIDGET_CUSTOMS.days.split('-')[0]);
+		let endDay = Number(WIDGET_CUSTOMS.days.split('-')[1]);
 
 		let now = moment();
 		let nowDay = now.day();
@@ -492,7 +492,7 @@ monkey.on('Connect', function(event) {
 		endTime.add(dif, 'minutes');
 
 		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
-			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} sendMessage={monkeyChatInstance.handleMessageAfterMail} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format("H:mmA") + " - " + endTime.format("H:mmA")} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
+			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} sendMessage={monkeyChatInstance.handleMessageAfterMail} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
 			monkeyChatInstance.setState({ overlayView: questionForm });
 		}
 	}
@@ -537,6 +537,10 @@ monkey.on('MessageUnsend', function(mokMessage){
 
 // -------------- ON STATUS CHANGE --------------- //
 monkey.on('StatusChange', function(data){
+	
+	if(!monkeyChatInstance)
+		return;
+		
 	var params = {};
 	var panelParams = {};
 	
@@ -586,16 +590,16 @@ monkey.on('StatusChange', function(data){
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('Notification', function(data){
 	console.log('App - Notification');
-	
-	if(!data.params || !data.params.type){
+		
+	if(!data.params || !data.params.type)
 		return;
-	}
+	
 	let paramsType = Number(data.params.type);
 	let conversationId = isConversationGroup(data.recipientId) ? data.recipientId : data.senderId;
 	let conversation = store.getState().conversations[conversationId];
-	if(!conversation){
+	if(!conversation)
     	return;
-	}
+	
 	
 	let conversationTmp;
 	switch(paramsType) {
@@ -613,12 +617,12 @@ monkey.on('Notification', function(data){
 				
 				let users = store.getState().users;
 				membersTyping.splice(membersTyping.indexOf(data.senderId), 1);
-				var descText = "";
+				var descText = '';
 				membersTyping.forEach( (monkey_id) => {
-					descText += users[monkey_id].name.split(" ")[0] + ", "
+					descText += users[monkey_id].name.split(' ')[0] + ', '
 				})
-				if(descText != ""){
-					descText = descText.replace(/,\s*$/, "");
+				if(descText != ''){
+					descText = descText.replace(/,\s*$/, '');
 					if(membersTyping.length > 1){
 						descText += ' están escribiendo...'
 					}else{
@@ -633,7 +637,7 @@ monkey.on('Notification', function(data){
 					id: data.recipientId,
 					description: descText,
 					membersTyping: membersTyping,
-					preview: membersTyping.length > 0 ? users[membersTyping[membersTyping - 1]].name.split(" ")[0] + ' está escribiendo...' : null
+					preview: membersTyping.length > 0 ? users[membersTyping[membersTyping - 1]].name.split(' ')[0] + ' está escribiendo...' : null
 				}
 				
 			}else{
@@ -659,9 +663,9 @@ monkey.on('Notification', function(data){
 					membersTyping.push(data.senderId);
 					conversationTmp = {
 						id: data.recipientId,
-						description: users[data.senderId].name.split(" ")[0] + ' está escribiendo...',
+						description: users[data.senderId].name.split(' ')[0] + ' está escribiendo...',
 						membersTyping: membersTyping,
-						preview: users[data.senderId].name.split(" ")[0] + ' está escribiendo...'
+						preview: users[data.senderId].name.split(' ')[0] + ' está escribiendo...'
 					}
 					return store.dispatch(actions.updateConversationStatus(conversationTmp));
 				}
@@ -671,12 +675,12 @@ monkey.on('Notification', function(data){
 				}
 				
 				membersTyping.push(data.senderId);
-				var descText = "";
+				var descText = '';
 				membersTyping.forEach( (monkey_id) => {
-					descText += users[monkey_id].name.split(" ")[0] + ", "
+					descText += users[monkey_id].name.split(' ')[0] + ', '
 				})
-				if(descText != ""){
-					descText = descText.replace(/,\s*$/, "");
+				if(descText != ''){
+					descText = descText.replace(/,\s*$/, '');
 					if(membersTyping.length > 1){
 						descText += ' están escribiendo...'
 					}else{
@@ -690,7 +694,7 @@ monkey.on('Notification', function(data){
 					id: data.recipientId,
 					description: descText,
 					membersTyping: membersTyping,
-					preview: users[data.senderId].name.split(" ")[0] + ' está escribiendo...'
+					preview: users[data.senderId].name.split(' ')[0] + ' está escribiendo...'
 				}
 					
 			}else{
@@ -1063,7 +1067,7 @@ function defineConversation(conversationId, mokMessage, name, info, members_info
 		if(store.getState().users.userSession.id != mokMessage.senderId){
 			unreadMessageCounter++;
 		}
-		if(message.readBy && message.readBy.replace(info.client, "")){
+		if(message.readBy && message.readBy.replace(info.client, '')){
 			message.status = 52;
 		}
 	}
@@ -1198,7 +1202,7 @@ function defineMessage(mokMessage, syncing) {
 	let message = defineBubbleMessage(mokMessage);
 
 	if(message){
-		if(mokMessage.readBy && mokMessage.readBy.replace(conversation.info.client, "")){
+		if(mokMessage.readBy && mokMessage.readBy.replace(conversation.info.client, '')){
 			message.status = 52;
 		}
 
