@@ -8,9 +8,9 @@ examples/react/1.0.messenger/utils/monkey-const.js
 examples/react/1.1.simplechat/node_modules
 examples/react/1.1.simplechat/bundle
 examples/react/1.1.simplechat/utils/monkey-const.js
-examples/react/2.group-typing/node_modules
-examples/react/2.group-typing/bundle
-examples/react/2.group-typing/utils/monkey-const.js
+examples/react/2.typing/node_modules
+examples/react/2.typing/bundle
+examples/react/2.typing/utils/monkey-const.js
 examples/react/3.two-list-conversation/node_modules
 examples/react/3.two-list-conversation/bundle
 examples/react/3.two-list-conversation/utils/monkey-const.js

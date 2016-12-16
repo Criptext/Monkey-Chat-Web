@@ -13,7 +13,7 @@ In the source project you find the folder 'examples'.
 Enter to any examples:
 1.0.messenger
 1.1.simplechat
-2.group-typing
+2.typing
 3.two-list-conversation
 
 ### Set Up:
