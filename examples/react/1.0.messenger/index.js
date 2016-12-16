@@ -526,34 +526,38 @@ class MonkeyChat extends Component {
 
 		messageSelectedInfo['message'] = message;
 		messageSelectedInfo['close'] = function(){
-			this.setState({ messageSelectedInfo: null });
+			this.setState({
+				messageSelectedInfo : null,
+			})
 		}.bind(this);
 		this.setState({ messageSelectedInfo: messageSelectedInfo });
 		if(isConversationGroup(conversationSelectedId)){
-			monkey.getMessageReadBy(message.id, function(err, data){
-				conversation.members.forEach( (member) => {
-					if(!member){
-						return;
-					}
-					let user = users[member];
-					if(users.userSession.id == user.id){
-						return;
-					}
+			conversation.members.forEach( (member) => {
+				if(!member){
+					return;
+				}
+				let user = users[member];
+				if(users.userSession.id == user.id){
+					return;
+				}
 
-					if(typeof conversation.online == 'boolean'){
-						if(!conversation.online){
-							user.description = 'Offline';
-						}
-					}else{
-						user.description = (conversation.online.indexOf(user.id) > -1 || users.userSession.id == user.id) ? 'Online' : 'Offline'
+				if(typeof conversation.online == 'boolean'){
+					if(!conversation.online){
+						user.description = 'Offline';
 					}
-					
-					user.read = (data.members.indexOf(user.id) > -1) ? true : false;
-					messageUsers.push(user);
-					messageSelectedInfo['users'] = messageUsers;
-					this.setState({ messageSelectedInfo: messageSelectedInfo });
-				});
-			}.bind(this));
+				}else{
+					user.description = (conversation.online.indexOf(user.id) > -1 || users.userSession.id == user.id) ? 'Online' : 'Offline'
+				}
+
+				user.read = false;
+				if(conversation.lastSeen[member] && message.datetimeCreation <= conversation.lastSeen[member]){
+					user.read = true;
+				}
+
+				messageUsers.push(user);
+				messageSelectedInfo['users'] = messageUsers;
+				this.setState({ messageSelectedInfo: messageSelectedInfo });
+			});
 		}else{
 			let user = users[conversationSelectedId];
 			if(users.userSession.id == user.id){

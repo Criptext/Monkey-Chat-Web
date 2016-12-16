@@ -23,8 +23,7 @@ class MonkeyChat extends Component {
 			conversationId: undefined,
 			viewLoading: false,
 			conversationsLoading: true,
-			isLoadingConversations: false,
-			messageSelectedInfo: null
+			isLoadingConversations: false
 		}
 
 		this.view = {
@@ -39,15 +38,18 @@ class MonkeyChat extends Component {
 		this.handleMessage = this.handleMessage.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
-		this.handleNotifyTyping = this.handleNotifyTyping.bind(this);
 		this.handleLoadConversations = this.handleLoadConversations.bind(this);
 		
 		/* options */
 		this.handleSortConversations = this.handleSortConversations.bind(this);
-		this.handleSelectMessage = this.handleSelectMessage.bind(this);
+		this.handleMessageOptionsOutgoing = this.handleMessageOptionsOutgoing.bind(this);
 		this.options = {
 			conversation: {
 				onSort: this.handleSortConversations
+			},
+			message: {
+				optionsToIncoming: undefined,
+				optionsToOutgoing: this.handleMessageOptionsOutgoing
 			}
 		}
 	}
@@ -85,8 +87,6 @@ class MonkeyChat extends Component {
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
-				messageLoadInfo = {this.state.messageSelectedInfo}
-				onNotifyTyping = {this.handleNotifyTyping}
 				onLoadMoreConversations = {this.handleLoadConversations}
 				isLoadingConversations = {this.state.isLoadingConversations}/>
 		)
@@ -231,6 +231,22 @@ class MonkeyChat extends Component {
 		return store.getState().users[userId] ? store.getState().users[userId] : {};
 	}
 	
+	handleMessageOptionsOutgoing(message){
+		if(store.getState().users.userSession.id != message.senderId){
+			return ;
+		}
+
+		var options = [];
+		options.push({
+			action : 'Message Info', 
+			func : function(){
+				this.handleSelectMessage(message)
+			}.bind(this)
+		});
+
+		return options;
+	}
+	
 	handleSelectMessage(message){
 		var messageSelectedInfo = {};
 		let messageUsers = [];
@@ -239,34 +255,38 @@ class MonkeyChat extends Component {
 
 		messageSelectedInfo['message'] = message;
 		messageSelectedInfo['close'] = function(){
-			this.setState({ messageSelectedInfo: null });
+			this.setState({
+				messageSelectedInfo : null,
+			})
 		}.bind(this);
 		this.setState({ messageSelectedInfo: messageSelectedInfo });
 		if(isConversationGroup(conversationSelectedId)){
-			monkey.getMessageReadBy(message.id, function(err, data){
-				conversation.members.forEach( (member) => {
-					if(!member){
-						return;
-					}
-					let user = users[member];
-					if(users.userSession.id == user.id){
-						return;
-					}
+			conversation.members.forEach( (member) => {
+				if(!member){
+					return;
+				}
+				let user = users[member];
+				if(users.userSession.id == user.id){
+					return;
+				}
 
-					if(typeof conversation.online == 'boolean'){
-						if(!conversation.online){
-							user.description = 'Offline';
-						}
-					}else{
-						user.description = (conversation.online.indexOf(user.id) > -1 || users.userSession.id == user.id) ? 'Online' : 'Offline'
+				if(typeof conversation.online == 'boolean'){
+					if(!conversation.online){
+						user.description = 'Offline';
 					}
-					
-					user.read = (data.members.indexOf(user.id) > -1) ? true : false;
-					messageUsers.push(user);
-					messageSelectedInfo['users'] = messageUsers;
-					this.setState({ messageSelectedInfo: messageSelectedInfo });
-				});
-			}.bind(this));
+				}else{
+					user.description = (conversation.online.indexOf(user.id) > -1 || users.userSession.id == user.id) ? 'Online' : 'Offline'
+				}
+
+				user.read = false;
+				if(conversation.lastSeen[member] && message.datetimeCreation <= conversation.lastSeen[member]){
+					user.read = true;
+				}
+
+				messageUsers.push(user);
+				messageSelectedInfo['users'] = messageUsers;
+				this.setState({ messageSelectedInfo: messageSelectedInfo });
+			});
 		}else{
 			let user = users[conversationSelectedId];
 			if(users.userSession.id == user.id){
@@ -278,14 +298,6 @@ class MonkeyChat extends Component {
 			messageUsers.push(user);
 			messageSelectedInfo['users'] = messageUsers;
 			this.setState({ messageSelectedInfo: messageSelectedInfo });
-		}
-	}
-	
-	/* Notification */
-	
-	handleNotifyTyping(conversationId, isTyping){
-		if(!isConversationGroup(conversationId)){
-			monkey.sendTemporalNotification(conversationId, {type: isTyping ? 21 : 20}, null);
 		}
 	}
 }
@@ -366,133 +378,6 @@ monkey.on('Message', function(mokMessage){
 monkey.on('MessageSync', function(mokMessage){
 	console.log('App - MessageSync');
 	defineMessage(mokMessage, true);
-});
-
-// ------------- ON NOTIFICATION --------------- //
-monkey.on('Notification', function(data){
-	console.log('App - Notification');
-	
-	if(!data.params || !data.params.type){
-		return;
-	}
-	let paramsType = Number(data.params.type);
-	let conversationId = isConversationGroup(data.recipientId) ? data.recipientId : data.senderId;
-	let conversation = store.getState().conversations[conversationId];
-	if(!conversation){
-    	return;
-	}
-	
-	let conversationTmp;
-	switch(paramsType) {
-		case 20: {
-			if(isConversationGroup(conversationId)) {
-				let membersTyping = conversation.membersTyping;
-				
-				if(membersTyping == null){
-					return;
-				}
-				
-				if(membersTyping.indexOf(data.senderId) == -1){
-					return;
-				}
-				
-				let users = store.getState().users;
-				membersTyping.splice(membersTyping.indexOf(data.senderId), 1);
-				var descText = "";
-				membersTyping.forEach( (monkey_id) => {
-					descText += users[monkey_id].name.split(" ")[0] + ", "
-				})
-				if(descText != ""){
-					descText = descText.replace(/,\s*$/, "");
-					if(membersTyping.length > 1){
-						descText += ' están escribiendo...'
-					}else{
-						descText += ' está escribiendo...'
-					}
-					
-				}else{
-					var members = listMembers(conversation.members);
-					descText = members;
-				}
-				conversationTmp = {
-					id: data.recipientId,
-					description: descText,
-					membersTyping: membersTyping,
-					preview: membersTyping.length > 0 ? users[membersTyping[membersTyping - 1]].name.split(" ")[0] + ' está escribiendo...' : null
-				}
-				
-			}else{
-				conversationTmp = {
-					id: conversationId,
-					description: null,
-					membersTyping: [],
-					preview: null
-				}
-			}
-			
-			store.dispatch(actions.updateConversationStatus(conversationTmp));	
-			break;
-		}
-		case 21: {
-			
-			if(isConversationGroup(conversationId)) {
-				let membersTyping = conversation.membersTyping;
-				let users = store.getState().users;
-				
-				if(membersTyping == null){
-					membersTyping = [];
-					membersTyping.push(data.senderId);
-					conversationTmp = {
-						id: data.recipientId,
-						description: users[data.senderId].name.split(" ")[0] + ' está escribiendo...',
-						membersTyping: membersTyping,
-						preview: users[data.senderId].name.split(" ")[0] + ' está escribiendo...'
-					}
-					return store.dispatch(actions.updateConversationStatus(conversationTmp));
-				}
-				
-				if(membersTyping.indexOf(data.senderId) > -1){
-					return;
-				}
-				
-				membersTyping.push(data.senderId);
-				var descText = "";
-				membersTyping.forEach( (monkey_id) => {
-					descText += users[monkey_id].name.split(" ")[0] + ", "
-				})
-				if(descText != ""){
-					descText = descText.replace(/,\s*$/, "");
-					if(membersTyping.length > 1){
-						descText += ' están escribiendo...'
-					}else{
-						descText += ' está escribiendo...'
-					}
-				}else{
-					var members = listMembers(conversation.members);
-					descText = members;
-				}
-				conversationTmp = {
-					id: data.recipientId,
-					description: descText,
-					membersTyping: membersTyping,
-					preview: users[data.senderId].name.split(" ")[0] + ' está escribiendo...'
-				}
-					
-			}else{
-				conversationTmp = {
-					id: conversationId,
-					description: 'typing...',
-					membersTyping: [conversationId],
-					preview: 'typing...'
-				}
-			}
-			
-			store.dispatch(actions.updateConversationStatus(conversationTmp));
-			break;
-		}
-		default:
-            break;
-	}
 });
 
 // -------------- ON ACKNOWLEDGE --------------- //
