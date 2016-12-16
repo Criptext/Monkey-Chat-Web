@@ -8,13 +8,14 @@ git clone https://github.com/Criptext/MonkeyChat-Web.git
 ```
 
 ## React examples
-In the source project you find the folder 'examples'.
+In the source project you find the folder 'examples/react'.
 
 Enter to any examples:
 1.0.messenger
 1.1.simplechat
 2.typing
 3.two-list-conversation
+4.message-info
 
 ### Set Up:
 To each examples you need step up some variables, entry the folder 'utils' of the example that you selected.
