@@ -23,8 +23,7 @@ class MonkeyChat extends Component {
 			conversationId: undefined,
 			viewLoading: false,
 			conversationsLoading: true,
-			isLoadingConversations: false,
-			messageSelectedInfo: null
+			isLoadingConversations: false
 		}
 
 		this.view = {
@@ -44,7 +43,6 @@ class MonkeyChat extends Component {
 		
 		/* options */
 		this.handleSortConversations = this.handleSortConversations.bind(this);
-		this.handleSelectMessage = this.handleSelectMessage.bind(this);
 		this.options = {
 			conversation: {
 				onSort: this.handleSortConversations
@@ -85,7 +83,6 @@ class MonkeyChat extends Component {
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
-				messageLoadInfo = {this.state.messageSelectedInfo}
 				onNotifyTyping = {this.handleNotifyTyping}
 				onLoadMoreConversations = {this.handleLoadConversations}
 				isLoadingConversations = {this.state.isLoadingConversations}/>
@@ -229,56 +226,6 @@ class MonkeyChat extends Component {
 
 	handleMessageGetUser(userId){
 		return store.getState().users[userId] ? store.getState().users[userId] : {};
-	}
-	
-	handleSelectMessage(message){
-		var messageSelectedInfo = {};
-		let messageUsers = [];
-		let users = store.getState().users;
-		let conversation = store.getState().conversations[conversationSelectedId];
-
-		messageSelectedInfo['message'] = message;
-		messageSelectedInfo['close'] = function(){
-			this.setState({ messageSelectedInfo: null });
-		}.bind(this);
-		this.setState({ messageSelectedInfo: messageSelectedInfo });
-		if(isConversationGroup(conversationSelectedId)){
-			monkey.getMessageReadBy(message.id, function(err, data){
-				conversation.members.forEach( (member) => {
-					if(!member){
-						return;
-					}
-					let user = users[member];
-					if(users.userSession.id == user.id){
-						return;
-					}
-
-					if(typeof conversation.online == 'boolean'){
-						if(!conversation.online){
-							user.description = 'Offline';
-						}
-					}else{
-						user.description = (conversation.online.indexOf(user.id) > -1 || users.userSession.id == user.id) ? 'Online' : 'Offline'
-					}
-					
-					user.read = (data.members.indexOf(user.id) > -1) ? true : false;
-					messageUsers.push(user);
-					messageSelectedInfo['users'] = messageUsers;
-					this.setState({ messageSelectedInfo: messageSelectedInfo });
-				});
-			}.bind(this));
-		}else{
-			let user = users[conversationSelectedId];
-			if(users.userSession.id == user.id){
-				return;
-			}
-
-			user.description = conversation.description ? conversation.description : 'Offline'
-			user.read = message.status == 52 ? true : false;
-			messageUsers.push(user);
-			messageSelectedInfo['users'] = messageUsers;
-			this.setState({ messageSelectedInfo: messageSelectedInfo });
-		}
 	}
 	
 	/* Notification */

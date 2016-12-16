@@ -52,7 +52,6 @@ class MonkeyChat extends React.Component {
 
 		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
-		this.handleConversationLoadInfo = this.handleConversationLoadInfo.bind(this);
 		this.handleMessage = this.handleMessage.bind(this);
 		this.handleNotifyTyping = this.handleNotifyTyping.bind(this);
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
@@ -136,7 +135,6 @@ class MonkeyChat extends React.Component {
 				conversations={this.props.store.conversations}
 				conversation={this.props.store.conversations[this.state.conversationId]}
 				onConversationOpened={this.handleConversationOpened}
-				onConversationLoadInfo = {this.handleConversationLoadInfo}
 				onMessagesLoad={this.handleMessagesLoad}
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
@@ -220,66 +218,6 @@ class MonkeyChat extends React.Component {
 			conversation['description'] = members;
 			store.dispatch(actions.updateConversationStatus(conversation));
 		}
-	}
-
-	handleConversationLoadInfo(){
-		var objectInfo = {};
-		var userIsAdmin = false;
-		objectInfo.users = [];
-		let users = store.getState().users;
-		let conversations = store.getState().conversations;
-		let conversation = store.getState().conversations[this.state.conversationId];
-
-		objectInfo.name = conversation.name;
-		objectInfo.avatar = conversation.urlAvatar;
-
-		if(isConversationGroup(this.state.conversationId)){
-			//add default group of company
-			objectInfo.users.push({
-				avatar: conversation.urlAvatar,
-				name: conversation.name,
-				description: conversation.description
-			});
-
-			conversation.members.forEach( (member) => {
-				if(!member){
-					return;
-				}
-
-				let user = users[member];
-
-				//only let my user be there
-				if(users.userSession.id != user.id){
-					return;
-				}
-
-				if (monkey.status == monkey.enums.Status.ONLINE) {
-					user.description = 'Online';
-				}else{
-					user.description = 'Offline';
-				}
-
-				objectInfo.users.push(user);
-			})
-
-			objectInfo.title = 'Group Info';
-			objectInfo.subTitle = 'Participants';
-
-			objectInfo.button = {
-				text : 'Sign out',
-				func : this.handleConversationExitButton,
-			}
-		}else{
-			objectInfo.title = 'User Info';
-			objectInfo.subTitle = 'Conversations With ' + conversation.name;
-			Object.keys(conversations).forEach(key => {
-				if(conversations[key].members && conversations[key].members.indexOf(conversation.id) > -1){
-					objectInfo.users.push({avatar : conversations[key].urlAvatar, name : conversations[key].name, description : conversations[key].members.length + ' Loaded Messages'})
-				}
-			})
-		}
-
-		return objectInfo;
 	}
 
 	/* Message */

@@ -6,14 +6,9 @@ import { applyMiddleware, createStore, compose } from 'redux'
 import { reducer, actions } from 'redux-monkey-chat'
 import * as vars from './utils/monkey-const.js'
 
-const middlewares = [];
-if (process.env.NODE_ENV === 'development') {
-	const createLogger = require('redux-logger');
-	const logger = createLogger();
-	middlewares.push(logger);
-}
 const monkey = new Monkey ();
-const store = compose(applyMiddleware(...middlewares))(createStore)(reducer, {conversations: {}, users: {userSession: monkey.getUser()}});
+const store = createStore(reducer, { conversations: {}, users: { userSession:monkey.getUser() } });
+
 const CONVERSATIONS_LOAD = 15;
 
 var conversationSelectedId = 0;
