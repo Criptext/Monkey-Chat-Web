@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Textarea from 'react-autosize-textarea'
+import * as vars from '../utils/monkey-const.js'
 var $ = require('jquery');
 
 class QuestionForm extends Component {
@@ -154,7 +155,7 @@ function apiCriptextCall(params, type, endpoint, callback){
         case 'GET':
             $.ajax({
                 type    : type,
-                url     : ""+endpoint,
+                url     : vars.API_CRIPTEXT_URL+endpoint,
                 crossDomain: true,
                 dataType: 'json',
                 success: function(respObj){
