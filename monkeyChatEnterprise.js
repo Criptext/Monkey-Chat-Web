@@ -364,7 +364,7 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUs
 		});
 	}else if(monkey.getUser() != null){
 		firstTimeLogIn = false;
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY,   monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
 	}
 
 	render();
@@ -400,7 +400,7 @@ window.onblur = function(){
 
 // --------------- ON CONNECT ----------------- //
 monkey.on('Connect', function(event) {
-	let user = Object.assign({}, event);
+	const user = {...event};
 	if(!store.getState().users.userSession || !store.getState().users.userSession.id){
 		user.id = event.monkeyId;
 		store.dispatch(actions.addUserSession(user));
@@ -707,7 +707,7 @@ monkey.on('ConversationStatusChange', function(data){
 			if(minimunTimeStamp > targetConversation.lastOpenMe){
 				conversation.lastOpenMe = minimunTimeStamp;
 			}
-			conversation.lastSeen = Object.assign({}, conversation.lastSeen, data.lastSeen);
+			conversation.lastSeen = {...conversation.lastSeen, ...data.lastSeen};
 		}
 
 	}else{
