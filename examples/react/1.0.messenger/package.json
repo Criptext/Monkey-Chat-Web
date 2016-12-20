@@ -13,12 +13,12 @@
     "monkey-sdk": "0.8.11",
     "react": "15.2.1",
     "react-dom": "15.2.1",
-    "react-monkey-ui": "2.2.0-beta.41",
+    "react-monkey-ui": "2.2.0-beta.43",
     "redux": "3.5.2",
     "redux-monkey-chat": "1.0.6"
   },
   "devDependencies": {
-	"babel-core": "6.18.2",
+    "babel-core": "6.18.2",
     "babel-eslint": "6.1.2",
     "babel-loader": "6.2.4",
     "babel-preset-es2015": "6.9.0",
