@@ -334,7 +334,7 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUser, debugmode, viewchat, customStyles, customs, encrypted){
+window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialUser, debugmode, viewchat, customStyles, customs, encrypted){
 
 	IDDIV = divIDTag;
 	MONKEY_APP_ID = appid;
@@ -350,21 +350,23 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUs
 		ENCRYPTED = true;
 	}
 
-	if(initalUser != null){
+	if(initialUser != null && (initialUser.monkeyId && initialUser.monkeyId != '')){
 		monkey.logout();
 		store.dispatch(actions.deleteUserSession());
 		store.dispatch(actions.deleteConversations());
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			if(error){
 				monkey.logout();
 				window.errorMsg = 'Sorry, Unable to load your data. Please wait a few minutes before trying again.'
 			}else{
-				store.dispatch(actions.addUserSession(initalUser));
+				let user = {...success};
+				user.id = success.monkeyId;
+				store.dispatch(actions.addUserSession(user));
 			}
 		});
 	}else if(monkey.getUser() != null){
 		firstTimeLogIn = false;
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY,   monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
 	}
 
 	render();

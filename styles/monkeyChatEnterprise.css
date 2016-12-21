@@ -154,7 +154,7 @@ TABLE OF CONTENTS
 }
 
 .wid-textarea{
-	color: #505050;
+  color: #505050;
 	line-height: 19px;
     outline: none;
     border-style: none none solid;
@@ -162,7 +162,7 @@ TABLE OF CONTENTS
     border-bottom-color: #afafaf;
     width: 94%;
     margin: 30px auto;
-    max-height: 100px;
+    max-height: 90px;
     resize: none !important;
     font-size: 14px;
     font-family: helvetica;
