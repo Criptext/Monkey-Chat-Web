@@ -9,7 +9,7 @@ import * as vars from './utils/monkey-const.js'
 import Reconnect from './components/Reconnect.js'
 import QuestionForm from './components/QuestionForm.js'
 
-import styles from './styles/widget.css'
+import styles from './styles/monkeyChatEnterprise.css'
 
 const middlewares = [];
 if (process.env.NODE_ENV === 'development') {

@@ -1,8 +1,25 @@
+/***
 
+FILE: monkeyChatEnterprise.css
 
-/*
-	RECONNECT
-*/
+TABLE OF CONTENTS
+
+1.- CONTENT
+2.- FORM
+  2.1.- RECONNECT
+  2.2.- QUESTION FORM
+3.- LOADING
+
+***/
+
+/* 1.- CONTENT
+   ----------------------------- */
+
+/* 2.- CONTENT
+   ----------------------------- */
+   
+/* 2.1.- RECONNECT
+   ----------------------------- */
 
 .wid-reconnect-form{
 	bottom: 90px;
@@ -22,9 +39,8 @@
 	font-size: 12px;
 } 
 
-/*
-	QUESTION FORM
-*/
+/* 2.2.- QUESTION FORM
+   ----------------------------- */
 
 .wid-send-mail{
     width: 100%;
@@ -59,16 +75,17 @@
 }
 
 .wid-overlay-msg-title{
-    font-size: 18px;
-    padding: 0 30px;
-    color: black;
-    font-weight: bold;
-    letter-spacing: 0.2px;
-    font-family: 'helvetica';
+  color: black;
+  margin: 0;
+  font-family: 'helvetica';
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 0.2px;
+  padding: 0 30px;    
 }
 
 .wid-overlay-body-title{
-    margin-bottom: 37px;   
+  margin-bottom: 20px;   
 }
 
 .wid-overlay-msg-subtitle{
@@ -133,7 +150,7 @@
 }
 
 .wid-textarea-container{
-    min-height: 130px;
+  min-height: 120px;
 }
 
 .wid-textarea{
@@ -166,27 +183,24 @@
 }
 
 .wid-input-button{
+  background: #1088ff;
   border: none;
+  border-radius: 5px;
   color: #fff;
   cursor: pointer;
   font-size: 18px;
+  height: 40px;
+  letter-spacing: 0px;
     padding: 9px 15px;
     min-width: 130px;
     margin: 0 auto;
     text-align: center;
-    background: #1088ff;
-    border-radius: 5px;
-    margin-top: 20px;
     font-size: 15px;
     font-weight: bold;
-    letter-spacing: 0px;
-    height: 40px;
 }
 
-
-/*
-	LOADING
-*/
+/* 3.- LOADING
+   ----------------------------- */
 
 .mky-loader-ring img:first-child{
   width: 100%;
