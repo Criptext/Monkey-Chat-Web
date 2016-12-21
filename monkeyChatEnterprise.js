@@ -350,10 +350,13 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		ENCRYPTED = true;
 	}
 
-	if(initialUser != null && (initialUser.monkeyId && initialUser.monkeyId != '')){
+	if(initialUser != null){
 		monkey.logout();
 		store.dispatch(actions.deleteUserSession());
 		store.dispatch(actions.deleteConversations());
+		if(initialUser.monkeyId == null || initialUser.monkeyId == ''){
+			initialUser.monkeyId = undefined;
+		}
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			if(error){
 				monkey.logout();
@@ -363,13 +366,16 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 				user.id = success.monkeyId;
 				store.dispatch(actions.addUserSession(user));
 			}
+			render();
 		});
 	}else if(monkey.getUser() != null){
 		firstTimeLogIn = false;
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
+		render();
+	}else{
+		render();
 	}
-
-	render();
+	
 }
 
 window.onfocus = function(){
@@ -409,7 +415,7 @@ monkey.on('Connect', function(event) {
 	}
 	if(!Object.keys(store.getState().conversations).length){
 		if(firstTimeLogIn){
-			getConversationByCompany(user.id, user);
+			getConversationByCompany(event.monkeyId, user);
 		}else{
 			loadConversations(user);
 		}
