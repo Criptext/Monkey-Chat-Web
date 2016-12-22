@@ -9,7 +9,7 @@ import * as vars from './utils/monkey-const.js'
 import Reconnect from './components/Reconnect.js'
 import QuestionForm from './components/QuestionForm.js'
 
-import styles from './styles/widget.css'
+import styles from './styles/monkeyChatEnterprise.css'
 
 const middlewares = [];
 if (process.env.NODE_ENV === 'development') {
@@ -334,7 +334,7 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUser, debugmode, viewchat, customStyles, customs, encrypted){
+window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialUser, debugmode, viewchat, customStyles, customs, encrypted){
 
 	IDDIV = divIDTag;
 	MONKEY_APP_ID = appid;
@@ -350,24 +350,32 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initalUs
 		ENCRYPTED = true;
 	}
 
-	if(initalUser != null){
+	if(initialUser != null){
 		monkey.logout();
 		store.dispatch(actions.deleteUserSession());
 		store.dispatch(actions.deleteConversations());
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initalUser, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
+		if(initialUser.monkeyId == null || initialUser.monkeyId == ''){
+			initialUser.monkeyId = undefined;
+		}
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			if(error){
 				monkey.logout();
 				window.errorMsg = 'Sorry, Unable to load your data. Please wait a few minutes before trying again.'
 			}else{
-				store.dispatch(actions.addUserSession(initalUser));
+				let user = {...success};
+				user.id = success.monkeyId;
+				store.dispatch(actions.addUserSession(user));
 			}
+			render();
 		});
 	}else if(monkey.getUser() != null){
 		firstTimeLogIn = false;
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY,   monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
+		render();
+	}else{
+		render();
 	}
-
-	render();
+	
 }
 
 window.onfocus = function(){
@@ -407,7 +415,7 @@ monkey.on('Connect', function(event) {
 	}
 	if(!Object.keys(store.getState().conversations).length){
 		if(firstTimeLogIn){
-			getConversationByCompany(user.id, user);
+			getConversationByCompany(event.monkeyId, user);
 		}else{
 			loadConversations(user);
 		}

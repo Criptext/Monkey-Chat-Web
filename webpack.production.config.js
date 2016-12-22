@@ -4,7 +4,7 @@ var path = require('path');
 var config = {
 	entry: {
 		monkeyChat: './monkeychat.js',
-		monkeyChatEnterprise: './monkeyChatEnterprise.js'
+		monkeyChatEnterprise: ['babel-polyfill', './monkeyChatEnterprise.js']
 	},
 	output: {
     	path: path.join(__dirname, 'dist'),

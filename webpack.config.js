@@ -5,7 +5,7 @@ var config = {
 	devtool: 'eval',
 	entry: {
 		monkeyChat: './monkeychat.js',
-		monkeyChatEnterprise: './monkeyChatEnterprise.js'
+		monkeyChatEnterprise: ['babel-polyfill', './monkeyChatEnterprise.js']
 	},
 	output: {
     	path: path.join(__dirname, 'dist'),
