@@ -30,7 +30,7 @@ const MESSAGES_LOAD = 20;
 const EST = -240;
 const colorUsers = ['#6f067b','#00a49e','#b3007c','#b4d800','#e20068','#00b2eb','#ec870e','#84b0b9','#3a6a74','#bda700','#826aa9','#af402a','#733610','#020dd8','#7e6565','#cd7967','#fd78a7','#009f62','#336633','#e99c7a','#000000'];
 
-var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, ENCRYPTED, CONVERSATION_ID;
+var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, ENCRYPTED, CONVERSATION_ID, MONKEY_PREFIX;
 var pendingMessages;
 var monkeyChatInstance;
 var mky_focused = true;
@@ -194,6 +194,8 @@ class MonkeyChat extends React.Component {
 		});
 
 		// monkey create monkeyId dynamically, when user doesn't have monkeyId.
+		// monkey set prefix
+		monkey.setPrefix(MONKEY_PREFIX);
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			this.setState({
 				customLoader: this.customLoader,
@@ -334,7 +336,7 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialUser, debugmode, viewchat, customStyles, customs, encrypted){
+window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialUser, debugmode, viewchat, customStyles, customs, encrypted, monkeyPrefix){
 
 	IDDIV = divIDTag;
 	MONKEY_APP_ID = appid;
@@ -349,6 +351,7 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 	}else{
 		ENCRYPTED = true;
 	}
+	MONKEY_PREFIX = monkeyPrefix;
 
 	if(initialUser != null){
 		monkey.logout();
@@ -357,6 +360,8 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		if(initialUser.monkeyId == null || initialUser.monkeyId == ''){
 			initialUser.monkeyId = undefined;
 		}
+		// monkey set prefix
+		monkey.setPrefix(MONKEY_PREFIX);
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
 			if(error){
 				monkey.logout();
@@ -370,6 +375,8 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		});
 	}else if(monkey.getUser() != null){
 		firstTimeLogIn = false;
+		// monkey set prefix
+		monkey.setPrefix(MONKEY_PREFIX);
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
 		render();
 	}else{
