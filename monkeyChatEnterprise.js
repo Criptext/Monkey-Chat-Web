@@ -354,7 +354,7 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 	MONKEY_PREFIX = monkeyPrefix;
 
 	if(initialUser != null){
-		monkey.logout();
+		//monkey.logout();
 		store.dispatch(actions.deleteUserSession());
 		store.dispatch(actions.deleteConversations());
 		if(initialUser.monkeyId == null || initialUser.monkeyId == ''){
