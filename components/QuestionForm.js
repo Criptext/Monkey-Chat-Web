@@ -170,7 +170,7 @@ function apiCriptextCall(params, type, endpoint, callback){
         case 'POST':
             $.ajax({
                 type    : type,
-                url     : ""+endpoint,
+                url     : vars.API_CRIPTEXT_URL+endpoint,
                 crossDomain: true,
                 dataType: 'json',
                 data    : params,
