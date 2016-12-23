@@ -14,9 +14,12 @@ examples/react/2.typing/utils/monkey-const.js
 examples/react/3.two-list-conversation/node_modules
 examples/react/3.two-list-conversation/bundle
 examples/react/3.two-list-conversation/utils/monkey-const.js
-examples/react/4.message-info/node_modules
-examples/react/4.message-info/bundle
-examples/react/4.message-info/utils/monkey-const.js
+examples/react/4.search-and-two-list-conversation/node_modules
+examples/react/4.search-and-two-list-conversation/bundle
+examples/react/4.search-and-two-list-conversation/utils/monkey-const.js
+examples/react/5.message-info/node_modules
+examples/react/5.message-info/bundle
+examples/react/5.message-info/utils/monkey-const.js
 examples/react/rightside/node_modules
 examples/react/rightside/bundle
 examples/react/rightside/utils/monkey-const.js
