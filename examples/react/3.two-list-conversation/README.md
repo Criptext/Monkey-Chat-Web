@@ -1,10 +1,10 @@
 # Examples: 3.two-list-conversation
 
-The code about 'typing' example, here show you the code necessary to implement this behaviors.
+The code about 'typing' example, here we show you the code necessary to implement this behavior.
 
 ## Code
-### Define variables to two list conversation
-How define the state to two list conversation.
+### Define variables of two list conversation
+How to define the state of two list conversations
 
 ```javascript
 ...
@@ -61,7 +61,7 @@ class MonkeyChat extends Component {
 
 
 ### Calling handleConversationFilter method
-How call handleConversationFilter method.
+How to call handleConversationFilter method.
 
 ```javascript
 ...

@@ -1,10 +1,10 @@
 # Examples: 4.search-and-two-list-conversation
 
-The code about 'search-and-two-list-conversation' example, here show you the code necessary to implement this behaviors.
+The code about 'search-and-two-list-conversation' example, here we show you the code necessary to implement this behaviors.
 
 ## Code
 ### Define variables to second list conversation
-How define the state to alternate list conversation.
+How to define the state to alternate the list conversation
 
 ```javascript
 ...
