@@ -1,4 +1,4 @@
-# MonkeyChat-Web-React
+# MonkeyChat-Web
 
 MonkeyChat helps you set up your own chat in your site.
 

@@ -15,7 +15,8 @@ Enter to any examples:
 1.1.simplechat
 2.typing
 3.two-list-conversation
-4.message-info
+4.search-and-two-list-conversation
+5.message-info
 
 ### Set Up:
 To each examples you need step up some variables, entry the folder 'utils' of the example that you selected.
