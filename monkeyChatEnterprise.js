@@ -1114,6 +1114,19 @@ function createMessage(message) {
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
 			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
+
+			var ie = navigator.userAgent.match(/MSIE\s([\d.]+)/),
+				ie11 = navigator.userAgent.match(/Trident\/7.0/) && navigator.userAgent.match(/rv:11/),
+				ieEDGE = navigator.userAgent.match(/Edge/g),
+				ieVer=(ie ? ie[1] : (ie11 ? 11 : (ieEDGE ? 12 : -1)));
+
+			if (ie && ieVer<10) {
+				console.log("No blobs on IE ver<10");
+			}else if(ieVer>-1){
+				var blob = base64toBlob(message.data.split(";base64,")[1], message.mimetype);
+				message.data = blob;
+			}
+
 			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
@@ -1310,8 +1323,23 @@ function toDownloadMessageData(mokMessage){
 		        console.log('App - file downloaded');
 				//let src = `data:${mokMessage.props.mime_type};base64,${data}`;
 				var blob = base64toBlob(data, mokMessage.props.mime_type);
-				var url = URL.createObjectURL(blob);
-		        message.data = url;
+				var url;
+
+				var ie = navigator.userAgent.match(/MSIE\s([\d.]+)/),
+				ie11 = navigator.userAgent.match(/Trident\/7.0/) && navigator.userAgent.match(/rv:11/),
+				ieEDGE = navigator.userAgent.match(/Edge/g),
+				ieVer=(ie ? ie[1] : (ie11 ? 11 : (ieEDGE ? 12 : -1)));
+
+				if (ie && ieVer<10) {
+					console.log("No blobs on IE ver<10");
+					return;
+				}else if(ieVer>-1){
+					url = blob;
+				}else{
+					url = URL.createObjectURL(blob);
+				}
+ 
+				message.data = url;
 				message.error = false;
 				message.isDownloading = false;
 		        store.dispatch(actions.updateMessageData(message, conversationId));
@@ -1442,8 +1470,8 @@ function createPush(conversationId, bubbleType) {
                 text = username+' sent an image to';
                 break;
             case 'file': // file message
-                pushLocalization = 'pushfileKey';
-                text = username+' sent you a file to';
+                pushLocalization = 'grouppushfileKey';
+                text = username+' sent a file to';
                 break;
         }
     }
