@@ -63,7 +63,7 @@ class MonkeyChat extends React.Component {
 		if(document.getElementById('mky-title')){
 			initialTitle = document.getElementById('mky-title').innerHTML;
 		}
-		
+
 		/* options */
 		this.handleReconnect = this.handleReconnect.bind(this);
 		this.options = {
@@ -148,14 +148,14 @@ class MonkeyChat extends React.Component {
 	}
 
 	/* Window */
-	
+
 	handleReconnect() {
-		
+
 		var info = store.getState().conversations[CONVERSATION_ID].info;
-	
+
 		//If conversetion info status is served, we updated to pending
 		if(info.status == '2'){
-	
+
 			info.status = '0';
 			let conversationTmp = {
 				id: CONVERSATION_ID,
@@ -163,13 +163,13 @@ class MonkeyChat extends React.Component {
 			}
 			//Update info in redux
 			store.dispatch(actions.updateConversationInfo(conversationTmp));
-	
+
 			//Update the description
 			let conversation = store.getState().conversations[CONVERSATION_ID];
 			let members = listMembers(conversation.members);
 			conversation['description'] = members;
 			store.dispatch(actions.updateConversationStatus(conversation));
-	
+
 			//Update status in server
 			let params = { monkeyId: store.getState().users.userSession.id,
 					   groupId: CONVERSATION_ID,
@@ -255,7 +255,7 @@ class MonkeyChat extends React.Component {
 							if(message.datetimeCreation <= targetConversation.lastOpenMe) {
 								message.status = 52;
 							}
-							messages[message.id] = message;	
+							messages[message.id] = message;
 						}
 					});
 					let conversation = {
@@ -310,16 +310,16 @@ class MonkeyChat extends React.Component {
 	handleNotifyTyping(conversationId, isTyping){
 		monkey.sendTemporalNotification(conversationId, {type : isTyping ? 21 : 20}, null);
 	}
-	
+
 	/* Loading */
-	
+
 	customLoader(){
 		return ( <div className='cstm-loading'>
 					<img src='https://cdn.criptext.com/Email/images/processing_email.gif'></img>
 				</div>
 		)
 	}
-	
+
 	customInitLoader(){
 		return ( <div className='cstm-loading'>
 					<img src='https://cdn.criptext.com/MonkeyUI/images/loading-logo-blue.gif'></img>
@@ -382,7 +382,7 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 	}else{
 		render();
 	}
-	
+
 }
 
 window.onfocus = function(){
@@ -490,13 +490,13 @@ monkey.on('MessageUnsend', function(mokMessage){
 
 // -------------- ON STATUS CHANGE --------------- //
 monkey.on('StatusChange', function(data){
-	
+
 	if(!monkeyChatInstance)
 		return;
-		
+
 	var params = {};
 	var panelParams = {};
-	
+
 	if (monkeyChatInstance.state.overlayView != null){
 		monkeyChatInstance.setState({
 			panelParams: panelParams,
@@ -504,7 +504,7 @@ monkey.on('StatusChange', function(data){
 		})
 		return;
 	}
-	
+
 
 	switch(data){
 		case OFFLINE:
@@ -543,31 +543,31 @@ monkey.on('StatusChange', function(data){
 // ------------- ON NOTIFICATION --------------- //
 monkey.on('Notification', function(data){
 	console.log('App - Notification');
-		
+
 	if(!data.params || !data.params.type)
 		return;
-	
+
 	let paramsType = Number(data.params.type);
 	let conversationId = isConversationGroup(data.recipientId) ? data.recipientId : data.senderId;
 	let conversation = store.getState().conversations[conversationId];
 	if(!conversation)
     	return;
-	
-	
+
+
 	let conversationTmp;
 	switch(paramsType) {
 		case 20: {
 			if(isConversationGroup(conversationId)) {
 				let membersTyping = conversation.membersTyping;
-				
+
 				if(membersTyping == null){
 					return;
 				}
-				
+
 				if(membersTyping.indexOf(data.senderId) == -1){
 					return;
 				}
-				
+
 				let users = store.getState().users;
 				membersTyping.splice(membersTyping.indexOf(data.senderId), 1);
 				var descText = '';
@@ -581,7 +581,7 @@ monkey.on('Notification', function(data){
 					}else{
 						descText += ' está escribiendo...'
 					}
-					
+
 				}else{
 					var members = listMembers(conversation.members);
 					descText = members;
@@ -592,7 +592,7 @@ monkey.on('Notification', function(data){
 					membersTyping: membersTyping,
 					preview: membersTyping.length > 0 ? users[membersTyping[membersTyping - 1]].name.split(' ')[0] + ' está escribiendo...' : null
 				}
-				
+
 			}else{
 				conversationTmp = {
 					id: conversationId,
@@ -601,16 +601,16 @@ monkey.on('Notification', function(data){
 					preview: null
 				}
 			}
-			
-			store.dispatch(actions.updateConversationStatus(conversationTmp));	
+
+			store.dispatch(actions.updateConversationStatus(conversationTmp));
 			break;
 		}
 		case 21: {
-			
+
 			if(isConversationGroup(conversationId)) {
 				let membersTyping = conversation.membersTyping;
 				let users = store.getState().users;
-				
+
 				if(membersTyping == null){
 					membersTyping = [];
 					membersTyping.push(data.senderId);
@@ -622,11 +622,11 @@ monkey.on('Notification', function(data){
 					}
 					return store.dispatch(actions.updateConversationStatus(conversationTmp));
 				}
-				
+
 				if(membersTyping.indexOf(data.senderId) > -1){
 					return;
 				}
-				
+
 				membersTyping.push(data.senderId);
 				var descText = '';
 				membersTyping.forEach( (monkey_id) => {
@@ -649,7 +649,7 @@ monkey.on('Notification', function(data){
 					membersTyping: membersTyping,
 					preview: users[data.senderId].name.split(' ')[0] + ' está escribiendo...'
 				}
-					
+
 			}else{
 				conversationTmp = {
 					id: conversationId,
@@ -658,7 +658,7 @@ monkey.on('Notification', function(data){
 					preview: 'escribiendo...'
 				}
 			}
-			
+
 			store.dispatch(actions.updateConversationStatus(conversationTmp));
 			break;
 		}
@@ -699,12 +699,12 @@ monkey.on('ConversationStatusChange', function(data){
 	if(!targetConversation){
 		return;
 	}
-	
+
 	//don't change message if conversation is SERVED
 	if(targetConversation.info.status == '2'){
 		return;
 	}
-	
+
 	let conversation = {
 		id: conversationId,
 		online: data.online
@@ -735,9 +735,9 @@ monkey.on('ConversationStatusChange', function(data){
 			conversation.lastSeen = Number(data.lastSeen)*1000;
 		}
 	}
-	
+
 	if (typeof data.online == 'string' && data.online.indexOf(targetConversation.info.currentOperator) !== -1){
-		conversation.description = 'Online';	
+		conversation.description = 'Online';
 	}else{
 		conversation.description = 'Offline';
 	}
@@ -752,14 +752,14 @@ monkey.on('ConversationOpen', function(data){
 	if(!isConversationGroup(conversationId)){
 		conversationId = data.senderId;
 	}
-	
+
 	let conversation = store.getState().conversations[conversationId];
 	if(!conversation)
 		return;
-		
+
 	if (CONVERSATION_ID != conversationId)
 		return;
-	
+
 	if(isConversationGroup(conversationId)){
 		if(conversation.info.currentOperator == data.senderId){
 			let conversationTmp = {
@@ -816,7 +816,7 @@ monkey.on('GroupInfoUpdate', function(data){
 	if(!store.getState().conversations[data.id]){
 		return;
 	}
-	
+
 	let conversationTmp = {
 		id: CONVERSATION_ID,
 		info: data.info
@@ -943,12 +943,12 @@ function loadConversations(user) {
 				    	delete usersToGetInfo[userTmp.id];
 			        }
 			        conversations[conversationTmp.id] = conversationTmp;
-			        
+
 			        if(conversation.info.status == '2'){
 				        let reconnect = <Reconnect onReconnect={monkeyChatInstance.handleReconnect}/>
 						monkeyChatInstance.setState({ overlayView: reconnect });
 			        }
-			        
+
 		        })
 
 		        if(Object.keys(usersToGetInfo).length){
@@ -1148,7 +1148,7 @@ function createMessage(message) {
 			break;
 		}
 	}
-	
+
 }
 
 function defineMessage(mokMessage, syncing) {
@@ -1391,6 +1391,9 @@ function apiCriptextCall(params, type, endpoint, callback){
                 type    : type,
                 url     : vars.API_CRIPTEXT_URL+endpoint,
                 crossDomain: true,
+								headers: {
+									"token": ACCESS_TOKEN
+								},
                 dataType: 'json',
                 success: function(respObj){
                     callback(null, respObj);
@@ -1406,6 +1409,9 @@ function apiCriptextCall(params, type, endpoint, callback){
                 type    : type,
                 url     : vars.API_CRIPTEXT_URL+endpoint,
                 crossDomain: true,
+								headers: {
+									"token": ACCESS_TOKEN
+								},
                 dataType: 'json',
                 data    : params,
                 success: function(respObj){
