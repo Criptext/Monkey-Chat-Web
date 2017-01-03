@@ -1,49 +1,22 @@
-# MonkeyChat-Web
+# Monkey-Chat-Web
 
 MonkeyChat helps you set up your own chat in your site.
 
 ***
 
-* If you need to add your chat, the fast way to do it:
+## Examples
 
-## MonkeyChat CDN
-Use monkeyChat.js from our CDN, this MonkeyChat has MonkeyUI and MonkeySDK
+We have two ways to implement a chat.
+
+### Widget
+
+It is the easiest and fastest way, you only need to add the JavasCript file from a CDN and set up configuration.
+The steps are in [widget example](https://github.com/Criptext/Monkey-Chat-Web/tree/master/examples/widget)
+
 ```
-https://cdn.criptext.com/v2.0.0/monkeyChat.js
+https://cdn.criptext.com/v2.1.0/monkeyChatEnterprise.js
 ```
-#### monkeychat.init(String, String, String, String, boolean, Obj, Obj)
-To start setup chat.
-```
-monkeychat.init(IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, CONVERSATION_ID, MONKEY_DEBUG_MODE, VIEW, STYLES, COMPANY_NAME);
-```
-IDDIV: Id of 'div' tag where you will add the chat in your html.
 
-MONKEY_APP_ID: App ID of your App, which you can get in this admin panel.
+### React
 
-MONKEY_APP_KEY: App KEY of your App, which you can get in this admin panel
-
-CONVERSATION_ID: Id of your group conversation of your support chat.
-
-MONKEY_DEBUG_MODE: true/false development debug mode.
-
-VIEW: To define the type of chat view.
-
-STYLES: To define the styles of the chat view.
-
-COMPANY_NAME: To define name conversation of chat view.
-
-***
-
-### * Options
-The following options are supported in view:
-
-type: 'classic' | 'fullscreen'
-
-If use 'classic' add the data:
-
-data: {width: '380px',height: '500px'}
-
-
-### Example
-
-Monkeychat is distributed with a few examples in its [source code](https://github.com/Criptext/MonkeyChat-Web-React/tree/master/examples).
+If you need to customize the chat's logic, add enhancements, set up communications, etc. we recommend you follow these [react examples](https://github.com/Criptext/Monkey-Chat-Web/tree/master/examples/react)
