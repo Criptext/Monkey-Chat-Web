@@ -1443,53 +1443,44 @@ function apiCriptextCall(params, type, endpoint, callback){
 function createPush(conversationId, bubbleType) {
 
 	const username = store.getState().users.userSession.name;
-    let pushLocalization;
     let text;
 	let locArgs;
+	let locKey = 'push';
 
-    if (!isConversationGroup(conversationId)) {
-	    locArgs = [username];
-        switch(bubbleType) {
-            case 'text': // text message
-                pushLocalization = 'pushtextKey';
-                text = username+' sent you a message';
-                break;
-            case 'audio': // audio message
-                pushLocalization = 'pushaudioKey';
-                text = username+' sent you an audio';
-                break;
-            case 'image': // image message
-                pushLocalization = 'pushimageKey';
-                text = username+' sent you an image';
-                break;
-            case 'file': // file message
-                pushLocalization = 'pushfileKey';
-                text = username+' sent you a file';
-                break;
-        }
-    }else{ // to group
-	    var groupName = store.getState().conversations[conversationId].name;
+	if (isConversationGroup(conversationId)) {
+		var groupName = store.getState().conversations[conversationId].name;
 	    locArgs = [username, groupName];
-        switch(bubbleType){
-            case 'text': // text message
-                pushLocalization = 'grouppushtextKey';
-                text = username+' sent a message to';
-                break;
-            case 'audio': // audio message
-                pushLocalization = 'grouppushaudioKey';
-                text = username+' sent an audio to';
-                break;
-            case 'image': // image message
-                pushLocalization = 'grouppushimageKey';
-                text = username+' sent an image to';
-                break;
-            case 'file': // file message
-                pushLocalization = 'grouppushfileKey';
-                text = username+' sent a file to';
-                break;
-        }
+	    locKey = 'group'+locKey;
+	    text = username+' sent ';
+	}else {
+		locArgs = [username];
+		text = username+' sent you ';
+	}
+	
+	switch(bubbleType) {
+        case 'text': // text message
+            locKey = locKey+'textKey';
+            text = text+'a message';
+            break;
+        case 'audio': // audio message
+            locKey = locKey+'audioKey';
+            text = username+'an audio';
+            break;
+        case 'image': // image message
+            locKey = locKey+'imageKey';
+            text = username+'an image';
+            break;
+        case 'file': // file message
+            locKey = locKey+'fileKey';
+            text = username+'a file';
+            break;
     }
-    return monkey.generateLocalizedPush(pushLocalization, locArgs, text);
+
+	if (isConversationGroup(conversationId)) {
+		text = text+' to';
+	}
+	
+    return monkey.generateLocalizedPush(locKey, locArgs, text);
 }
 
 function listMembers(members){
