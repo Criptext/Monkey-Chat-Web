@@ -13,7 +13,7 @@
     "monkey-sdk": "0.8.11",
     "react": "15.2.1",
     "react-dom": "15.2.1",
-    "react-monkey-ui": "2.2.0-beta.43",
+    "react-monkey-ui": "file:react-monkey-ui-2.2.0-beta.47.tgz",
     "redux": "3.5.2",
     "redux-monkey-chat": "1.0.6"
   },

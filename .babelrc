@@ -1,8 +1,6 @@
 {
   "presets" : ["es2015", "react"],
   "plugins": [
-	"transform-object-rest-spread",
-	"transform-proto-to-assign",
-	["transform-es2015-classes", {loose: true}]
+	"transform-object-rest-spread"
   ]
 }
