@@ -19,4 +19,4 @@ https://cdn.criptext.com/v2.1.0/monkeyChatEnterprise.js
 
 ### React
 
-If you need customize the logic chat, add enhancement, set up communications, etc. we recommend you follow these [react examples](https://github.com/Criptext/Monkey-Chat-Web/tree/master/examples/react)
+If you need to customize the chat's logic, add enhancements, set up communications, etc. we recommend you follow these [react examples](https://github.com/Criptext/Monkey-Chat-Web/tree/master/examples/react)

@@ -14,7 +14,7 @@ We provide you these examples:
 git clone https://github.com/Criptext/Monkey-Chat-Web.git
 ```
 
-## Set Up:
+## Set Up
 In the source project you find the folder 'examples/react', enter to any examples.
 To each examples you need step up some variables, entry the folder 'utils' of the example that you selected.
 
@@ -30,8 +30,8 @@ To each examples you need step up some variables, entry the folder 'utils' of th
 	userTest = ''			/* String: monkeyId of the user to test */
 ```
 
-## Run the example:
-In the terminal access to Monkey-Chat-Web project and entry to example selected and write this
+## Run the example
+In the terminal, go to Monkey-Chat-Web project's folder and enter to the example selected and write this:
 ```
 cd Monkey-Chat-Web/examples/react/1.0.messenger
 
