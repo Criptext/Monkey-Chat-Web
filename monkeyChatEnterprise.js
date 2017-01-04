@@ -60,7 +60,7 @@ class MonkeyChat extends React.Component {
 			panelParams: {},
 			connectionStatus: 0,
 			overlayView: null,
-			customeLoader: this.customInitLoader
+			customLoader: this.customInitLoader
 		}
 
 		this.handleUserSession = this.handleUserSession.bind(this);
