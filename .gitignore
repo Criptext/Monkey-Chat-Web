@@ -8,6 +8,9 @@ examples/react/1.0.messenger/utils/monkey-const.js
 examples/react/1.1.simplechat/node_modules
 examples/react/1.1.simplechat/bundle
 examples/react/1.1.simplechat/utils/monkey-const.js
+examples/react/1.2.rightside/node_modules
+examples/react/1.2.rightside/bundle
+examples/react/1.2.rightside/utils/monkey-const.js
 examples/react/2.typing/node_modules
 examples/react/2.typing/bundle
 examples/react/2.typing/utils/monkey-const.js
@@ -20,8 +23,5 @@ examples/react/4.search-and-two-list-conversation/utils/monkey-const.js
 examples/react/5.message-info/node_modules
 examples/react/5.message-info/bundle
 examples/react/5.message-info/utils/monkey-const.js
-examples/react/rightside/node_modules
-examples/react/rightside/bundle
-examples/react/rightside/utils/monkey-const.js
 .DS_Store
 *.DS_Store*

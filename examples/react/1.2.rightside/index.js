@@ -32,6 +32,17 @@ class MonkeyChat extends Component {
 			}
 		}
 		
+		this.style = {	
+			toggleColor: 'rgb(158, 5, 13)',
+            tabTextColor: 'white',		
+	        bubbleColorIn: '#edecec',
+	        bubbleColorOut: '#42a5f5',
+	        bubbleTextColorIn: 'black',
+	        bubbleTextColorOut: 'white',
+	        inputLeftButtonColor: '#2979ff',
+	        inputRightButtonColor: '#2979ff'
+		}
+
 		this.handleUserSession = this.handleUserSession.bind(this);
 		this.handleUserSessionLogout = this.handleUserSessionLogout.bind(this);
 		this.handleConversationOpened = this.handleConversationOpened.bind(this);
@@ -85,6 +96,7 @@ class MonkeyChat extends Component {
 	render() {
 		return (
 			<MonkeyUI view = {this.view}
+				styles={this.style}
 				viewLoading = {this.state.viewLoading}
 				options = {this.options}
 				userSession = {this.props.store.users.userSession}
