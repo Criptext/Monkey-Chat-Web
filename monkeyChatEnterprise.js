@@ -38,6 +38,19 @@ var firstTimeLogIn = true;
 var initialTitle = '';
 var $ = require('jquery');
 
+var ie = navigator.userAgent.match(/MSIE\s([\d.]+)/),
+ie11 = navigator.userAgent.match(/Trident\/7.0/) && navigator.userAgent.match(/rv:11/),
+ieEDGE = navigator.userAgent.match(/Edge/g),
+ieVer=(ie ? ie[1] : (ie11 ? 11 : (ieEDGE ? 12 : -1)));
+
+var unsupportedVersion = false;
+
+if (ie && ieVer<10) {
+	unsupportedVersion = true;
+}else if(ieVer>-1 && ieVer<11){
+	unsupportedVersion = true;
+}
+
 class MonkeyChat extends React.Component {
 	constructor(props){
 		super(props);
@@ -196,7 +209,7 @@ class MonkeyChat extends React.Component {
 		// monkey create monkeyId dynamically, when user doesn't have monkeyId.
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, !unsupportedVersion, (error, success) => {
 			this.setState({
 				customLoader: this.customLoader,
 				viewLoading: false
@@ -362,7 +375,7 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		}
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, !unsupportedVersion, (error, success) => {
 			if(error){
 				monkey.logout();
 				window.errorMsg = 'Sorry, Unable to load your data. Please wait a few minutes before trying again.'
@@ -377,7 +390,7 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		firstTimeLogIn = false;
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false, !unsupportedVersion);
 		render();
 	}else{
 		render();
@@ -1324,11 +1337,6 @@ function toDownloadMessageData(mokMessage){
 				//let src = `data:${mokMessage.props.mime_type};base64,${data}`;
 				var blob = base64toBlob(data, mokMessage.props.mime_type);
 				var url;
-
-				var ie = navigator.userAgent.match(/MSIE\s([\d.]+)/),
-				ie11 = navigator.userAgent.match(/Trident\/7.0/) && navigator.userAgent.match(/rv:11/),
-				ieEDGE = navigator.userAgent.match(/Edge/g),
-				ieVer=(ie ? ie[1] : (ie11 ? 11 : (ieEDGE ? 12 : -1)));
 
 				if (ie && ieVer<10) {
 					console.log("No blobs on IE ver<10");
