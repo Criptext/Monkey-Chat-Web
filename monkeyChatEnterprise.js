@@ -36,6 +36,7 @@ var monkeyChatInstance;
 var mky_focused = true;
 var firstTimeLogIn = true;
 var initialTitle = '';
+var currentlyOffline = false;
 var $ = require('jquery');
 
 /* IE compatibility */
@@ -69,7 +70,6 @@ class MonkeyChat extends React.Component {
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
-		this.handleMessageAfterMail = this.handleMessageAfterMail.bind(this);
 		this.customInitLoader = this.customInitLoader.bind(this);
 
 		if(document.getElementById('mky-title')){
@@ -123,8 +123,7 @@ class MonkeyChat extends React.Component {
 
 				let conversation = store.getState().conversations[conversationId];
 				//conversation['description'] = "Esperando operador...";
-				let members = listMembers(conversation.members);
-				conversation['description'] = members;
+				conversation['description'] = "Offline";
 				store.dispatch(actions.updateConversationStatus(conversation));
 
 				CONVERSATION_ID = conversationId;
@@ -178,8 +177,7 @@ class MonkeyChat extends React.Component {
 
 			//Update the description
 			let conversation = store.getState().conversations[CONVERSATION_ID];
-			let members = listMembers(conversation.members);
-			conversation['description'] = members;
+			conversation['description'] = "Offline";
 			store.dispatch(actions.updateConversationStatus(conversation));
 
 			//Update status in server
@@ -191,6 +189,7 @@ class MonkeyChat extends React.Component {
 		            console.log(err);
 		            return;
 		        }else{
+		        	monkey.sendOpenToUser(CONVERSATION_ID);
 			        this.setState({ overlayView: null });
 		        }
 		    });
@@ -226,23 +225,11 @@ class MonkeyChat extends React.Component {
 
 	handleConversationOpened(conversation) {
 		monkey.sendOpenToUser(conversation.id);
-
-		if(isConversationGroup(conversation.id)){
-			let members = listMembers(store.getState().conversations[conversation.id].members);
-			conversation['description'] = members;
-			store.dispatch(actions.updateConversationStatus(conversation));
-		}
 	}
 
 	/* Message */
 
 	handleMessage(message) {
-		createMessage(message);
-	}
-
-	handleMessageAfterMail(message) {
-		message.recipientId = CONVERSATION_ID;
-		message.senderId = store.getState().users.userSession.id;
 		createMessage(message);
 	}
 
@@ -457,7 +444,8 @@ monkey.on('Connect', function(event) {
 		endTime.add(dif, 'minutes');
 
 		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
-			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} sendMessage={monkeyChatInstance.handleMessageAfterMail} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
+			currentlyOffline = true;
+			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
 			monkeyChatInstance.setState({ overlayView: questionForm });
 		}
 	}
@@ -595,7 +583,7 @@ monkey.on('Notification', function(data){
 					}
 
 				}else{
-					var members = listMembers(conversation.members);
+					var members = "Online";
 					descText = members;
 				}
 				conversationTmp = {
@@ -652,7 +640,7 @@ monkey.on('Notification', function(data){
 						descText += ' está escribiendo...'
 					}
 				}else{
-					var members = listMembers(conversation.members);
+					var members = "Online";
 					descText = members;
 				}
 				conversationTmp = {
@@ -748,8 +736,17 @@ monkey.on('ConversationStatusChange', function(data){
 		}
 	}
 
-	if (typeof data.online == 'string' && data.online.indexOf(targetConversation.info.currentOperator) !== -1){
-		conversation.description = 'Online';
+	if (typeof data.online == 'string'){
+		if(currentlyOffline){
+			conversation.description = 'Offline';
+		}else if(targetConversation.info.currentOperator && data.online.indexOf(targetConversation.info.currentOperator) !== -1){
+			conversation.description = 'Online';
+		}else if(!targetConversation.info.currentOperator && data.online.length > 1) {
+			conversation.description = 'Online';
+		}else{
+			conversation.description = 'Offline';
+		}
+		
 	}else{
 		conversation.description = 'Offline';
 	}
@@ -773,7 +770,7 @@ monkey.on('ConversationOpen', function(data){
 		return;
 
 	if(isConversationGroup(conversationId)){
-		if(conversation.info.currentOperator == data.senderId){
+		if(conversation.info.currentOperator == data.senderId && !currentlyOffline){
 			let conversationTmp = {
 				id: conversationId,
 				description: 'Online'
@@ -844,7 +841,7 @@ monkey.on('GroupInfoUpdate', function(data){
 		let reconnect = <Reconnect onReconnect={monkeyChatInstance.handleReconnect}/>
 		monkeyChatInstance.setState({ overlayView: reconnect });
 		let conversation = store.getState().conversations[CONVERSATION_ID];
-		conversation['description'] = 'Conversation ended, write to start again.';
+		conversation['description'] = 'Conversation ended';
 		store.dispatch(actions.updateConversationStatus(conversation));
 	}
 

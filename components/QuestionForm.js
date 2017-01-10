@@ -126,15 +126,6 @@ class QuestionForm extends Component {
 			if(err && err.status != 200){
 	            this.setState({status : "error", loading : false})
 	        }else{
-	        	let message = {
-	        		bubbleType : "text",
-					preview : text,
-					recipientId	: this.props.rid,
-					senderId : this.props.sid,
-					status : 0,
-					text : text
-				}
-				this.props.sendMessage(message);
 		        this.setState({status : "success", loading : false})
 	        }
 	    });
