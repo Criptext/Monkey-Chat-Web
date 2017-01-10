@@ -10,7 +10,7 @@ We provide you these examples:
 - 6.message-info
 
 ## Download
-```
+```sh
 git clone https://github.com/Criptext/Monkey-Chat-Web.git
 ```
 
@@ -23,7 +23,7 @@ To each examples you need step up some variables, entry the folder 'utils' of th
 2. Rename the copy file to 'monkey-const.js'.
 
 3. In this file define your variables:
-```
+```javascript
 	MONKEY_APP_ID = ''		/* String: App Id from monkey app */
 	MONKEY_APP_KEY = ''		/* String: Key from monkey app */
 	MONKEY_DEBUG_MODE = ''	/* Boolean: true for development mode | false for production mode */
@@ -32,7 +32,7 @@ To each examples you need step up some variables, entry the folder 'utils' of th
 
 ## Run the example
 In the terminal, go to Monkey-Chat-Web project's folder and enter to the example selected and write this:
-```
+```sh
 cd Monkey-Chat-Web/examples/react/1.0.messenger
 
 npm install
