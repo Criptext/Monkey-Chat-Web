@@ -44,12 +44,6 @@ var ie = navigator.userAgent.match(/MSIE\s([\d.]+)/),
 ie11 = navigator.userAgent.match(/Trident\/7.0/) && navigator.userAgent.match(/rv:11/),
 ieEDGE = navigator.userAgent.match(/Edge/g),
 ieVer=(ie ? ie[1] : (ie11 ? 11 : (ieEDGE ? 12 : -1)));
-var unsupportedVersion = false;
-if (ie && ieVer<10) {
-	unsupportedVersion = true;
-}else if(ieVer>-1 && ieVer<11){
-	unsupportedVersion = true;
-}
 
 class MonkeyChat extends React.Component {
 	constructor(props){
@@ -207,7 +201,7 @@ class MonkeyChat extends React.Component {
 		// monkey create monkeyId dynamically, when user doesn't have monkeyId.
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, !unsupportedVersion, (error, success) => {
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED, (error, success) => {
 			this.setState({
 				customLoader: this.customLoader,
 				viewLoading: false
@@ -361,7 +355,7 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		}
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, !unsupportedVersion, (error, success) => {
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED, (error, success) => {
 			if(error){
 				monkey.logout();
 				window.errorMsg = 'Sorry, Unable to load your data. Please wait a few minutes before trying again.'
@@ -376,7 +370,7 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		firstTimeLogIn = false;
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false, !unsupportedVersion);
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED);
 		render();
 	}else{
 		render();
@@ -1097,11 +1091,7 @@ function createMessage(message) {
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			let mokMessage = null;
-			if(ENCRYPTED){
-				mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
-			}else{
-				mokMessage = monkey.sendFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
-			}
+			mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
@@ -1114,11 +1104,7 @@ function createMessage(message) {
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			let mokMessage = null;
-			if(ENCRYPTED){
-				mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, push);
-			}else{
-				mokMessage = monkey.sendFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, push);
-			}
+			mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, push);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
@@ -1140,11 +1126,7 @@ function createMessage(message) {
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			let mokMessage = null;
-			if(ENCRYPTED){
-				mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, push);
-			}else{
-				mokMessage = monkey.sendFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, push);
-			}
+			mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, push);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
