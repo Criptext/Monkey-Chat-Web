@@ -27,7 +27,7 @@ const CONNECTED = 3;
 const SYNCING = 4;
 const CONVERSATIONS_LOAD = 20;
 const MESSAGES_LOAD = 20;
-const EST = -240;
+const EST = -300;
 const colorUsers = ['#6f067b','#00a49e','#b3007c','#b4d800','#e20068','#00b2eb','#ec870e','#84b0b9','#3a6a74','#bda700','#826aa9','#af402a','#733610','#020dd8','#7e6565','#cd7967','#fd78a7','#009f62','#336633','#e99c7a','#000000'];
 
 var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, ENCRYPTED, CONVERSATION_ID, MONKEY_PREFIX;
