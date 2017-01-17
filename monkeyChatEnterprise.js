@@ -54,7 +54,8 @@ class MonkeyChat extends React.Component {
 			panelParams: {},
 			connectionStatus: 0,
 			overlayView: null,
-			customLoader: this.customInitLoader
+			customLoader: this.customInitLoader,
+			chatOpened: false
 		}
 
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -148,12 +149,13 @@ class MonkeyChat extends React.Component {
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
-				panelParams = {this.state.panelParams}
-				onLoadMoreConversations = {this.handleLoadConversations}
-				onNotifyTyping = {this.handleNotifyTyping}
-				overlayView = {this.state.overlayView}
-				customLoader = {this.state.customLoader}
-				onChatClosed = {this.handleChatClosed}/>
+				panelParams={this.state.panelParams}
+				onLoadMoreConversations={this.handleLoadConversations}
+				onNotifyTyping={this.handleNotifyTyping}
+				overlayView={this.state.overlayView}
+				customLoader={this.state.customLoader}
+				onChatClosed={this.handleChatClosed}
+				chatOpened={this.state.chatOpened}/>
 		)
 	}
 
@@ -198,6 +200,7 @@ class MonkeyChat extends React.Component {
 	handleChatClosed() {
 		if(ONCHATCLOSED){
 			ONCHATCLOSED();
+			this.setState({ chatOpened: false });
 		}
 	}
 	
@@ -452,6 +455,9 @@ window.monkeychat.init = function(data){
 			monkeyChatInstance.options.input.textPlaceholder = WIDGET_CUSTOMS.inputTextPlaceholder;
 		}
 	}
+}
+window.monkeychat.show = function(){
+	monkeyChatInstance.setState({ chatOpened: true });
 }
 
 window.onfocus = function(){
