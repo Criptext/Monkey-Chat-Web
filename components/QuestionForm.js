@@ -11,6 +11,7 @@ class QuestionForm extends Component {
 			status: '',
 			loading: false,
 			message: '',
+			email: this.props.email,
 			errorMail: false,
 			errorText: false,
 		};

@@ -30,7 +30,7 @@ const MESSAGES_LOAD = 20;
 const EST = -300;
 const colorUsers = ['#6f067b','#00a49e','#b3007c','#b4d800','#e20068','#00b2eb','#ec870e','#84b0b9','#3a6a74','#bda700','#826aa9','#af402a','#733610','#020dd8','#7e6565','#cd7967','#fd78a7','#009f62','#336633','#e99c7a','#000000'];
 
-var IDDIV, MONKEY_APP_ID, MONKEY_APP_SECRET, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, ENCRYPTED, CONVERSATION_ID, MONKEY_PREFIX, ONCHATCLOSED, ONERROR;
+var IDDIV, MONKEY_APP_ID, MONKEY_APP_SECRET, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, ENCRYPTED, CONVERSATION_ID, MONKEY_PREFIX, ONCHATCLOSED, ONERROR, ONMESSAGE, FORM;
 var pendingMessages;
 var monkeyChatInstance;
 var mky_focused = true;
@@ -55,7 +55,7 @@ class MonkeyChat extends React.Component {
 			connectionStatus: 0,
 			overlayView: null,
 			customLoader: this.customInitLoader,
-			chatOpened: false
+			chatOpened: true
 		}
 
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -407,6 +407,12 @@ window.monkeychat.init = function(data){
 		WIDGET_CUSTOMS = { companyName: 'My Company'};
 	}
 	
+	if(typeof data.form == 'object'){
+		FORM = data.form;
+	}else{
+		FORM = {};
+	}
+	
 	if(typeof data.encryption == 'boolean'){
 		ENCRYPTED = data.encryption;
 	}else{
@@ -415,6 +421,7 @@ window.monkeychat.init = function(data){
 	
 	MONKEY_PREFIX = data.prefix;
 	ONCHATCLOSED = data.onChatClosed;
+	ONMESSAGE = data.onMessage;
 	
 	if(data.user){
 		//monkey.logout();
@@ -457,7 +464,9 @@ window.monkeychat.init = function(data){
 	}
 }
 window.monkeychat.show = function(){
-	monkeyChatInstance.setState({ chatOpened: true });
+	if(!monkeyChatInstance.state.chatOpened){
+		monkeyChatInstance.setState({ chatOpened: true });
+	}
 }
 
 window.onfocus = function(){
@@ -521,7 +530,7 @@ monkey.on('Connect', function(event) {
 
 		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
 			currentlyOffline = true;
-			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
+			let questionForm = <QuestionForm email={FORM.email} fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
 			monkeyChatInstance.setState({ overlayView: questionForm });
 		}
 	}
@@ -542,6 +551,9 @@ monkey.on('Exit', function(event) {
 // --------------- ON MESSAGE ----------------- //
 monkey.on('Message', function(mokMessage){
 	defineMessage(mokMessage);
+	if(ONMESSAGE){
+		ONMESSAGE();
+	}
 });
 
 // --------------- ON SYNC MESSAGE ----------------- //
