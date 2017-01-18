@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Textarea from 'react-autosize-textarea'
 import * as vars from '../utils/monkey-const.js'
+import { getCombineColor } from 'react-monkey-ui'
 var $ = require('jquery');
 
 class QuestionForm extends Component {
@@ -97,6 +98,9 @@ class QuestionForm extends Component {
 			paragraph: {}
 		};
 		if(this.context.styles){
+			if(this.context.styles.toggleColor){
+				style.paragraph.color = getCombineColor(this.context.styles.toggleColor);
+			}
 			if(this.context.styles.subtitleTextColor){
 				style.paragraph.color = this.context.styles.subtitleTextColor;
 			}
