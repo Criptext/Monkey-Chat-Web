@@ -78,6 +78,9 @@ class MonkeyChat extends React.Component {
 					onReconnect: this.handleReconnect,
 // 					description: 'La sesión con su operador ha concluido'
 				}
+			},
+			input: {
+				textPlaceholder: WIDGET_CUSTOMS.inputTextPlaceholder
 			}
 		}
 	}
@@ -365,6 +368,10 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 				store.dispatch(actions.addUserSession(user));
 			}
 			render();
+			if(WIDGET_CUSTOMS.inputTextPlaceholder){
+				monkeyChatInstance.options.input.textPlaceholder = WIDGET_CUSTOMS.inputTextPlaceholder;
+			}
+
 		});
 	}else if(monkey.getUser() != null){
 		firstTimeLogIn = false;
@@ -372,10 +379,15 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		monkey.setPrefix(MONKEY_PREFIX);
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED);
 		render();
+		if(WIDGET_CUSTOMS.inputTextPlaceholder){
+			monkeyChatInstance.options.input.textPlaceholder = WIDGET_CUSTOMS.inputTextPlaceholder;
+		}
 	}else{
 		render();
+		if(WIDGET_CUSTOMS.inputTextPlaceholder){
+			monkeyChatInstance.options.input.textPlaceholder = WIDGET_CUSTOMS.inputTextPlaceholder;
+		}
 	}
-
 }
 
 window.onfocus = function(){
