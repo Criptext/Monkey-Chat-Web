@@ -357,6 +357,10 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		if(initialUser.monkeyId == null || initialUser.monkeyId == ''){
 			initialUser.monkeyId = undefined;
 		}
+		monkeyChatInstance.setState({ // to show init loading instead of view form
+			customLoader: monkeyChatInstance.customInitLoader,
+			viewLoading: true
+		});
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
 		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED, (error, success) => {
@@ -369,10 +373,6 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 				store.dispatch(actions.addUserSession(user));
 			}
 			render();
-			monkeyChatInstance.setState({ // to show init loading instead of view form
-				customLoader: monkeyChatInstance.customInitLoader,
-				viewLoading: true
-			});
 		});
 	}else if(monkey.getUser() != null){
 		firstTimeLogIn = false;
