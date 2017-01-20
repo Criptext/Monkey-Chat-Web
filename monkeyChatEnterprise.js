@@ -94,7 +94,11 @@ class MonkeyChat extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		if(Object.keys(nextProps.store.conversations).length && this.state.conversationId == undefined){ // handle define only one conversation
 			var conversationId = nextProps.store.conversations[Object.keys(nextProps.store.conversations)[0]].id
-			this.setState({conversationId: conversationId});
+			this.setState({
+				conversationId: conversationId,
+				customLoader: this.customLoader,
+				viewLoading: false
+			});
 			if(!nextProps.store.conversations[conversationId].lastMessage && typeof WIDGET_CUSTOMS == 'object' && WIDGET_CUSTOMS.welcomeText){
 				var userIds = Object.keys(nextProps.store.users);
 				userIds.splice(userIds.indexOf(nextProps.store.users.userSession.id), 1);
@@ -365,6 +369,10 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 				store.dispatch(actions.addUserSession(user));
 			}
 			render();
+			monkeyChatInstance.setState({ // to show init loading instead of view form
+				customLoader: monkeyChatInstance.customInitLoader,
+				viewLoading: true
+			});
 		});
 	}else if(monkey.getUser() != null){
 		firstTimeLogIn = false;
