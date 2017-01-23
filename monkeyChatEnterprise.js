@@ -919,8 +919,8 @@ function loadConversations(user) {
 			    	}
 
 			    	// avatar
-			    	if(STYLES.avatar){
-				    	conversationTmp.urlAvatar = STYLES.avatar;
+			    	if(STYLES.avatar || STYLES.chatAvatar){
+				    	conversationTmp.urlAvatar = STYLES.avatar || STYLES.chatAvatar;
 			    	}
 
 			    	// define group conversation
