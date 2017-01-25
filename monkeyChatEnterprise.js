@@ -858,22 +858,11 @@ monkey.on('ConversationStatusChange', function(data){
 			conversation.lastSeen = Number(data.lastSeen)*1000;
 		}
 	}
-
-	if (typeof data.online == 'string'){
-		if(currentlyOffline){
-			conversation.description = 'Offline';
-			conversation.online = false;
-		}else if(targetConversation.info.currentOperator && data.online.indexOf(targetConversation.info.currentOperator) !== -1){
-			conversation.description = 'Online';
-		}else if(!targetConversation.info.currentOperator && data.online.length > 1) {
-			conversation.description = 'Online';
-		}else{
-			conversation.description = 'Offline';
-			conversation.online = false;
-		}
-	}else{
-		conversation.description = 'Offline';
+	
+	if(currentlyOffline){
 		conversation.online = false;
+	}else{
+		conversation.online = true;
 	}
 
 	store.dispatch(actions.updateConversationStatus(conversation));
