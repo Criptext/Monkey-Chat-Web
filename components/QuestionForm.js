@@ -11,6 +11,7 @@ class QuestionForm extends Component {
 			status: '',
 			loading: false,
 			message: '',
+			email: this.props.email,
 			errorMail: false,
 			errorText: false,
 		};
@@ -101,8 +102,8 @@ class QuestionForm extends Component {
 			if(this.context.styles.toggleColor){
 				style.paragraph.color = getCombineColor(this.context.styles.toggleColor);
 			}
-			if(this.context.styles.subtitleTextColor){
-				style.paragraph.color = this.context.styles.subtitleTextColor;
+			if(this.context.styles.chatSubtitleFontColor){
+				style.paragraph.color = this.context.styles.chatSubtitleFontColor;
 			}
 		}
 		

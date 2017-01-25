@@ -30,7 +30,7 @@ const MESSAGES_LOAD = 20;
 const EST = -300;
 const colorUsers = ['#6f067b','#00a49e','#b3007c','#b4d800','#e20068','#00b2eb','#ec870e','#84b0b9','#3a6a74','#bda700','#826aa9','#af402a','#733610','#020dd8','#7e6565','#cd7967','#fd78a7','#009f62','#336633','#e99c7a','#000000'];
 
-var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, ENCRYPTED, CONVERSATION_ID, MONKEY_PREFIX;
+var IDDIV, MONKEY_APP_ID, MONKEY_APP_SECRET, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, EXTRACHAT, WIDGET_CUSTOMS, OFFLINEFORM, ENCRYPTED, CONVERSATION_ID, MONKEY_PREFIX, ONCHATCLOSED, ONERROR, ONMESSAGE;
 var pendingMessages;
 var monkeyChatInstance;
 var mky_focused = true;
@@ -54,7 +54,8 @@ class MonkeyChat extends React.Component {
 			panelParams: {},
 			connectionStatus: 0,
 			overlayView: null,
-			customLoader: this.customInitLoader
+			customLoader: this.customInitLoader,
+			chatOpened: true
 		}
 
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -65,6 +66,7 @@ class MonkeyChat extends React.Component {
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
 		this.customInitLoader = this.customInitLoader.bind(this);
+		this.handleChatClosed = this.handleChatClosed.bind(this);
 
 		if(document.getElementById('mky-title')){
 			initialTitle = document.getElementById('mky-title').innerHTML;
@@ -78,6 +80,9 @@ class MonkeyChat extends React.Component {
 					onReconnect: this.handleReconnect,
 // 					description: 'La sesión con su operador ha concluido'
 				}
+			},
+			input: {
+				textPlaceholder: WIDGET_CUSTOMS.inputTextPlaceholder
 			}
 		}
 	}
@@ -148,11 +153,14 @@ class MonkeyChat extends React.Component {
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
-				panelParams = {this.state.panelParams}
-				onLoadMoreConversations = {this.handleLoadConversations}
-				onNotifyTyping = {this.handleNotifyTyping}
-				overlayView = {this.state.overlayView}
-				customLoader = {this.state.customLoader}/>
+				panelParams={this.state.panelParams}
+				onLoadMoreConversations={this.handleLoadConversations}
+				onNotifyTyping={this.handleNotifyTyping}
+				overlayView={this.state.overlayView}
+				customLoader={this.state.customLoader}
+				onChatClosed={this.handleChatClosed}
+				chatOpened={this.state.chatOpened}
+				chatExtraData={EXTRACHAT}/>
 		)
 	}
 
@@ -193,7 +201,14 @@ class MonkeyChat extends React.Component {
 		    });
 		}
 	}
-
+	
+	handleChatClosed() {
+		if(ONCHATCLOSED){
+			ONCHATCLOSED();
+			this.setState({ chatOpened: false });
+		}
+	}
+	
 	/* User */
 
 	handleUserSession(user) {
@@ -205,7 +220,7 @@ class MonkeyChat extends React.Component {
 		// monkey create monkeyId dynamically, when user doesn't have monkeyId.
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED, (error, success) => {
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_SECRET, user, [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED, (error, success) => {
 			this.setState({
 				customLoader: this.customLoader,
 				viewLoading: false
@@ -333,29 +348,98 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialUser, debugmode, viewchat, customStyles, customs, encrypted, monkeyPrefix){
-
-	IDDIV = divIDTag;
-	MONKEY_APP_ID = appid;
-	MONKEY_APP_KEY = appkey;
-	ACCESS_TOKEN = accessToken;
-	MONKEY_DEBUG_MODE = debugmode;
-	VIEW = viewchat;
-	STYLES = customStyles != null ? customStyles : {};
-	WIDGET_CUSTOMS = customs;
-	if(typeof encrypted === 'boolean'){
-		ENCRYPTED = encrypted;
+window.monkeychat.init = function(data){
+	if(!data.onError){
+		console.log('Required parameter \'onError\' is missing');
+		return;
+	}
+	ONERROR = data.onError;
+	
+	if(!data.containerId && data.onError){
+		ONERROR('Required parameter \'containerId\' is missing');
+		return;
+	}
+	IDDIV = data.containerId;
+	
+	if(!data.appId && data.onError){
+		ONERROR('Required parameter \'appId\' is missing');
+		return;
+	}
+	MONKEY_APP_ID = data.appId;
+	
+	if(!data.appSecret && data.onError){
+		ONERROR('Required parameter \'appSecret\' is missing');
+		return;
+	}
+	MONKEY_APP_SECRET = data.appSecret;
+	
+	if(!data.accessToken && data.onError){
+		ONERROR('Required parameter \'accessToken\' is missing');
+		return;
+	}
+	ACCESS_TOKEN = data.accessToken;
+	
+	if(typeof data.debugMode == 'boolean'){
+		MONKEY_DEBUG_MODE = data.debugMode;
+	}else{
+		MONKEY_DEBUG_MODE = false;
+	}
+	
+	if(typeof data.view == 'object'){
+		VIEW = data.view;
+	}else{
+		VIEW = { type: "classic",
+                 data: {
+                    width: "380px",
+                    height: "460px"
+                 }
+               }
+	}
+	
+	if(typeof data.style == 'object'){
+		STYLES = data.style;
+	}else{
+		STYLES = {};
+	}
+	
+	if(typeof data.login == 'object'){
+		EXTRACHAT = data.login;
+	}else{
+		EXTRACHAT = {};
+	}
+	
+	if(typeof data.custom == 'object'){
+		if(!data.custom.companyName && data.onError){
+			ONERROR('Required parameter \'custom.companyName\' is missing');
+			return;
+		}
+		WIDGET_CUSTOMS = data.custom;
+	}else{
+		WIDGET_CUSTOMS = { companyName: 'My Company'};
+	}
+	
+	if(typeof data.offlineForm == 'object'){
+		OFFLINEFORM = data.offlineForm;
+	}else{
+		OFFLINEFORM = {};
+	}
+	
+	if(typeof data.encryption == 'boolean'){
+		ENCRYPTED = data.encryption;
 	}else{
 		ENCRYPTED = true;
 	}
-	MONKEY_PREFIX = monkeyPrefix;
-
-	if(initialUser != null){
+	
+	MONKEY_PREFIX = data.prefix;
+	ONCHATCLOSED = data.onChatClosed;
+	ONMESSAGE = data.onMessage;
+	
+	if(data.user){
 		//monkey.logout();
 		store.dispatch(actions.deleteUserSession());
 		store.dispatch(actions.deleteConversations());
-		if(initialUser.monkeyId == null || initialUser.monkeyId == ''){
-			initialUser.monkeyId = undefined;
+		if(data.user.monkeyId == null || data.user.monkeyId == ''){
+			data.user.monkeyId = undefined;
 		}
 		monkeyChatInstance.setState({ // to show init loading instead of view form
 			customLoader: monkeyChatInstance.customInitLoader,
@@ -363,7 +447,7 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		});
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED, (error, success) => {
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_SECRET, data.user, [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED, (error, success) => {
 			if(error){
 				monkey.logout();
 				window.errorMsg = 'Sorry, Unable to load your data. Please wait a few minutes before trying again.'
@@ -378,12 +462,20 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		firstTimeLogIn = false;
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED);
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_SECRET, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED);
 		render();
 	}else{
 		render();
 	}
-
+	
+	if(WIDGET_CUSTOMS.inputTextPlaceholder){
+		monkeyChatInstance.options.input.textPlaceholder = WIDGET_CUSTOMS.inputTextPlaceholder;
+	}
+}
+window.monkeychat.show = function(){
+	if(!monkeyChatInstance.state.chatOpened){
+		monkeyChatInstance.setState({ chatOpened: true });
+	}
 }
 
 window.onfocus = function(){
@@ -447,7 +539,7 @@ monkey.on('Connect', function(event) {
 
 		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
 			currentlyOffline = true;
-			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
+			let questionForm = <QuestionForm email={OFFLINEFORM.email} fontColor={STYLES.toggleFontColor} color={STYLES.toggleBackgroundColor} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
 			monkeyChatInstance.setState({ overlayView: questionForm });
 		}
 	}
@@ -468,6 +560,9 @@ monkey.on('Exit', function(event) {
 // --------------- ON MESSAGE ----------------- //
 monkey.on('Message', function(mokMessage){
 	defineMessage(mokMessage);
+	if(ONMESSAGE){
+		ONMESSAGE();
+	}
 });
 
 // --------------- ON SYNC MESSAGE ----------------- //
@@ -750,7 +845,6 @@ monkey.on('ConversationStatusChange', function(data){
 			conversation.description = 'Offline';
 			conversation.online = false;
 		}
-		
 	}else{
 		conversation.description = 'Offline';
 		conversation.online = false;
@@ -938,7 +1032,7 @@ function loadConversations(user) {
 						        usersToGetInfo[id] = id;
 					        }
 				        });
-					    conversationTmp.name = typeof WIDGET_CUSTOMS == 'string' ? WIDGET_CUSTOMS : WIDGET_CUSTOMS.name;
+					    conversationTmp.name = WIDGET_CUSTOMS.companyName;
 
 			        }else{ // define personal conversation
 				        conversationTmp.lastOpenMe = undefined,
