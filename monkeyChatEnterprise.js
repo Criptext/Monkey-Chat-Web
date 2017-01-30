@@ -125,8 +125,7 @@ class MonkeyChat extends React.Component {
 			if(isConversationGroup(conversationId)){
 
 				let conversation = store.getState().conversations[conversationId];
-				//conversation['description'] = "Esperando operador...";
-				conversation['description'] = "Offline";
+				conversation['description'] = "Esperando operador...";
 				store.dispatch(actions.updateConversationStatus(conversation));
 
 				CONVERSATION_ID = conversationId;
@@ -160,6 +159,7 @@ class MonkeyChat extends React.Component {
 				customLoader={this.state.customLoader}
 				onChatClosed={this.handleChatClosed}
 				chatOpened={this.state.chatOpened}
+				connectionStatus = {this.state.connectionStatus}
 				chatExtraData={EXTRACHAT}/>
 		)
 	}
@@ -183,7 +183,8 @@ class MonkeyChat extends React.Component {
 
 			//Update the description
 			let conversation = store.getState().conversations[CONVERSATION_ID];
-			conversation['description'] = "Offline";
+			conversation['description'] = "Online";
+			conversation.online = true;
 			store.dispatch(actions.updateConversationStatus(conversation));
 
 			//Update status in server
@@ -628,20 +629,34 @@ monkey.on('StatusChange', function(data){
 		})
 		return;
 	}
+
+	let conversation = {
+		id: CONVERSATION_ID
+	}
 	
 	switch(data){
 		case OFFLINE:
 			params = {backgroundColor : 'red', color : 'white', show : true, message : 'No Internet Connection', fontSize : '15px'};
+			conversation.online = false;
+			conversation.description = 'Offline';
 			break;
 		case DISCONNECTED:
 			var reconnectDiv = <div style={{fontSize : '15px'}} onClick={ () => {monkey.startConnection()} }>You have been disconnected! Connect Here!</div>
  			params = {backgroundColor : 'black', color : 'white', show : true, message : reconnectDiv};
+ 			conversation.online = false;
+			conversation.description = 'Offline';
 			break;
 		case CONNECTING:
 			params = {backgroundColor : '#FF9900', color : 'black', show : true, message : 'Connecting...', fontSize : '15px'};
+			conversation.online = false;
+			conversation.description = 'Offline';
 			break;
 		case CONNECTED:
 			params = {backgroundColor : '#429A38', color : 'white', show : false, message : 'Connected!!', fontSize : '15px'};
+			if(!currentlyOffline){
+				conversation.online = true;
+				conversation.description = 'Online';
+			}
 			break;
 		case SYNCING:
 			params = {backgroundColor : '#ff7043', color : 'white', show : true, message : 'Syncing Messages...', fontSize : '15px'};
@@ -652,12 +667,16 @@ monkey.on('StatusChange', function(data){
 	//panelParams = {component : <ImageDummy/>, show : true, properties : params}
 
 	panelParams = params;
-
+	
+	
 	try{
 		monkeyChatInstance.setState({
 			panelParams: panelParams,
 			connectionStatus: data
-		})
+		});
+		if(CONVERSATION_ID){
+			store.dispatch(actions.updateConversationStatus(conversation));
+		}
 	}catch(err){
 
 	}
@@ -861,8 +880,10 @@ monkey.on('ConversationStatusChange', function(data){
 	
 	if(currentlyOffline){
 		conversation.online = false;
+		conversation.description = 'Offline';
 	}else{
 		conversation.online = true;
+		conversation.description = 'Online';
 	}
 
 	store.dispatch(actions.updateConversationStatus(conversation));
