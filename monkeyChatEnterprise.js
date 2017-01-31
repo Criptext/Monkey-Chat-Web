@@ -472,10 +472,15 @@ window.monkeychat.init = function(data){
 		monkeyChatInstance.options.input.textPlaceholder = WIDGET_CUSTOMS.inputTextPlaceholder;
 	}
 }
+
 window.monkeychat.show = function(){
 	if(!monkeyChatInstance.state.chatOpened){
 		monkeyChatInstance.setState({ chatOpened: true });
 	}
+}
+
+window.monkeychat.refreshOfflineForm = function() {
+	updateOfflineForm();
 }
 
 window.onfocus = function(){
@@ -484,7 +489,6 @@ window.onfocus = function(){
 	if(document.getElementById('mky-title')){
 		document.getElementById('mky-title').innerHTML = initialTitle;
 	}
-
 	monkey.openConversation(CONVERSATION_ID);
 };
 
@@ -504,6 +508,32 @@ window.onblur = function(){
 };
 
 
+function updateOfflineForm() {
+	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail && WIDGET_CUSTOMS.days){
+		let beginTime = moment(WIDGET_CUSTOMS.period.split('-')[0], 'HH:mm');
+		let endTime = moment(WIDGET_CUSTOMS.period.split('-')[1], 'HH:mm');
+
+		let beginDay = Number(WIDGET_CUSTOMS.days.split('-')[0]);
+		let endDay = Number(WIDGET_CUSTOMS.days.split('-')[1]);
+
+		let now = moment();
+		let nowDay = now.day();
+		let dif = now.utcOffset() - EST;
+
+		beginTime.add(dif, 'minutes');
+		endTime.add(dif, 'minutes');
+
+		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
+			currentlyOffline = true;
+			let questionForm = <QuestionForm email={OFFLINEFORM.email} fontColor={STYLES.toggleFontColor} color={STYLES.toggleBackgroundColor} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={store.getState().users.userSessionname} mail={WIDGET_CUSTOMS.mail}/>
+			monkeyChatInstance.setState({ overlayView: questionForm });
+		}else{
+			currentlyOffline = false;
+			monkeyChatInstance.setState({ overlayView: null });
+		}
+	}
+}
+
 // MonkeyKit
 
 // --------------- ON CONNECT ----------------- //
@@ -522,27 +552,8 @@ monkey.on('Connect', function(event) {
 	}else{
 		monkey.getPendingMessages();
 	}
-
-	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail && WIDGET_CUSTOMS.days){
-		let beginTime = moment(WIDGET_CUSTOMS.period.split('-')[0], 'HH:mm');
-		let endTime = moment(WIDGET_CUSTOMS.period.split('-')[1], 'HH:mm');
-
-		let beginDay = Number(WIDGET_CUSTOMS.days.split('-')[0]);
-		let endDay = Number(WIDGET_CUSTOMS.days.split('-')[1]);
-
-		let now = moment();
-		let nowDay = now.day();
-		let dif = now.utcOffset() - EST;
-
-		beginTime.add(dif, 'minutes');
-		endTime.add(dif, 'minutes');
-
-		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
-			currentlyOffline = true;
-			let questionForm = <QuestionForm email={OFFLINEFORM.email} fontColor={STYLES.toggleFontColor} color={STYLES.toggleBackgroundColor} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
-			monkeyChatInstance.setState({ overlayView: questionForm });
-		}
-	}
+	
+	updateOfflineForm();
 });
 
 // -------------- ON DISCONNECT --------------- //
@@ -601,8 +612,7 @@ monkey.on('StatusChange', function(data){
 		})
 		return;
 	}
-
-
+	
 	switch(data){
 		case OFFLINE:
 			params = {backgroundColor : 'red', color : 'white', show : true, message : 'No Internet Connection', fontSize : '15px'};
@@ -1563,6 +1573,7 @@ function createPush(conversationId, bubbleType) {
     return monkey.generateLocalizedPush(locKey, locArgs, text);
 }
 
+// MonkeyChat: Utils
 function listMembers(members){
 	var list;
 	if(typeof members == 'string'){
