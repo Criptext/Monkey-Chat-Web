@@ -531,6 +531,22 @@ function updateOfflineForm() {
 			currentlyOffline = false;
 			monkeyChatInstance.setState({ overlayView: null });
 		}
+		
+		if (store.getState().conversations[CONVERSATION_ID]) {
+			let conversation = {
+				id: CONVERSATION_ID
+			}
+			
+			if(currentlyOffline){
+				conversation.online = false;
+				conversation.description = 'Offline';
+			}else{
+				conversation.online = true;
+				conversation.description = 'Online';
+			}
+		
+			store.dispatch(actions.updateConversationStatus(conversation));
+		}
 	}
 }
 
