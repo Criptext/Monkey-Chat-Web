@@ -1275,6 +1275,19 @@ function createMessage(message) {
 			store.dispatch(actions.addMessage(message, message.recipientId, false));
 			break;
 		}
+		case 'imagelink': { // bubble imagelink
+			let push = createPush(message.recipientId, message.bubbleType);
+			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
+			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
+			let mokMessage = null;
+			mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
+			break;
+		}
 	}
 
 }
@@ -1369,8 +1382,14 @@ function defineBubbleMessage(mokMessage){
 		    	message.preview = 'Audio';
 		    	message.length = mokMessage.params ? mokMessage.params.length : 1;
 	    	}else if(mokMessage.props.file_type == 3){
-		    	message.bubbleType = 'image';
-		    	message.preview = 'Image';
+		    	if(mokMessage.params.type == 1) {
+			    	message.bubbleType = 'imagelink';
+					message.preview = 'Image';
+					message.link = 'https://www.criptext.com';
+		    	}else{
+			    	message.bubbleType = 'image';
+					message.preview = 'Image';
+		    	}
 	    	}else if(mokMessage.props.file_type == 4){
 		    	message.bubbleType = 'file';
 		    	message.preview = 'File';
@@ -1419,7 +1438,7 @@ function toDownloadMessageData(mokMessage){
 		        store.dispatch(actions.updateMessageData(message, conversationId));
 			});
 			break;
-		case 3: // image
+		case 3: // image - imagelink
 			monkey.downloadFile(mokMessage, function(err, data){
 				let message = {
 					id: mokMessage.id,
@@ -1583,6 +1602,10 @@ function createPush(conversationId, bubbleType) {
             text = username+'an audio';
             break;
         case 'image': // image message
+            locKey = locKey+'imageKey';
+            text = username+'an image';
+            break;
+        case 'imagelink': // image link
             locKey = locKey+'imageKey';
             text = username+'an image';
             break;
