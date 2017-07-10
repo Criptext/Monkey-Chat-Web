@@ -27,16 +27,23 @@ const CONNECTED = 3;
 const SYNCING = 4;
 const CONVERSATIONS_LOAD = 20;
 const MESSAGES_LOAD = 20;
-const EST = -240;
+const EST = -300;
 const colorUsers = ['#6f067b','#00a49e','#b3007c','#b4d800','#e20068','#00b2eb','#ec870e','#84b0b9','#3a6a74','#bda700','#826aa9','#af402a','#733610','#020dd8','#7e6565','#cd7967','#fd78a7','#009f62','#336633','#e99c7a','#000000'];
 
-var IDDIV, MONKEY_APP_ID, MONKEY_APP_KEY, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, WIDGET_CUSTOMS, ENCRYPTED, CONVERSATION_ID, MONKEY_PREFIX;
+var IDDIV, MONKEY_APP_ID, MONKEY_APP_SECRET, MONKEY_DEBUG_MODE, ACCESS_TOKEN, VIEW, STYLES, EXTRACHAT, WIDGET_CUSTOMS, OFFLINEFORM, ENCRYPTED, CONVERSATION_ID, MONKEY_PREFIX, ONCHATCLOSED, ONERROR, ONMESSAGE;
 var pendingMessages;
 var monkeyChatInstance;
 var mky_focused = true;
 var firstTimeLogIn = true;
 var initialTitle = '';
+var currentlyOffline = false;
 var $ = require('jquery');
+
+/* IE compatibility */
+var ie = navigator.userAgent.match(/MSIE\s([\d.]+)/),
+ie11 = navigator.userAgent.match(/Trident\/7.0/) && navigator.userAgent.match(/rv:11/),
+ieEDGE = navigator.userAgent.match(/Edge/g),
+ieVer=(ie ? ie[1] : (ie11 ? 11 : (ieEDGE ? 12 : -1)));
 
 class MonkeyChat extends React.Component {
 	constructor(props){
@@ -47,7 +54,8 @@ class MonkeyChat extends React.Component {
 			panelParams: {},
 			connectionStatus: 0,
 			overlayView: null,
-			customeLoader: this.customInitLoader
+			customLoader: this.customInitLoader,
+			chatOpened: true
 		}
 
 		this.handleUserSession = this.handleUserSession.bind(this);
@@ -57,8 +65,8 @@ class MonkeyChat extends React.Component {
 		this.handleMessageDownloadData = this.handleMessageDownloadData.bind(this);
 		this.handleMessageGetUser = this.handleMessageGetUser.bind(this);
 		this.handleConversationExitButton = this.handleConversationExitButton.bind(this);
-		this.handleMessageAfterMail = this.handleMessageAfterMail.bind(this);
 		this.customInitLoader = this.customInitLoader.bind(this);
+		this.handleChatClosed = this.handleChatClosed.bind(this);
 
 		if(document.getElementById('mky-title')){
 			initialTitle = document.getElementById('mky-title').innerHTML;
@@ -72,6 +80,9 @@ class MonkeyChat extends React.Component {
 					onReconnect: this.handleReconnect,
 // 					description: 'La sesión con su operador ha concluido'
 				}
+			},
+			input: {
+				textPlaceholder: WIDGET_CUSTOMS.inputTextPlaceholder
 			}
 		}
 	}
@@ -88,7 +99,11 @@ class MonkeyChat extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		if(Object.keys(nextProps.store.conversations).length && this.state.conversationId == undefined){ // handle define only one conversation
 			var conversationId = nextProps.store.conversations[Object.keys(nextProps.store.conversations)[0]].id
-			this.setState({conversationId: conversationId});
+			this.setState({
+				conversationId: conversationId,
+				customLoader: this.customLoader,
+				viewLoading: false
+			});
 			if(!nextProps.store.conversations[conversationId].lastMessage && typeof WIDGET_CUSTOMS == 'object' && WIDGET_CUSTOMS.welcomeText){
 				var userIds = Object.keys(nextProps.store.users);
 				userIds.splice(userIds.indexOf(nextProps.store.users.userSession.id), 1);
@@ -110,9 +125,7 @@ class MonkeyChat extends React.Component {
 			if(isConversationGroup(conversationId)){
 
 				let conversation = store.getState().conversations[conversationId];
-				//conversation['description'] = "Esperando operador...";
-				let members = listMembers(conversation.members);
-				conversation['description'] = members;
+				conversation['description'] = "Esperando operador...";
 				store.dispatch(actions.updateConversationStatus(conversation));
 
 				CONVERSATION_ID = conversationId;
@@ -139,11 +152,15 @@ class MonkeyChat extends React.Component {
 				onMessage={this.handleMessage}
 				onMessageDownloadData={this.handleMessageDownloadData}
 				onMessageGetUser={this.handleMessageGetUser}
-				panelParams = {this.state.panelParams}
-				onLoadMoreConversations = {this.handleLoadConversations}
-				onNotifyTyping = {this.handleNotifyTyping}
-				overlayView = {this.state.overlayView}
-				customLoader = {this.state.customLoader}/>
+				panelParams={this.state.panelParams}
+				onLoadMoreConversations={this.handleLoadConversations}
+				onNotifyTyping={this.handleNotifyTyping}
+				overlayView={this.state.overlayView}
+				customLoader={this.state.customLoader}
+				onChatClosed={this.handleChatClosed}
+				chatOpened={this.state.chatOpened}
+				connectionStatus = {this.state.connectionStatus}
+				chatExtraData={EXTRACHAT}/>
 		)
 	}
 
@@ -166,8 +183,8 @@ class MonkeyChat extends React.Component {
 
 			//Update the description
 			let conversation = store.getState().conversations[CONVERSATION_ID];
-			let members = listMembers(conversation.members);
-			conversation['description'] = members;
+			conversation['description'] = "Online";
+			conversation.online = true;
 			store.dispatch(actions.updateConversationStatus(conversation));
 
 			//Update status in server
@@ -179,12 +196,20 @@ class MonkeyChat extends React.Component {
 		            console.log(err);
 		            return;
 		        }else{
+		        	monkey.sendOpenToUser(CONVERSATION_ID);
 			        this.setState({ overlayView: null });
 		        }
 		    });
 		}
 	}
-
+	
+	handleChatClosed() {
+		if(ONCHATCLOSED){
+			ONCHATCLOSED();
+			this.setState({ chatOpened: false });
+		}
+	}
+	
 	/* User */
 
 	handleUserSession(user) {
@@ -196,7 +221,7 @@ class MonkeyChat extends React.Component {
 		// monkey create monkeyId dynamically, when user doesn't have monkeyId.
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, user, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_SECRET, user, [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED, (error, success) => {
 			this.setState({
 				customLoader: this.customLoader,
 				viewLoading: false
@@ -214,23 +239,11 @@ class MonkeyChat extends React.Component {
 
 	handleConversationOpened(conversation) {
 		monkey.sendOpenToUser(conversation.id);
-
-		if(isConversationGroup(conversation.id)){
-			let members = listMembers(store.getState().conversations[conversation.id].members);
-			conversation['description'] = members;
-			store.dispatch(actions.updateConversationStatus(conversation));
-		}
 	}
 
 	/* Message */
 
 	handleMessage(message) {
-		createMessage(message);
-	}
-
-	handleMessageAfterMail(message) {
-		message.recipientId = CONVERSATION_ID;
-		message.senderId = store.getState().users.userSession.id;
 		createMessage(message);
 	}
 
@@ -336,33 +349,106 @@ function render() {
 store.subscribe(render);
 
 window.monkeychat = {};
-window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialUser, debugmode, viewchat, customStyles, customs, encrypted, monkeyPrefix){
-
-	IDDIV = divIDTag;
-	MONKEY_APP_ID = appid;
-	MONKEY_APP_KEY = appkey;
-	ACCESS_TOKEN = accessToken;
-	MONKEY_DEBUG_MODE = debugmode;
-	VIEW = viewchat;
-	STYLES = customStyles != null ? customStyles : {};
-	WIDGET_CUSTOMS = customs;
-	if(typeof encrypted === 'boolean'){
-		ENCRYPTED = encrypted;
+window.monkeychat.init = function(data){
+	if(!data.onError){
+		console.log('Required parameter \'onError\' is missing');
+		return;
+	}
+	ONERROR = data.onError;
+	
+	if(!data.containerId && data.onError){
+		ONERROR('Required parameter \'containerId\' is missing');
+		return;
+	}
+	IDDIV = data.containerId;
+	
+	if(!data.appId && data.onError){
+		ONERROR('Required parameter \'appId\' is missing');
+		return;
+	}
+	MONKEY_APP_ID = data.appId;
+	
+	if(!data.appSecret && data.onError){
+		ONERROR('Required parameter \'appSecret\' is missing');
+		return;
+	}
+	MONKEY_APP_SECRET = data.appSecret;
+	
+	if(!data.accessToken && data.onError){
+		ONERROR('Required parameter \'accessToken\' is missing');
+		return;
+	}
+	ACCESS_TOKEN = data.accessToken;
+	
+	if(typeof data.debugMode == 'boolean'){
+		MONKEY_DEBUG_MODE = data.debugMode;
+	}else{
+		MONKEY_DEBUG_MODE = false;
+	}
+	
+	if(typeof data.view == 'object'){
+		VIEW = data.view;
+	}else{
+		VIEW = { type: "classic",
+                 data: {
+                    width: "380px",
+                    height: "460px"
+                 }
+               }
+	}
+	
+	if(typeof data.style == 'object'){
+		STYLES = data.style;
+	}else{
+		STYLES = {};
+	}
+	
+	if(typeof data.login == 'object'){
+		EXTRACHAT = data.login;
+	}else{
+		EXTRACHAT = {};
+	}
+	
+	if(typeof data.custom == 'object'){
+		if(!data.custom.companyName && data.onError){
+			ONERROR('Required parameter \'custom.companyName\' is missing');
+			return;
+		}
+		WIDGET_CUSTOMS = data.custom;
+	}else{
+		WIDGET_CUSTOMS = { companyName: 'My Company'};
+	}
+	
+	if(typeof data.offlineForm == 'object'){
+		OFFLINEFORM = data.offlineForm;
+	}else{
+		OFFLINEFORM = {};
+	}
+	
+	if(typeof data.encryption == 'boolean'){
+		ENCRYPTED = data.encryption;
 	}else{
 		ENCRYPTED = true;
 	}
-	MONKEY_PREFIX = monkeyPrefix;
-
-	if(initialUser != null){
+	
+	MONKEY_PREFIX = data.prefix;
+	ONCHATCLOSED = data.onChatClosed;
+	ONMESSAGE = data.onMessage;
+	
+	if(data.user){
 		//monkey.logout();
 		store.dispatch(actions.deleteUserSession());
 		store.dispatch(actions.deleteConversations());
-		if(initialUser.monkeyId == null || initialUser.monkeyId == ''){
-			initialUser.monkeyId = undefined;
+		if(data.user.monkeyId == null || data.user.monkeyId == ''){
+			data.user.monkeyId = undefined;
 		}
+		monkeyChatInstance.setState({ // to show init loading instead of view form
+			customLoader: monkeyChatInstance.customInitLoader,
+			viewLoading: true
+		});
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, initialUser, [], false, MONKEY_DEBUG_MODE, false, false, (error, success) => {
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_SECRET, data.user, [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED, (error, success) => {
 			if(error){
 				monkey.logout();
 				window.errorMsg = 'Sorry, Unable to load your data. Please wait a few minutes before trying again.'
@@ -377,12 +463,25 @@ window.monkeychat.init = function(divIDTag, appid, appkey, accessToken, initialU
 		firstTimeLogIn = false;
 		// monkey set prefix
 		monkey.setPrefix(MONKEY_PREFIX);
-		monkey.init(MONKEY_APP_ID, MONKEY_APP_KEY, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false);
+		monkey.init(MONKEY_APP_ID, MONKEY_APP_SECRET, monkey.getUser(), [], false, MONKEY_DEBUG_MODE, false, false, ENCRYPTED);
 		render();
 	}else{
 		render();
 	}
+	
+	if(WIDGET_CUSTOMS.inputTextPlaceholder){
+		monkeyChatInstance.options.input.textPlaceholder = WIDGET_CUSTOMS.inputTextPlaceholder;
+	}
+}
 
+window.monkeychat.show = function(){
+	if(!monkeyChatInstance.state.chatOpened){
+		monkeyChatInstance.setState({ chatOpened: true });
+	}
+}
+
+window.monkeychat.refreshOfflineForm = function() {
+	updateOfflineForm();
 }
 
 window.onfocus = function(){
@@ -391,7 +490,6 @@ window.onfocus = function(){
 	if(document.getElementById('mky-title')){
 		document.getElementById('mky-title').innerHTML = initialTitle;
 	}
-
 	monkey.openConversation(CONVERSATION_ID);
 };
 
@@ -411,6 +509,48 @@ window.onblur = function(){
 };
 
 
+function updateOfflineForm() {
+	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail && WIDGET_CUSTOMS.days){
+		let beginTime = moment(WIDGET_CUSTOMS.period.split('-')[0], 'HH:mm');
+		let endTime = moment(WIDGET_CUSTOMS.period.split('-')[1], 'HH:mm');
+
+		let beginDay = Number(WIDGET_CUSTOMS.days.split('-')[0]);
+		let endDay = Number(WIDGET_CUSTOMS.days.split('-')[1]);
+
+		let now = moment();
+		let nowDay = now.day();
+		let dif = now.utcOffset() - EST;
+
+		beginTime.add(dif, 'minutes');
+		endTime.add(dif, 'minutes');
+
+		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
+			currentlyOffline = true;
+			let questionForm = <QuestionForm email={OFFLINEFORM.email} fontColor={STYLES.toggleFontColor} color={STYLES.toggleBackgroundColor} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={store.getState().users.userSessionname} mail={WIDGET_CUSTOMS.mail}/>
+			monkeyChatInstance.setState({ overlayView: questionForm });
+		}else{
+			currentlyOffline = false;
+			monkeyChatInstance.setState({ overlayView: null });
+		}
+		
+		if (store.getState().conversations[CONVERSATION_ID]) {
+			let conversation = {
+				id: CONVERSATION_ID
+			}
+			
+			if(currentlyOffline){
+				conversation.online = false;
+				conversation.description = 'Offline';
+			}else{
+				conversation.online = true;
+				conversation.description = 'Online';
+			}
+		
+			store.dispatch(actions.updateConversationStatus(conversation));
+		}
+	}
+}
+
 // MonkeyKit
 
 // --------------- ON CONNECT ----------------- //
@@ -429,26 +569,8 @@ monkey.on('Connect', function(event) {
 	}else{
 		monkey.getPendingMessages();
 	}
-
-	if(WIDGET_CUSTOMS && WIDGET_CUSTOMS.period && WIDGET_CUSTOMS.mail && WIDGET_CUSTOMS.days){
-		let beginTime = moment(WIDGET_CUSTOMS.period.split('-')[0], 'HH:mm');
-		let endTime = moment(WIDGET_CUSTOMS.period.split('-')[1], 'HH:mm');
-
-		let beginDay = Number(WIDGET_CUSTOMS.days.split('-')[0]);
-		let endDay = Number(WIDGET_CUSTOMS.days.split('-')[1]);
-
-		let now = moment();
-		let nowDay = now.day();
-		let dif = now.utcOffset() - EST;
-
-		beginTime.add(dif, 'minutes');
-		endTime.add(dif, 'minutes');
-
-		if( endTime.isBefore(now) || beginTime.isAfter(now) || nowDay > endDay || nowDay < beginDay ){
-			let questionForm = <QuestionForm fontColor={STYLES.tabTextColor} color={STYLES.toggleColor} sendMessage={monkeyChatInstance.handleMessageAfterMail} beginDay={moment().day(beginDay).format('dddd')} endDay={moment().day(endDay).format('dddd')} period={beginTime.format('H:mmA') + ' - ' + endTime.format('H:mmA')} name={user.name} mail={WIDGET_CUSTOMS.mail}/>
-			monkeyChatInstance.setState({ overlayView: questionForm });
-		}
-	}
+	
+	updateOfflineForm();
 });
 
 // -------------- ON DISCONNECT --------------- //
@@ -466,6 +588,9 @@ monkey.on('Exit', function(event) {
 // --------------- ON MESSAGE ----------------- //
 monkey.on('Message', function(mokMessage){
 	defineMessage(mokMessage);
+	if(ONMESSAGE){
+		ONMESSAGE();
+	}
 });
 
 // --------------- ON SYNC MESSAGE ----------------- //
@@ -505,20 +630,33 @@ monkey.on('StatusChange', function(data){
 		return;
 	}
 
-
+	let conversation = {
+		id: CONVERSATION_ID
+	}
+	
 	switch(data){
 		case OFFLINE:
 			params = {backgroundColor : 'red', color : 'white', show : true, message : 'No Internet Connection', fontSize : '15px'};
+			conversation.online = false;
+			conversation.description = 'Offline';
 			break;
 		case DISCONNECTED:
 			var reconnectDiv = <div style={{fontSize : '15px'}} onClick={ () => {monkey.startConnection()} }>You have been disconnected! Connect Here!</div>
  			params = {backgroundColor : 'black', color : 'white', show : true, message : reconnectDiv};
+ 			conversation.online = false;
+			conversation.description = 'Offline';
 			break;
 		case CONNECTING:
 			params = {backgroundColor : '#FF9900', color : 'black', show : true, message : 'Connecting...', fontSize : '15px'};
+			conversation.online = false;
+			conversation.description = 'Offline';
 			break;
 		case CONNECTED:
 			params = {backgroundColor : '#429A38', color : 'white', show : false, message : 'Connected!!', fontSize : '15px'};
+			if(!currentlyOffline){
+				conversation.online = true;
+				conversation.description = 'Online';
+			}
 			break;
 		case SYNCING:
 			params = {backgroundColor : '#ff7043', color : 'white', show : true, message : 'Syncing Messages...', fontSize : '15px'};
@@ -529,12 +667,16 @@ monkey.on('StatusChange', function(data){
 	//panelParams = {component : <ImageDummy/>, show : true, properties : params}
 
 	panelParams = params;
-
+	
+	
 	try{
 		monkeyChatInstance.setState({
 			panelParams: panelParams,
 			connectionStatus: data
-		})
+		});
+		if(CONVERSATION_ID){
+			store.dispatch(actions.updateConversationStatus(conversation));
+		}
 	}catch(err){
 
 	}
@@ -583,7 +725,7 @@ monkey.on('Notification', function(data){
 					}
 
 				}else{
-					var members = listMembers(conversation.members);
+					var members = "Online";
 					descText = members;
 				}
 				conversationTmp = {
@@ -640,7 +782,7 @@ monkey.on('Notification', function(data){
 						descText += ' está escribiendo...'
 					}
 				}else{
-					var members = listMembers(conversation.members);
+					var members = "Online";
 					descText = members;
 				}
 				conversationTmp = {
@@ -735,11 +877,13 @@ monkey.on('ConversationStatusChange', function(data){
 			conversation.lastSeen = Number(data.lastSeen)*1000;
 		}
 	}
-
-	if (typeof data.online == 'string' && data.online.indexOf(targetConversation.info.currentOperator) !== -1){
-		conversation.description = 'Online';
-	}else{
+	
+	if(currentlyOffline){
+		conversation.online = false;
 		conversation.description = 'Offline';
+	}else{
+		conversation.online = true;
+		conversation.description = 'Online';
 	}
 
 	store.dispatch(actions.updateConversationStatus(conversation));
@@ -761,7 +905,7 @@ monkey.on('ConversationOpen', function(data){
 		return;
 
 	if(isConversationGroup(conversationId)){
-		if(conversation.info.currentOperator == data.senderId){
+		if(conversation.info.currentOperator == data.senderId && !currentlyOffline){
 			let conversationTmp = {
 				id: conversationId,
 				description: 'Online'
@@ -832,7 +976,7 @@ monkey.on('GroupInfoUpdate', function(data){
 		let reconnect = <Reconnect onReconnect={monkeyChatInstance.handleReconnect}/>
 		monkeyChatInstance.setState({ overlayView: reconnect });
 		let conversation = store.getState().conversations[CONVERSATION_ID];
-		conversation['description'] = 'Conversation ended, write to start again.';
+		conversation['description'] = 'Conversation ended';
 		store.dispatch(actions.updateConversationStatus(conversation));
 	}
 
@@ -908,8 +1052,8 @@ function loadConversations(user) {
 			    	}
 
 			    	// avatar
-			    	if(STYLES.avatar){
-				    	conversationTmp.urlAvatar = STYLES.avatar;
+			    	if(STYLES.avatar || STYLES.chatAvatar){
+				    	conversationTmp.urlAvatar = STYLES.avatar || STYLES.chatAvatar;
 			    	}
 
 			    	// define group conversation
@@ -924,7 +1068,7 @@ function loadConversations(user) {
 						        usersToGetInfo[id] = id;
 					        }
 				        });
-					    conversationTmp.name = typeof WIDGET_CUSTOMS == 'string' ? WIDGET_CUSTOMS : WIDGET_CUSTOMS.name;
+					    conversationTmp.name = WIDGET_CUSTOMS.companyName;
 
 			        }else{ // define personal conversation
 				        conversationTmp.lastOpenMe = undefined,
@@ -1088,11 +1232,7 @@ function createMessage(message) {
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			let mokMessage = null;
-			if(ENCRYPTED){
-				mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
-			}else{
-				mokMessage = monkey.sendFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
-			}
+			mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
@@ -1105,21 +1245,13 @@ function createMessage(message) {
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			let mokMessage = null;
-			if(ENCRYPTED){
-				mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, push);
-			}else{
-				mokMessage = monkey.sendFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, push);
-			}
+			mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 4, true, null, push);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
 			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
-
-			var ie = navigator.userAgent.match(/MSIE\s([\d.]+)/),
-				ie11 = navigator.userAgent.match(/Trident\/7.0/) && navigator.userAgent.match(/rv:11/),
-				ieEDGE = navigator.userAgent.match(/Edge/g),
-				ieVer=(ie ? ie[1] : (ie11 ? 11 : (ieEDGE ? 12 : -1)));
-
+			
+			/* IE compatibility */
 			if (ie && ieVer<10) {
 				console.log("No blobs on IE ver<10");
 			}else if(ieVer>-1){
@@ -1135,11 +1267,20 @@ function createMessage(message) {
 			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
 			let mokMessage = null;
-			if(ENCRYPTED){
-				mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, push);
-			}else{
-				mokMessage = monkey.sendFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, push);
-			}
+			mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, 'audioTmp.mp3', message.mimetype, 1, true, {length: message.length}, push);
+			message.id = mokMessage.id;
+			message.oldId = mokMessage.oldId;
+			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
+			message.datetimeOrder = Number(mokMessage.datetimeOrder*1000);
+			store.dispatch(actions.addMessage(message, message.recipientId, false));
+			break;
+		}
+		case 'imagelink': { // bubble imagelink
+			let push = createPush(message.recipientId, message.bubbleType);
+			push.andData['session-id'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
+			push.iosData['category'] = isConversationGroup(message.recipientId) ? message.recipientId : store.getState().users.userSession.id;
+			let mokMessage = null;
+			mokMessage = monkey.sendEncryptedFile(message.data, message.recipientId, message.filename, message.mimetype, 3, true, null, push);
 			message.id = mokMessage.id;
 			message.oldId = mokMessage.oldId;
 			message.datetimeCreation = Number(mokMessage.datetimeCreation*1000);
@@ -1241,8 +1382,14 @@ function defineBubbleMessage(mokMessage){
 		    	message.preview = 'Audio';
 		    	message.length = mokMessage.params ? mokMessage.params.length : 1;
 	    	}else if(mokMessage.props.file_type == 3){
-		    	message.bubbleType = 'image';
-		    	message.preview = 'Image';
+		    	if(mokMessage.params.type == 1) {
+			    	message.bubbleType = 'imagelink';
+					message.preview = 'Image';
+					message.link = 'https://www.criptext.com';
+		    	}else{
+			    	message.bubbleType = 'image';
+					message.preview = 'Image';
+		    	}
 	    	}else if(mokMessage.props.file_type == 4){
 		    	message.bubbleType = 'file';
 		    	message.preview = 'File';
@@ -1291,7 +1438,7 @@ function toDownloadMessageData(mokMessage){
 		        store.dispatch(actions.updateMessageData(message, conversationId));
 			});
 			break;
-		case 3: // image
+		case 3: // image - imagelink
 			monkey.downloadFile(mokMessage, function(err, data){
 				let message = {
 					id: mokMessage.id,
@@ -1324,12 +1471,8 @@ function toDownloadMessageData(mokMessage){
 				//let src = `data:${mokMessage.props.mime_type};base64,${data}`;
 				var blob = base64toBlob(data, mokMessage.props.mime_type);
 				var url;
-
-				var ie = navigator.userAgent.match(/MSIE\s([\d.]+)/),
-				ie11 = navigator.userAgent.match(/Trident\/7.0/) && navigator.userAgent.match(/rv:11/),
-				ieEDGE = navigator.userAgent.match(/Edge/g),
-				ieVer=(ie ? ie[1] : (ie11 ? 11 : (ieEDGE ? 12 : -1)));
-
+				
+				/* IE compatibility */
 				if (ie && ieVer<10) {
 					console.log("No blobs on IE ver<10");
 					return;
@@ -1435,55 +1578,51 @@ function apiCriptextCall(params, type, endpoint, callback){
 function createPush(conversationId, bubbleType) {
 
 	const username = store.getState().users.userSession.name;
-    let pushLocalization;
     let text;
 	let locArgs;
+	let locKey = 'push';
 
-    if (!isConversationGroup(conversationId)) {
-	    locArgs = [username];
-        switch(bubbleType) {
-            case 'text': // text message
-                pushLocalization = 'pushtextKey';
-                text = username+' sent you a message';
-                break;
-            case 'audio': // audio message
-                pushLocalization = 'pushaudioKey';
-                text = username+' sent you an audio';
-                break;
-            case 'image': // image message
-                pushLocalization = 'pushimageKey';
-                text = username+' sent you an image';
-                break;
-            case 'file': // file message
-                pushLocalization = 'pushfileKey';
-                text = username+' sent you a file';
-                break;
-        }
-    }else{ // to group
-	    var groupName = store.getState().conversations[conversationId].name;
+	if (isConversationGroup(conversationId)) {
+		var groupName = store.getState().conversations[conversationId].name;
 	    locArgs = [username, groupName];
-        switch(bubbleType){
-            case 'text': // text message
-                pushLocalization = 'grouppushtextKey';
-                text = username+' sent a message to';
-                break;
-            case 'audio': // audio message
-                pushLocalization = 'grouppushaudioKey';
-                text = username+' sent an audio to';
-                break;
-            case 'image': // image message
-                pushLocalization = 'grouppushimageKey';
-                text = username+' sent an image to';
-                break;
-            case 'file': // file message
-                pushLocalization = 'grouppushfileKey';
-                text = username+' sent a file to';
-                break;
-        }
+	    locKey = 'group'+locKey;
+	    text = username+' sent ';
+	}else {
+		locArgs = [username];
+		text = username+' sent you ';
+	}
+	
+	switch(bubbleType) {
+        case 'text': // text message
+            locKey = locKey+'textKey';
+            text = text+'a message';
+            break;
+        case 'audio': // audio message
+            locKey = locKey+'audioKey';
+            text = username+'an audio';
+            break;
+        case 'image': // image message
+            locKey = locKey+'imageKey';
+            text = username+'an image';
+            break;
+        case 'imagelink': // image link
+            locKey = locKey+'imageKey';
+            text = username+'an image';
+            break;
+        case 'file': // file message
+            locKey = locKey+'fileKey';
+            text = username+'a file';
+            break;
     }
-    return monkey.generateLocalizedPush(pushLocalization, locArgs, text);
+
+	if (isConversationGroup(conversationId)) {
+		text = text+' to';
+	}
+	
+    return monkey.generateLocalizedPush(locKey, locArgs, text);
 }
 
+// MonkeyChat: Utils
 function listMembers(members){
 	var list;
 	if(typeof members == 'string'){

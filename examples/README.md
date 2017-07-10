@@ -3,7 +3,7 @@
 Monkey-Chat-Web is distributed with a few examples in its source code.
 
 ## Download
-```
+```sh
 git clone https://github.com/Criptext/MonkeyChat-Web.git
 ```
 
